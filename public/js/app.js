@@ -1,0 +1,1 @@
+angular.module('discountApp', ['ngRoute', 'appRoutes', 'MainCtrl', 'LocationCtrl', 'LocationSrv']);
