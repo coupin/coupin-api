@@ -5,19 +5,20 @@ module.exports = function(app) {
     // server routes
 
     // get all locations
-    app.get('api/locations', function(req, res) {
+    app.get('/api/locations', function(req, res) {
         // get all from the database using mongoose
-        Location.find(function(err, locations) {
-            // send back error if any
-            if(err)
-                res.send(err);
+        // Location.find(function(err, locations) {
+        //     // send back error if any
+        //     if(err)
+        //         res.send(err);
             
-            // return all locations
-            res.json(locations);
-        });
+        //     // return all locations
+        //     res.json(locations);
+        // });
+        res.send({message: 'Got to the api!'});
     });
 
-    app.get('api/locations/:location_id', function(req, res) {
+    app.get('/api/locations/:location_id', function(req, res) {
         // get all from the database using mongoose
         Location.findById(req.params.location_id, function(err, location) {
             // send back error if any
@@ -29,7 +30,7 @@ module.exports = function(app) {
         });
     });
 
-    app.delete('api/locations/:location_id', function(req, res) {
+    app.delete('/api/locations/:location_id', function(req, res) {
         // get all from the database using mongoose
         Location.remove({
             _id: req.params.location_id
@@ -67,7 +68,7 @@ module.exports = function(app) {
 
     // frontend routers
     // routes to handle all angular requests
-    app.get('*', function(req, res) {
+    app.get('/', function(req, res) {
         // load the index page
         res.sendfile('./public/views/index.html');
     });

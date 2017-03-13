@@ -38,6 +38,7 @@ app.use(express.static(__dirname + '/public'));
 
 // routes
 
+
 // configure our routes
 require('./app/routes')(app);
 
