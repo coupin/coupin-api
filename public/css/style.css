@@ -1,0 +1,37 @@
+.login-box {
+    border-radius: 20px;
+    height: 400px;
+    margin: auto;
+    margin-top: 5%;
+    min-height: 400px;
+    min-width: 400px;
+    width: 400px;
+    /*Shadow*/
+    box-shadow: 2px 3px 3px gray;
+}
+
+.login-form {
+    margin: 10%;
+}
+
+/*General Styling*/
+.custom, .custom:active , .custom:focus {
+    background: #E3C313;
+    border: #E3C313;
+    color: black;
+    outline: none;
+}
+
+.custom:hover {
+    background: #E38F13;
+    border: #E38F13;
+    color: black;
+    outline: none;
+}
+
+.space-20 {
+    margin-bottom: 5%;
+    margin-left: 20%;
+    margin-top: 5%;
+}
+/*General Styling End*/

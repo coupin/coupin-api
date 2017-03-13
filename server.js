@@ -8,19 +8,22 @@ var methodOverride = require('method-override');
 var mongoose = require('mongoose');
 
 // Configuration
-var db = require('./config/db');
+var db = require('./config/db').module;
 
 // set our port
 var port = process.env.PORT || 3030;
 
 // connect to db
-// mongoose.connect(db.url);
+mongoose.connect(db.url);
 
 /**
  * get all data of the body parameters
  * parse application/json
  */
 app.use(bodyParser.json());
+
+// Allow data in url encoded format
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // parse application/vnd.api+json as json
 app.use(bodyParser.json({

@@ -7,15 +7,14 @@ module.exports = function(app) {
     // get all locations
     app.get('/api/locations', function(req, res) {
         // get all from the database using mongoose
-        // Location.find(function(err, locations) {
-        //     // send back error if any
-        //     if(err)
-        //         res.send(err);
+        Location.find(function(err, locations) {
+            // send back error if any
+            if(err)
+                res.send(err);
             
-        //     // return all locations
-        //     res.json(locations);
-        // });
-        res.send({message: 'Got to the api!'});
+            // return all locations
+            res.json(locations);
+        });
     });
 
     app.get('/api/locations/:location_id', function(req, res) {
@@ -44,7 +43,7 @@ module.exports = function(app) {
         });
     });
 
-    app.post('api/locations', function(req, res) {
+    app.post('/api/locations', function(req, res) {
         // save location
         var location = new Location();
 
@@ -56,7 +55,7 @@ module.exports = function(app) {
             latitude: req.body.latitude,
             longitude: req.body.longitude
         };
-        location.isActive = req.body.isActive;
+        location.isActive = req.body.isActive | false;
 
         location.save(function(err) {
             if(err)
