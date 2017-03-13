@@ -1,5 +1,7 @@
 // models
 var Location = require('./models/location');
+var User = require('./models/user');
+var Util = require('./utils').module;
 
 module.exports = function(app) {
     // server routes
@@ -64,6 +66,30 @@ module.exports = function(app) {
             res.json({message: 'Location Created!'});
         });
     });
+    
+    // User api routes
+    app.get('/api/user', function(req, res) {
+        User.find(function(req, users) {
+            res.json(users);
+        });
+    });
+    
+    app.post('/api/user', function(req, res){
+        var user = new User();
+
+        user.username = req.body.username;
+        if(!Util.isEmpty(req.body.password))
+            user.password = Util.encryptPassword(req.body.password);
+        user.email = req.body.email;
+
+        user.save(function(err, user){
+            if(err) {
+                res.send(err);
+            } else {
+                res.json({message: "User Created"});
+            }
+        });
+    });
 
     // frontend routers
     // routes to handle all angular requests
@@ -71,4 +97,5 @@ module.exports = function(app) {
         // load the index page
         res.sendfile('./public/views/index.html');
     });
+
 }
