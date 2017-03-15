@@ -2,12 +2,6 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
 
-// connect to db
-var db = require('./config/db');
-mongoose.connect(db.url);
-
-var db = mongoose.connection;
-
 // define the customer schema
 
 var schema = mongoose.Schema;
