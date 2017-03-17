@@ -7,8 +7,35 @@ var bcrypt = require('bcryptjs');
 var schema = mongoose.Schema;
 
 var customerSchema = new schema({
-
-      name: {
+    local: {
+        username: String, 
+        password: String,
+        email: String,
+        admin: {
+            type: Boolean,
+            default: false
+            }
+    },
+    facebook         : {
+        id           : String,
+        token        : String,
+        email        : String,
+        name         : String
+    },
+    twitter          : {
+        id           : String,
+        token        : String,
+        displayName  : String,
+        username     : String
+    },
+    google           : {
+        id           : String,
+        token        : String,
+        email        : String,
+        name         : String
+    },
+    info : {
+        name: {
           type: String
           //default: ''
       },
@@ -32,8 +59,7 @@ var customerSchema = new schema({
       dateOfBirth: {
         typo: Date
       }
-
-
+    }
 });
 // module.exports allows is to pass this to other files when it is called
 module.exports = mongoose.model('Customer', customerSchema);

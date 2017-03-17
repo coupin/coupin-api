@@ -1,7 +1,7 @@
 var config = require('../config/env').module;
 var crypto = require('crypto-js');
 
-exports.module = {
+module.exports = {
     encryptPassword: function(password) {
         return crypto.AES.encrypt(password, config.secret).toString();
     },

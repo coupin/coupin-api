@@ -30,7 +30,7 @@ var rewardSchema = new schema({
     },
     recurring: {
       type: Boolean
-    }
+    },
     isActive: {
         type: Boolean
     }
