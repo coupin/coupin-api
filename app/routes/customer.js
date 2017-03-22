@@ -1,4 +1,5 @@
 var express = require('express');
+var expressValidator = require('express-validator');
 var router = express.Router();
 
 // models
@@ -14,9 +15,7 @@ var Customer = require('../models/customer');
   });
 
 
-  router.get('/', function(req, res){
-    res.json({message: 'We got here'});
-  });
+
 
   router.route('/customer')
 
@@ -29,13 +28,14 @@ var Customer = require('../models/customer');
         var mobileNumber =  req.body.mobileNumber;
         var password = req.body.password;
         var password2 = req.body.password2;
+        var address = req.body.address;
+        var dateOfBirth = req.body.dateOfBirth;
 
 
         // Form Validator
         req.checkBody('name','Name field is required').notEmpty();
-        req.checkBody('email','Email field is required').notEmpty();
-        req.checkBody('email','Email is not valid').isEmail();
-        req.checkBody('username','Username field is required').notEmpty();
+        req.checkBody('email','Email field is required').isEmail();
+        req.checkBody('mobileNumber','mobileNumber is not valid').notEmpty().isInt();
         req.checkBody('password','Password field is required').notEmpty();
         req.checkBody('password2','Passwords do not match').equals(req.body.password);
 
@@ -43,33 +43,28 @@ var Customer = require('../models/customer');
         var errors = req.validationErrors();
 
         if(errors){
-        	res.render('register', {
-        		errors: errors
-        	});
+        	res.json({ message: errors });
         } else{
         	var customer = new Customer({      // create a new instance of the Customer model
             name: name,
             email: email,
-            username: username,
+            mobileNumber: mobileNumber,
             password: password,
-            profileimage: profileimage
+            address: address,
+            dateOfBirth: dateOfBirth,
+            createdDate: Date.now
           });
 
-          User.createUser(newUser, function(err, user){
+          Customer.createCustomer(customer, function(err, newCustomer){
             if(err) throw err;
-            console.log(user);
+            res.json({ message: 'Customer created!' });
           });
 
 
-          // save the bear and check for errors
-          customer.save(function(err) {
-              if (err)
-                  res.send(err);
 
-              res.json({ message: 'Customer created!' });
-          });
+      };
 
-      })
+    })
 
       .get(function(req, res) {
           Customer.find(function(err, customer) {
@@ -82,10 +77,10 @@ var Customer = require('../models/customer');
 
       // on routes that end in /bears/:bear_id
       // ----------------------------------------------------
-      router.route('/customer/:cusotmer_name')
+      router.route('/customer/:mobileNumber')
 
       .get(function(req, res){
-        Customer.findById(req.params.customer_name, function(err, customer){
+        Customer.getCustomerByNumber(req.params.mobileNumber, function(err, customer){
           if (err)
             res.send(err);
           res.json(customer);
@@ -96,14 +91,23 @@ var Customer = require('../models/customer');
       .put(function(req, res) {
 
           // use our customer model to find the bear we want
-          Customer.findById(req.params.customer_name, function(err, customer) {
+          Customer.getCustomerByNumber(req.params.mobileNumber, function(err, customer) {
 
               if (err)
                   res.send(err);
 
-              customer.name = req.body.name;  // update the customers info
+              if (req.body.name)
+                customer.name = req.body.name;  // update the customers info
+              if (req.body.email)
+                customer.email = req.body.email;
+              if (req.body.address)
+                customer.address =  req.body.address;
+              if (req.body.dateOfBirth)
+                customer.dateOfBirth = req.body.dateOfBirth;
 
-              // save the customer
+              customer.modifiedDate = Date.now();
+
+              // save the customer updateCustomer
               customer.save(function(err) {
                   if (err)
                       res.send(err);

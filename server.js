@@ -3,13 +3,14 @@
  */
 var bodyParser = require('body-parser');
 var express = require('express');
+var expressValidator = require('express-validator');
 var app = express();
 var methodOverride = require('method-override');
-var mongoose = require('mongoose');
-
+var mongoose   = require('mongoose');
 // Configuration
 var db = require('./config/db').module;
-
+//var routes = require('./app/routes/routes');
+var customer = require('./app/routes/customer');
 // set our port
 var port = process.env.PORT || 3030;
 
@@ -21,7 +22,23 @@ mongoose.connect(db.url);
  * parse application/json
  */
 app.use(bodyParser.json());
+// Validator
+app.use(expressValidator({
+  errorFormatter: function(param, msg, value) {
+      var namespace = param.split('.')
+      , root    = namespace.shift()
+      , formParam = root;
 
+    while(namespace.length) {
+      formParam += '[' + namespace.shift() + ']';
+    }
+    return {
+      param : formParam,
+      msg   : msg,
+      value : value
+    };
+  }
+}));
 // parse application/vnd.api+json as json
 app.use(bodyParser.json({
     type: 'application/vnd.api+json'
@@ -37,10 +54,13 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(express.static(__dirname + '/public'));
 
 // routes
-
+var mongoose = require('mongoose');
 
 // configure our routes
-require('./app/routes')(app);
+
+
+//app.use('/', routes);
+app.use('/api', customer);
 
 //start app
 
