@@ -1,0 +1,1 @@
+angular.module('coupinApp', ['ngRoute', 'LoginCtrl', 'LoginSrv']);

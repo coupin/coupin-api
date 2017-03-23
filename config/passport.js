@@ -26,9 +26,10 @@ module.exports = function(passport) {
         passReqToCallback : true
     },
     function(req, email, password, done){
+        // Check to see if user exists
         User.findOne({ 'local.email' : email }, function(err, user) {
             if(err) 
-                throw err;
+                return done(err);
 
             //If no user is found return the signupMessage
             if(!user) 

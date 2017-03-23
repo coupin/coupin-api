@@ -2,7 +2,6 @@
 var express = require('express');
 var routes = express.Router();
 var Location = require('../models/location');
-var Util = require('../utils').module;
 
 // get all locations
     routes.route('/').get(function(req, res) {

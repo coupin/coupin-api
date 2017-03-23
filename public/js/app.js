@@ -1,1 +1,1 @@
-angular.module('discountApp', ['ngRoute', 'appRoutes', 'MainCtrl', 'LocationCtrl', 'LocationSrv']);
+angular.module('coupinApp', ['ngRoute', 'appRoutes', 'MainCtrl', 'AdminCtrl', 'WelcomeCtrl', 'LocationSrv']);

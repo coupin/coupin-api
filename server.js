@@ -6,6 +6,8 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var app = express();
 var methodOverride = require('method-override');
+// Express validatory
+var expressValidator = require('express-validator');
 // Database module
 var mongoose = require('mongoose');
 // authentication module
@@ -53,6 +55,9 @@ app.use(bodyParser.json({
  * Simulate DEvarE and PUT
  */
 app.use(methodOverride('X-HTTP-Method-Override'));
+
+// Add express validator
+app.use(expressValidator());
 
 // required for passport
 app.use(session({secret: config.secret}));

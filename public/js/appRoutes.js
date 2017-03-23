@@ -6,13 +6,16 @@ angular.module('appRoutes', []).config(['$routeProvider', '$locationProvider', f
             controller: 'MainController'
         })
         // locations page that will use the location controller
-        .when('/locations', {
-            templateUrl: 'views/locations.html',
-            controller: 'LocationController'
-        });
+        .when('/addAdmin', {
+            templateUrl: 'views/addAdmin.html',
+            controller: 'AdminController'
+        }).otherwise({
+            templateUrl: 'views/welcome.html',
+            controller: 'WelcomeController'
+        });;
 
         $locationProvider.html5Mode({
             enabled: true,
             requireBase: false
-        });
+        })
 }])

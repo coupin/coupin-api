@@ -28,11 +28,12 @@ var merchantSchema = new schema({
       password: {
           type: String
       },
-      dateOfBirth: {
-        typo: Date
+      isActive: {
+          type: Boolean
+      },
+      token: {
+          type: String
       }
-
-
 });
 // module.exports allows is to pass this to other files when it is called
 module.exports = mongoose.model('Customer', customerSchema);

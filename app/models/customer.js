@@ -22,6 +22,7 @@ var customerSchema = new schema({
         email        : String,
         name         : String
     },
+    // TODO: Remove twitter
     twitter          : {
         id           : String,
         token        : String,
@@ -42,6 +43,7 @@ var customerSchema = new schema({
       email: {
         type: String
       },
+    //   TODO: leave for analytics
       address: {
           type: String
           //default: ''
