@@ -53,6 +53,9 @@ var customerSchema = new schema({
 // module.exports allows is to pass this to other files when it is called
 var Customer = module.exports = mongoose.model('Customer', customerSchema);
 
+module.exports.getCustomerById = function(id, callback){
+	Customer.findById(id, callback);
+}
 
 module.exports.getCustomerByNumber = function(mobileNumber, callback){
   var query = {mobileNumber: mobileNumber};

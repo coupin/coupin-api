@@ -1,18 +1,19 @@
-/**
- * modules
- */
 var bodyParser = require('body-parser');
 var express = require('express');
 var expressValidator = require('express-validator');
+//var session = require('express-session');
 var app = express();
 var methodOverride = require('method-override');
 var mongoose   = require('mongoose');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
 // Configuration
 var db = require('./config/db').module;
 //var routes = require('./app/routes/routes');
 var customer = require('./app/routes/customer');
 // set our port
-var port = process.env.PORT || 3030;
+var port = process.env.PORT || 5030;
 
 // connect to db
 mongoose.connect(db.url);
@@ -43,6 +44,19 @@ app.use(expressValidator({
 app.use(bodyParser.json({
     type: 'application/vnd.api+json'
 }));
+
+
+// Handle Sessions
+// app.use(session({
+//   secret:'secret',
+//   saveUninitialized: true,
+//   resave: true
+// }));
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 /**
  * override with the X-HTTP-Override header in the request.
