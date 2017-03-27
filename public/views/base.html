@@ -5,26 +5,30 @@
         <title>Home of discounts </title>
 
         <!-- CSS -->
-        <link rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap.css">
+        <link rel="stylesheet" href="libs/angular-motion/dist/angular-motion.css"
         <!-- Custom CSS -->
         <link rel="stylesheet" href="css/style.css">
 
         <!-- JS -->
         <script src="libs/angular/angular.js"></script>
         <script src="libs/angular-route/angular-route.js"></script>
+        <script src="libs/angular-strap/dist/angular-strap.min.js"></script>
+        <script src="/libs/angular-strap/dist/angular-strap.tpl.min.js"></script>
 
         <!-- ANGULAR CUSTOM -->
         <script src="js/controllers/MainCtrl.js"></script>
         <script src="js/controllers/AdminCtrl.js"></script>
+        <script src="js/controllers/SuperAdminCtrl.js"></script>
         <script src="js/controllers/WelcomeCtrl.js"></script>
-        <script src="js/services/LocationSrv.js"></script>
+        <script src="js/services/AdminSrv.js"></script>
         <script src="js/appRoutes.js"></script>
         <script src="js/app.js"></script>
 
     </head>
     <body ng-app="coupinApp" ng-controller="AdminController">
         <!-- Header -->
-        <nav class="navbar navbar-default">
+        <nav class="navbar navbar-default no-space-below">
             <div class="container-fluid">
                 <!-- Mobile Dislpay -->
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#menu-collection" aria-expanded="false">
@@ -42,8 +46,12 @@
                         <li class="active">
                             <a href="/">Home</a>
                         </li>
-                        <li>
-                            <a href="/addAdmin">Add New Admin</a>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admins <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/viewAdmin">View Admins</a></li>
+                                <li><a href="/addAdmin">Add New Admin</a></li>
+                            </ul>
                         </li>
                     </ul>
                     <ul class="nav navbar-right">
@@ -56,10 +64,10 @@
             </div>
         </nav>
         <!-- Header End -->
-        <div class="container">
+        <!-- Dynamic Angular Content -->
+        <div ng-view></div>
 
-            <!-- Dynamic Angular Content -->
-            <div ng-view></div>
-        </div>
+        <script src="libs/jquery/dist/jquery.js"></script> 
+        <script src="libs/bootstrap/dist/js/bootstrap.js"></script>
     </body>
 </html>

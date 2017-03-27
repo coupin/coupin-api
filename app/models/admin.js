@@ -14,10 +14,14 @@ var adminSchema = new schema({
         username: String, 
         password: String,
         email: String,
-        admin: {
+        isActive: {
+            type: Boolean,
+            default: true
+        },
+        superAdmin: {
             type: Boolean,
             default: false
-            }
+        }
     }
 });
 

@@ -1,11 +1,14 @@
 {
-    "name": "discount-angular",
-    "version": "1.0.0",
-    "dependencies": {
-        "angular": "latest",
-        "angular-route": "latest",
-        "animate.css": "latest",
-        "bootstrap": "latest",
-        "font-awesome": "latest"
-    }
+  "name": "discount-angular",
+  "version": "1.0.0",
+  "dependencies": {
+    "angular": "latest",
+    "angular-route": "latest",
+    "animate.css": "latest",
+    "bootstrap": "latest",
+    "font-awesome": "latest",
+    "angular-strap": "^2.3.12",
+    "angular-motion": "^0.4.4",
+    "jquery": "latest"
+  }
 }

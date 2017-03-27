@@ -33,21 +33,26 @@ module.exports = function(passport) {
 
             //If no user is found return the signupMessage
             if(!user) 
-                return done(null, false, {message: "No such user exists"});
+                return done(null, false, {success : false, message: "No such user exists"});
 
             // id user is found but password is wrong
             if(!user.isValidPassword(password))
-                return done(null, false, {message: 'Wrong Password'});
+                return done(null, false, {success : false, message: 'Wrong Password'});
             
             // if everything is okay
-            return done(null, user);
+            if(user.local.isSuperAdmin || user.local.isActive) {
+                return done(null, user);
+            }
+
+            return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
+            
         });
     }))
 
     // Local Sign-up
     passport.use('local-signup', new LocalStrategy({
-        usernameField : 'user-email',
-        passwordField : 'user-password',
+        usernameField : 'email',
+        passwordField : 'password',
         passReqToCallback : true // allows us pass the entire request to the callback
     },
     function(req, email, password, done) {

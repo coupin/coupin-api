@@ -1,1 +1,1 @@
-angular.module('coupinApp', ['ngRoute', 'appRoutes', 'MainCtrl', 'AdminCtrl', 'WelcomeCtrl', 'LocationSrv']);
+angular.module('coupinApp', ['ngRoute', 'mgcrea.ngStrap', 'appRoutes', 'MainCtrl', 'AdminCtrl', 'SuperAdminCtrl', 'WelcomeCtrl', 'AdminSrv']);

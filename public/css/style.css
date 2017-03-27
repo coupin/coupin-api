@@ -15,12 +15,25 @@
     margin: 10%;
 }
 
-#login-error {
-    background: rgba(250, 0, 0, 0.4);
+.error {
+    background: url('../img/error-sm.png') 5px 5px no-repeat,#e40000;
     border: 1px solid #e40000;
     border-radius: 5px;
     color: white;
-    padding: 10px 30px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.error-text {
+    color: #e40000 !important;
+}
+
+.success {
+    background: url('../img/success-sm.png') 5px 5px no-repeat,#67BC57;
+    border: 1px solid #67BC57;
+    border-radius: 5px;
+    color: white;
+    margin-bottom: 10px;
     text-align: center;
 }
 /* Login Box Styling */
@@ -45,4 +58,22 @@
     margin-left: 20%;
     margin-top: 5%;
 }
+
+.no-space-below {
+    margin-bottom: 0px !important;
+}
 /*General Styling End*/
+
+/* Admin View Styling */
+.admin-view {
+    background: #f0f0f0;
+    border-bottom: 1px solid #E38F13;
+    height: 30px;
+    margin: 0 !important;
+}
+
+.admin-view div {
+    border-right: 1px solid #a0a0a0;
+    height: 30px;
+}
+/* Admin View Styling End */
