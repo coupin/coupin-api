@@ -9,7 +9,12 @@ angular.module('appRoutes', []).config(['$routeProvider', '$locationProvider', f
         .when('/addAdmin', {
             templateUrl: 'views/addAdmin.html',
             controller: 'AdminController'
-        }).otherwise({
+        })
+        .when('/viewAdmin', {
+            templateUrl: 'views/viewAdmin.html',
+            controller: 'SuperAdminController'
+        })
+        .otherwise({
             templateUrl: 'views/welcome.html',
             controller: 'WelcomeController'
         });;

@@ -1,26 +1,46 @@
 <div class="row">
     <div class="col-md-6 col-xs-12">
+        <br/>
         <h5>The <b>Admin</b> will be able to do the following: </h5>
+        <ul>
+            <li>Approve or Decline Merchant requests i.e.
+                <ul>
+                    <li>Will be able to view details of all requests.</li>
+                    <li>Generate signed tokens for merchants.</li>
+                </ul>
+            </li>
+            <li>Be Notified of offer requests</li>
+        </ul>
+        <h4><b>Note: </b> Only the <em>SUPERADMIN</em> can create other admins</h4>
     </div>
     <div class="col-md-6 col-xs-12">
         <h3>Add New Admin To CouPinApp</h3>
-        <form>
+        <form id="addForm">
             <div class="form-group">
                 <label for="user-email">Email</label>
-                <input type="email" class="form-control" id="user-email" name="user-email" aria-describedby="emailHelper" placeholder="Enter Password"/>
+                <input type="email" class="form-control" id="user-email" name="user-email" aria-describedby="emailHelper" placeholder="Enter Password" ng-model="newAdminData.email" required/>
                 <small id="emailHelper" class="form-text text-muted">Contact Email.</small>
+                <small id="emailHelperError" class="form-text text-muted error-text">{{errorMessages.email}}</small>
             </div>
             <div class="form-group">
                 <label for="user-password">Password</label>
-                <input type="password" class="form-control" id="user-password" name="user-password" aria-describedby="passwordHelper" placeholder="Enter Password"/>
+                <input type="password" class="form-control" id="user-password" name="user-password" aria-describedby="passwordHelper" placeholder="Enter Password" ng-model="newAdminData.password" required/>
                 <small id="passwordHelper" class="form-text text-muted">Do not share this with anyone.</small>
+                <small id="passwordHelperError" class="form-text text-muted error-text">{{errorMessages.password}}</small>
             </div>
             <div class="form-group">
-                <label for="user-confirm-password">Password</label>
-                <input type="password" class="form-control" id="user-confirm-password" name="user-confirm-password" aria-describedby="confirmPasswordHelper" placeholder="Confirm Password"/>
-                <small id="confirmPasswordHelper" class="form-text text-muted">Please confirm password.</small>
+                <label for="user-confirm-password">Confirm Password</label>
+                <input type="password" class="form-control" id="user-confirm-password" name="user-confirm-password" aria-describedby="confirmHelper" placeholder="Confirm Password" ng-model="newAdminData.confirm" required/>
+                <small id="confirmHelper" class="form-text text-muted">Please confirm password.</small>
+                <small id="passwordHelperError" class="form-text text-muted error-text">{{errorMessages.confirm}}</small>
             </div>
-            <button class="btn custom" id="submit" type="submit"> Sign Up </button>
+            <div class="error" ng-show="showError">
+                <h5>{{ registerError.message }}</h5>
+            </div>
+            <div class="success" ng-show="showSuccess">
+                <h5>{{ registerMessage }}</h5>
+            </div>
+            <button class="btn custom" ng-click="addAdmin()"> Add Admin </button>
         </form>
     </div>
 </div>

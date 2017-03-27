@@ -10,7 +10,8 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
             AdminLoginSrv.check($scope.formData)
             .then(function(data){
                 $window.location.href = '/homepage';
-            }, function(error) {
+            }, function(err) {
+                console.log(err);
                 $scope.loginError = "Email or Password is invalid."
                 $scope.showError = false;
             });
