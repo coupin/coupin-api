@@ -8,8 +8,8 @@ angular.module('AdminCtrl', []).controller('AdminController', function($location
 
     if(!$scope.user) {
         AdminSrv.getCurrentUser().then(function(response) {
-            console.log(data);
-            // $scope.user = response.data;
+            console.log(response.data);
+            $scope.user = response.data;
         }).catch(function(err){
             console.log(err);
         });
