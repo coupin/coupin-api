@@ -21,7 +21,7 @@ module.exports = function(app) {
         // load the index page
         res.sendfile('./public/views/signup.html', {message: req.flash('SignUpMessage')});
     });
-
+    
     app.get('/homepage', isLoggedIn, function(req, res) {
         // load the home page
         res.sendfile('./public/views/base.html');
@@ -30,6 +30,13 @@ module.exports = function(app) {
     app.get('/logout', function(req, res) {
         req.logout();
         res.redirect('/admin/login');
+    });
+
+    // frontend routers
+    // routes to handle all angular requests
+    app.get('*', function(req, res) {
+        // load the index page
+        res.sendfile('./public/views/index.html');
     });
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {

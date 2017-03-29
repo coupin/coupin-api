@@ -3,51 +3,38 @@ var expressValidator = require('express-validator');
 var router = express.Router();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var BearerStrategy = require('passport-http-bearer').Strategy;
 
 // models
-var Customer = require('../models/customer');
+var Merchant = require('../models/merchant');
 
 
-
-passport.serializeUser(function(customer, done) {
-  done(null, customer.id);
+passport.serializeUser(function(merchant, done) {
+  done(null, merchant.id);
 });
 
 passport.deserializeUser(function(id, done) {
-  Customer.getCustomerById(id, function(err, customer) {
-    done(err, customer);
+  Merchant.getMerchantById(id, function(err, merchant) {
+    done(err, merchant);
   });
 });
 
 passport.use(new LocalStrategy(function(email, password, done){
-  Customer.getCustomerByEmail(email, function(err, customer){
+  Merchant.getMerchantByEmail(email, function(err, merchant){
     if(err) throw err;
-    if(!customer){
-      return done(null, false, {message: 'Unknown Customer'});
+    if(!merchant){
+      return done(null, false, {message: 'Unknown Merchant'});
     }
 
-    Customer.comparePassword(password, customer.password, function(err, isMatch){
+    Merchant.comparePassword(password, merchant.password, function(err, isMatch){
       if(err) return done(err);
       if(isMatch){
-        return done(null, customer);
+        return done(null, merchant);
       } else {
         return done(null, false, {message:'Invalid Password'});
       }
     });
   });
 }));
-
-
-passport.use(new BearerStrategy(
-  function(token, done) {
-    Customer.findOne({ token: token }, function (err, customer) {
-      if (err) { return done(err); }
-      if (!customer) { return done(null, false); }
-      return done(null, customer, { scope: 'all' });
-    });
-  }
-));
 
   // middleware to use for all requests
   router.use(function(req, res, next) {
@@ -57,33 +44,32 @@ passport.use(new BearerStrategy(
   });
 
 
-  router.route('/customer/login')
+  router.route('/merchant/login')
         .post(function(req, res) {
     passport.authenticate('local',{}),
     function(req, res) {
      res.json(message, 'You are now logged in');
 
-  }
-});
+  });
 
-
-  router.route('/customer/register')
+  router.route('/merchant/register')
 
       // create a bear (accessed at POST http://localhost:8080/api/bears)
       .post(function(req, res) {
 
 
-        var name = req.body.name;  // set the customer name (comes from the request)
+        var companyName = req.body.companyName;  // set the customer name (comes from the request)
         var email = req.body.email;
         var mobileNumber =  req.body.mobileNumber;
         var password = req.body.password;
         var password2 = req.body.password2;
         var address = req.body.address;
-        var dateOfBirth = req.body.dateOfBirth;
+
+
 
 
         // Form Validator
-        req.checkBody('name','Name field is required').notEmpty();
+        req.checkBody('companyName','Company Name field is required').notEmpty();
         req.checkBody('email','Email field is required').isEmail();
         req.checkBody('mobileNumber','mobileNumber is not valid').notEmpty().isInt();
         req.checkBody('password','Password field is required').notEmpty();
@@ -96,43 +82,42 @@ passport.use(new BearerStrategy(
         	res.json({ message: errors });
         } else{
         	var customer = new Customer({      // create a new instance of the Customer model
-            name: name,
+            companyName: companyName,
             email: email,
             mobileNumber: mobileNumber,
             password: password,
             address: address,
-            dateOfBirth: dateOfBirth,
             createdDate: Date.now
           });
 
-          Customer.createCustomer(customer, function(err, newCustomer){
+          Merchant.createMerchant(merchant, function(err, newMerchant){
             if(err) throw err;
-            res.json({ message: 'Customer created!' });
+            res.json({ message: 'Merchant created!' });
           });
 
       };
 
     });
 
-router.route('/customer')
-      .get(passport.authenticate('bearer', { session: false }),function(req, res) {
-          Customer.find(function(err, customer) {
+router.route('/merchant')
+      .get(function(req, res) {
+          Merchant.find(function(err, merchant) {
               if (err)
                   res.send(err);
 
-              res.json(customer);
+              res.json(merchant);
           });
       });
 
       // on routes that end in /bears/:bear_id
       // ----------------------------------------------------
-      router.route('/customer/:mobileNumber')
+      router.route('/merchant/:Id')
 
       .get(function(req, res){
-        Customer.getCustomerByNumber(req.params.mobileNumber, function(err, customer){
+        Merchant.getMerchantById(req.params.Id, function(err, merchant){
           if (err)
             res.send(err);
-          res.json(customer);
+          res.json(merchant);
         })
       })
 
@@ -140,28 +125,26 @@ router.route('/customer')
       .put(function(req, res) {
 
           // use our customer model to find the bear we want
-          Customer.getCustomerByNumber(req.params.mobileNumber, function(err, customer) {
+          Merchant.getMerchantById(req.params.Id, function(err, merchant) {
 
               if (err)
                   res.send(err);
 
               if (req.body.name)
-                customer.name = req.body.name;  // update the customers info
+                merchant.name = req.body.companyName;  // update the customers info
               if (req.body.email)
-                customer.email = req.body.email;
+                merchant.email = req.body.email;
               if (req.body.address)
-                customer.address =  req.body.address;
-              if (req.body.dateOfBirth)
-                customer.dateOfBirth = req.body.dateOfBirth;
+                merchant.address =  req.body.address;
 
-              customer.modifiedDate = Date.now();
+              merchant.modifiedDate = Date.now();
 
               // save the customer updateCustomer
-              customer.save(function(err) {
+              merchant.save(function(err) {
                   if (err)
                       res.send(err);
 
-                  res.json({ message: 'Customer updated!' });
+                  res.json({ message: 'Merchant updated!' });
               });
 
           });

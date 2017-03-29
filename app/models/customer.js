@@ -49,7 +49,7 @@ var customerSchema = new schema({
           //default: ''
       },
       mobileNumber: {
-          type: Number,
+          type: String,
           index: true
       },
       network: {
@@ -60,14 +60,34 @@ var customerSchema = new schema({
       },
       dateOfBirth: {
         typo: Date
+      },
+      sex: {
+          type: String
+      },
+      city: {
+          type: String
+      },
+      state: {
+          type: String
+      },
+      createdDate: {
+        type: Date
+      },
+      modifiedDate: {
+        type: Date
       }
     }
 });
 // module.exports allows is to pass this to other files when it is called
-module.exports = mongoose.model('Customer', customerSchema);
+var Customer = module.exports = mongoose.model('Customer', customerSchema);
 
-module.exports.getCustomerByNumber = function(number, callback){
-	Customer.findById(number, callback);
+module.exports.getCustomerById = function(id, callback){
+	Customer.findById(id, callback);
+}
+
+module.exports.getCustomerByNumber = function(mobileNumber, callback){
+  var query = {mobileNumber: mobileNumber};
+	Customer.findOne(query, callback);
 }
 
 module.exports.getCustomerByEmail = function(email, callback){
@@ -81,11 +101,11 @@ module.exports.comparePassword = function(candidatePassword, hash, callback){
 	});
 }
 
-module.exports.createUser = function(newUser, callback){
+module.exports.createCustomer = function(newCustomer, callback){
 	bcrypt.genSalt(10, function(err, salt) {
-    	bcrypt.hash(newUser.password, salt, function(err, hash) {
-   			newUser.password = hash;
-   			newUser.save(callback);
+    	bcrypt.hash(newCustomer.password, salt, function(err, hash) {
+   			newCustomer.password = hash;
+   			newCustomer.save(callback);
     	});
 	});
 }
