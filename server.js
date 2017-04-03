@@ -48,22 +48,23 @@ app.use(morgan('dev'));
 // Allow data in url encoded format
 app.use(bodyParser.urlencoded({ extended: true }));
 // Validator
-app.use(expressValidator({
-  errorFormatter: function(param, msg, value) {
-      var namespace = param.split('.')
-      , root    = namespace.shift()
-      , formParam = root;
+// app.use(expressValidator({
+//   errorFormatter: function(param, msg, value) {
+//       var namespace = param.split('.')
+//       , root    = namespace.shift()
+//       , formParam = root;
 
-    while(namespace.length) {
-      formParam += '[' + namespace.shift() + ']';
-    }
-    return {
-      param : formParam,
-      msg   : msg,
-      value : value
-    };
-  }
-}));
+//     while(namespace.length) {
+//       formParam += '[' + namespace.shift() + ']';
+//     }
+//     return {
+//       param : formParam,
+//       msg   : msg,
+//       value : value
+//     };
+//   }
+// }));
+app.use(expressValidator());
 // parse application/vnd.api+json as json
 app.use(bodyParser.json({
     type: 'application/vnd.api+json'
@@ -102,9 +103,6 @@ app.use(flash());
 
 // set the static files location /public/img will be /img
 app.use(express.static(__dirname + '/public'));
-
-// routes
-var mongoose = require('mongoose');
 
 // configure our routes
 require('./app/routes')(app);

@@ -14,9 +14,11 @@ var merchantSchema = new schema({
       email: {
         type: String
       },
+      companyDetails: {
+        type: String
+      },
       address: {
           type: String
-          //default: ''
       },
       mobileNumber: {
           type: Number
@@ -25,7 +27,8 @@ var merchantSchema = new schema({
           type: String
       },
       activated: {
-        type: Boolean
+        type: Boolean,
+        default: false
       },
       createdDate: {
         type: Date
@@ -34,25 +37,23 @@ var merchantSchema = new schema({
         type: Date
       }
 });
-// module.exports allows is to pass this to other files when it is called
-var Merchant = module.exports = mongoose.model('Merchant', merchantSchema);
 
-module.exports.getMerchantById = function(id, callback){
+merchantSchema.methods.getMerchantById = function(id, callback){
 	Merchant.findById(id, callback);
 }
 
-module.exports.getMerchantByEmail = function(email, callback){
+merchantSchema.methods.getMerchantByEmail = function(email, callback){
 	var query = {email: email};
 	Merchant.findOne(query, callback);
 }
 
-module.exports.comparePassword = function(candidatePassword, hash, callback){
+merchantSchema.methods.comparePassword = function(candidatePassword, hash, callback){
 	bcrypt.compare(candidatePassword, hash, function(err, isMatch) {
     	callback(null, isMatch);
 	});
 }
 
-module.exports.createMerchant = function(newMerchant, callback){
+merchantSchema.methods.createMerchant = function(newMerchant, callback){
 	bcrypt.genSalt(10, function(err, salt) {
     	bcrypt.hash(newMerchant.password, salt, function(err, hash) {
    			newMerchant.password = hash;
@@ -60,3 +61,6 @@ module.exports.createMerchant = function(newMerchant, callback){
     	});
 	});
 }
+
+// module.exports allows is to pass this to other files when it is called
+module.exports = mongoose.model('Merchant', merchantSchema);

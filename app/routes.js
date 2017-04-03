@@ -6,13 +6,15 @@ var User = require('./models/admin');
 var passport = require('passport');
 
 // Routes
-var locationRouters = require('./routes/locations');
 var adminRouters = require('./routes/admin');
+var locationRouters = require('./routes/locations');
+var merchantRouters = require('./routes/merchant');
 
 module.exports = function(app) {
     // server routes
-    app.use('/api/locations', locationRouters);
     app.use('/admin', adminRouters);
+    app.use('/api', merchantRouters);
+    app.use('/api/locations', locationRouters);
 
     // frontend routers
     

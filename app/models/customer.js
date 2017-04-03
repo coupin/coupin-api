@@ -78,30 +78,28 @@ var customerSchema = new schema({
       }
     }
 });
-// module.exports allows is to pass this to other files when it is called
-var Customer = module.exports = mongoose.model('Customer', customerSchema);
 
-module.exports.getCustomerById = function(id, callback){
+customerSchema.methods.getCustomerById = function(id, callback){
 	Customer.findById(id, callback);
 }
 
-module.exports.getCustomerByNumber = function(mobileNumber, callback){
+customerSchema.methods.getCustomerByNumber = function(mobileNumber, callback){
   var query = {mobileNumber: mobileNumber};
 	Customer.findOne(query, callback);
 }
 
-module.exports.getCustomerByEmail = function(email, callback){
+customerSchema.methods.getCustomerByEmail = function(email, callback){
 	var query = {email: email};
 	Customer.findOne(query, callback);
 }
 
-module.exports.comparePassword = function(candidatePassword, hash, callback){
+customerSchema.methods.comparePassword = function(candidatePassword, hash, callback){
 	bcrypt.compare(candidatePassword, hash, function(err, isMatch) {
     	callback(null, isMatch);
 	});
 }
 
-module.exports.createCustomer = function(newCustomer, callback){
+customerSchema.methods.createCustomer = function(newCustomer, callback){
 	bcrypt.genSalt(10, function(err, salt) {
     	bcrypt.hash(newCustomer.password, salt, function(err, hash) {
    			newCustomer.password = hash;
@@ -109,3 +107,6 @@ module.exports.createCustomer = function(newCustomer, callback){
     	});
 	});
 }
+
+// module.exports allows is to pass this to other files when it is called
+module.exports = mongoose.model('Customer', customerSchema);

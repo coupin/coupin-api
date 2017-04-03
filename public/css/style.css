@@ -1,4 +1,4 @@
-/* Login Box Styling */
+/* Admin Login Box Styling */
 .login-box {
     border-radius: 20px;
     height: 400px;
@@ -36,7 +36,21 @@
     margin-bottom: 10px;
     text-align: center;
 }
-/* Login Box Styling */
+/* Admin Login Box Styling */
+
+/* Admin View Styling */
+.admin-view {
+    background: #f0f0f0;
+    border-bottom: 1px solid #E38F13;
+    height: 30px;
+    margin: 0 !important;
+}
+
+.admin-view div {
+    border-right: 1px solid #a0a0a0;
+    height: 30px;
+}
+/* Admin View Styling End */
 
 /*General Styling*/
 .custom, .custom:active , .custom:focus {
@@ -64,16 +78,33 @@
 }
 /*General Styling End*/
 
-/* Admin View Styling */
-.admin-view {
-    background: #f0f0f0;
-    border-bottom: 1px solid #E38F13;
-    height: 30px;
-    margin: 0 !important;
+/*Merchant Registration*/
+.merchantRegBox {
+    border: 1px solid lightgray;
+    border-radius: 3px;
+    height: inherit;
+    margin: 5% auto;
+    padding-bottom: 2%;
+    width: 70%;
+
+    /*Shadow*/
+    box-shadow: 1px 1px 3px #a0a0a0;
 }
 
-.admin-view div {
-    border-right: 1px solid #a0a0a0;
-    height: 30px;
+.merchantRegBox form {
+    margin: 5% 5%;
 }
-/* Admin View Styling End */
+
+.merchantRegBox .top-label {
+    background: linear-gradient(to right bottom, #67BC57, deepskyblue);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 1px 1px 3px #c0c0c0;
+    color: white;
+    height: inherit;
+    font-family: FontAwesome;
+    font-size: 32px;
+    line-height: 2em;
+    margin-bottom: 50px !important;
+    width: 100%;
+}
+/*Merchant Registration End*/

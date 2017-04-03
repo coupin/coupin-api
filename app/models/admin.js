@@ -1,7 +1,6 @@
 // module
 var crypto = require('crypto-js');
 var mongoose = require('mongoose');
-var passportLocalMongoose = require('passport-local-mongoose');
 
 // config file
 var config = require('../../config/env');

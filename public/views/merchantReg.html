@@ -1,0 +1,55 @@
+<!DOCType html/>
+<head>
+    <head>
+        <meta charset="utf-8"/>
+        <meta lang="en"/>
+
+        <title> Register with us for premier discount marketing </title>
+        <!-- CSS -->
+        <link rel="stylesheet" href="/libs/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="/css/style.css">
+
+        <!-- JS -->
+        <script src="/libs/angular/angular.js"></script>
+        <script src="/libs/angular-route/angular-route.js"></script>
+
+        <!-- ANGULAR CUSTOM -->
+        <script src="/js/controllers/LoginCtrl.js"></script>
+        <script src="/js/services/LoginSrv.js"></script>
+        <script src="/js/appRoutes.js"></script>
+        <script src="/js/loginapp.js"></script>
+    </head>
+    <body ng-app="coupinApp" ng-controller="LoginController">
+        <div class="merchantRegBox">
+            <div class="top-label text-center">
+                <span>Merchant Registration</span>
+            </div>            
+            <form>
+                <div class="form-group">
+                    <label for="companyName">Business Name:</label>
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon"><i class="fa fa-building"></i></div>
+                        <input type="text" class="form-control" id="companyName" aria-describedby="nameHelp" placeholder="e.g. Chisco's Burgers'" ng-model="formData.companyName" required>
+                    </div>
+                    <small id="nameHelp" class="form-text text-muted">The business/brand name that is publicly known to all.</small>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon"><i class="fa fa-at"></i></div>
+                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@example.com" ng-model="formData.email" required>
+                    </div>
+                    <small id="emailHelp" class="form-text text-muted">Email used to contact the company.</small>
+                </div>
+                <div class="form-group">
+                    <label for="descr">Description of Business:</label>
+                    <textarea class="form-control" id="descr" maxlength="80" placeholder="My company is into..." ng-model="formData.companyDetails" required></textarea>
+                    <small id="descrHelp" class="form-text text-muted">Describe business in 80 words or less</small>
+                </div>
+                <button class="btn btn-default" type="submit" ng-click="registerMerch()">Submit Request</button>
+            </form>
+        </div>
+    </body>
+</head>

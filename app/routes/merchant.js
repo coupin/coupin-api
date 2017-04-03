@@ -49,21 +49,23 @@ passport.use(new LocalStrategy(function(email, password, done){
     passport.authenticate('local',{}),
     function(req, res) {
      res.json(message, 'You are now logged in');
-
+    }
   });
 
   router.route('/merchant/register')
 
       // create a bear (accessed at POST http://localhost:8080/api/bears)
       .post(function(req, res) {
+        console.log('Inside the merch post');
 
 
         var companyName = req.body.companyName;  // set the customer name (comes from the request)
         var email = req.body.email;
-        var mobileNumber =  req.body.mobileNumber;
-        var password = req.body.password;
-        var password2 = req.body.password2;
-        var address = req.body.address;
+        var companyDetails = req.body.companyDetails;
+        // var mobileNumber =  req.body.mobileNumber;
+        // var password = req.body.password;
+        // var password2 = req.body.password2;
+        // var address = req.body.address;
 
 
 
@@ -71,32 +73,52 @@ passport.use(new LocalStrategy(function(email, password, done){
         // Form Validator
         req.checkBody('companyName','Company Name field is required').notEmpty();
         req.checkBody('email','Email field is required').isEmail();
-        req.checkBody('mobileNumber','mobileNumber is not valid').notEmpty().isInt();
-        req.checkBody('password','Password field is required').notEmpty();
-        req.checkBody('password2','Passwords do not match').equals(req.body.password);
+        req.checkBody('companyDetails', 'Company Details field is required').notEmpty();
+        // req.checkBody('mobileNumber','mobileNumber is not valid').notEmpty().isInt();
+        // req.checkBody('password','Password field is required').notEmpty();
+        // req.checkBody('password2','Passwords do not match').equals(req.body.password);
 
+        console.log('Inside 1');
         // Check Errors
         var errors = req.validationErrors();
 
-        if(errors){
-        	res.json({ message: errors });
-        } else{
-        	var customer = new Customer({      // create a new instance of the Customer model
-            companyName: companyName,
-            email: email,
-            mobileNumber: mobileNumber,
-            password: password,
-            address: address,
-            createdDate: Date.now
+        // console.log('Inside 2');
+        if(errors) {
+          // console.log('Inside 3');
+        	res.json({success: false, message: errors });
+        } else {
+          console.log('Inside 4');
+          var createdDate = Date.now();
+          console.log(createdDate);
+        	var merchant = new Merchant();      // create a new instance of the Customer model
+            merchant.companyName = companyName;
+            merchant.email = email;
+            merchant.companyDetails = companyDetails;
+            merchant.createdDate = createdDate;
+          // console.log(merchant);
+
+          Merchant.find({}, function(err, merchant){
+            console.log(err);
+            console.log(merchant);
           });
+          // merchant.save(function(err) {
+          //   console.log("inside save");
+          //   console.log(err);
+          //   if(err)
+          //     throw err;
 
-          Merchant.createMerchant(merchant, function(err, newMerchant){
-            if(err) throw err;
-            res.json({ message: 'Merchant created!' });
-          });
+          //   res.send({success: true, message: 'Merchant Created!'});
+          // });
+          // Merchant.createMerchant(merchant, function(err, newMerchant){
+          //   if(err) throw err;
+          //   res.json({ success: true, message: 'Merchant created!' });
+          // });
 
-      };
+      }
 
+    }).get(function(req, res) {
+      // load the merchant registration page
+      res.sendfile('./public/views/merchantReg.html');
     });
 
 router.route('/merchant')
