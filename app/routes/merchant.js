@@ -3,7 +3,11 @@ var expressValidator = require('express-validator');
 var router = express.Router();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var jwt = require('jsonwebtoken');
+var passportJWT = require("passport-jwt");
 
+var ExtractJwt = passportJWT.ExtractJwt;
+var JwtStrategy = passportJWT.Strategy;
 // models
 var Merchant = require('../models/merchant');
 
@@ -18,41 +22,91 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-passport.use(new LocalStrategy(function(email, password, done){
-  Merchant.getMerchantByEmail(email, function(err, merchant){
-    if(err) throw err;
-    if(!merchant){
-      return done(null, false, {message: 'Unknown Merchant'});
-    }
 
-    Merchant.comparePassword(password, merchant.password, function(err, isMatch){
-      if(err) return done(err);
-      if(isMatch){
-        return done(null, merchant);
-      } else {
-        return done(null, false, {message:'Invalid Password'});
-      }
-    });
-  });
-}));
+var jwtOptions = {}
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+jwtOptions.secretOrKey = 'c0upinAppM3rchAn+';
+
+var merchantStrategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
+  console.log('payload received', jwt_payload);
+
+Merchant.getMerchantByEmail(jwt_payload.email, function(err, merchant) {
+    if (err) throw err;
+    if (merchant) {
+      next(null, merchant);
+    } else {
+      next(null, false,{message: 'Unknown Merchant'});
+    }
+});
+
+});
+
+passport.use(merchantStrategy);
 
   // middleware to use for all requests
   router.use(function(req, res, next) {
-      // do logging
-      console.log('Something is happening.');
-      next(); // make sure we go to the next routes and don't stop here
+    console.log("Checking request");
+      next();
   });
 
 
-  router.route('/merchant/login')
-        .post(function(req, res) {
-    passport.authenticate('local',{}),
-    function(req, res) {
-     res.json(message, 'You are now logged in');
+  router.route('/authenticate')
+  .post(function(req, res) {
 
+    if(req.body.email && req.body.password){
+      var email = req.body.email;
+      var password = req.body.password;
+
+      var merchant = Merchant.getMerchantByEmail(email, function(err, merchant) {
+        if (err) throw err;
+
+        if(!merchant){
+        res.json({success: false, message: 'Authentication failed. Merchant not found'})
+      }
+        else if (merchant){
+
+        //Check password
+        Merchant.comparePassword(password, merchant.password, function(err, isMatch){
+          if(err) return done(err);
+          if(!isMatch){
+            res.status(401).json({message:"Invalid Password"});
+          } else {
+            var payload = {id: merchant.id, name: merchant.companyName, email: merchant.email};
+            var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+            //var token = jwt.sign(customer, secretKey, {
+            //  expiresInMinutes: 1440
+            //});
+
+            res.json({
+              success: true,
+              message: 'Here is your Merchant token',
+              token: token
+            });
+            }
+
+        });
+      }
+    });
+  }
+  else{
+    res.status(401).json({message: 'Please enter your username and password'});
+  }
+  })
+
+  .get(passport.authenticate('jwt',{session: false}), function(req, res){
+    res.json("Merchant token was validated");
   });
 
-  router.route('/merchant/register')
+  router.route('/secretDebug')
+        .get(function(req, res, next){
+   console.log(req.get('Authorization'));
+   next();
+ }, function(req, res){
+   res.json("debugging");
+});
+
+  router.route('/register')
 
       // create a bear (accessed at POST http://localhost:8080/api/bears)
       .post(function(req, res) {
@@ -81,13 +135,13 @@ passport.use(new LocalStrategy(function(email, password, done){
         if(errors){
         	res.json({ message: errors });
         } else{
-        	var customer = new Customer({      // create a new instance of the Customer model
+        	var merchant = new Merchant({      // create a new instance of the Customer model
             companyName: companyName,
             email: email,
             mobileNumber: mobileNumber,
             password: password,
             address: address,
-            createdDate: Date.now
+            createdDate: Date.now()
           });
 
           Merchant.createMerchant(merchant, function(err, newMerchant){
@@ -99,7 +153,7 @@ passport.use(new LocalStrategy(function(email, password, done){
 
     });
 
-router.route('/merchant')
+router.route('/')
       .get(function(req, res) {
           Merchant.find(function(err, merchant) {
               if (err)
@@ -111,7 +165,7 @@ router.route('/merchant')
 
       // on routes that end in /bears/:bear_id
       // ----------------------------------------------------
-      router.route('/merchant/:Id')
+      router.route('/:Id')
 
       .get(function(req, res){
         Merchant.getMerchantById(req.params.Id, function(err, merchant){

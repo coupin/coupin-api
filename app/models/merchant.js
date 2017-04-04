@@ -1,5 +1,6 @@
 // module
 var mongoose = require('mongoose');
+var bcrypt = require('bcryptjs');
 
 // define the customer schema
 

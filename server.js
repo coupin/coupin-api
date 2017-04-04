@@ -1,22 +1,29 @@
 var bodyParser = require('body-parser');
 var express = require('express');
 var expressValidator = require('express-validator');
-//var session = require('express-session');
+var session = require('express-session');
 var app = express();
 var methodOverride = require('method-override');
 var mongoose   = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var jwt = require('jsonwebtoken');
+var passportJWT = require("passport-jwt");
+
+var ExtractJwt = passportJWT.ExtractJwt;
+var JwtStrategy = passportJWT.Strategy;
 
 // Configuration
 var db = require('./config/db').module;
-//var routes = require('./app/routes/routes');
+var merchant = require('./app/routes/merchant');
 var customer = require('./app/routes/customer');
 // set our port
 var port = process.env.PORT || 5030;
 
 // connect to db
 mongoose.connect(db.url);
+
+app.set('superSecret', db.secret);
 
 /**
  * get all data of the body parameters
@@ -73,8 +80,8 @@ var mongoose = require('mongoose');
 // configure our routes
 
 
-//app.use('/', routes);
-app.use('/api', customer);
+app.use('/api/merchant', merchant);
+app.use('/api/customer', customer);
 
 //start app
 
