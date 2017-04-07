@@ -9,6 +9,6 @@
     "font-awesome": "latest",
     "angular-strap": "^2.3.12",
     "angular-motion": "^0.4.4",
-    "jquery": "latest"
+    "jQuery": "latest"
   }
 }

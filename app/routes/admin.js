@@ -1,7 +1,6 @@
 // Modules
 var express = require('express');
 var router = express.Router();
-var LocalStrategy = require('passport-local').Strategy;
 var passport = require('passport');
 
 // Models

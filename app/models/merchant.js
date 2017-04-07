@@ -11,6 +11,10 @@ var merchantSchema = new schema({
           type: String
           //default: ''
       },
+      categories: {
+        type: [String]
+      }
+      ,
       email: {
         type: String
       },

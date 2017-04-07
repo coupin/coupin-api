@@ -21,13 +21,13 @@ passport.deserializeUser(function(id, done) {
 });
 
 passport.use(new LocalStrategy(function(email, password, done){
-  Customer.getCustomerByEmail(email, function(err, customer){
+  Customer.methods.getCustomerByEmail(email, function(err, customer){
     if(err) throw err;
     if(!customer){
       return done(null, false, {message: 'Unknown Customer'});
     }
 
-    Customer.comparePassword(password, customer.password, function(err, isMatch){
+    Customer.methods.comparePassword(password, customer.password, function(err, isMatch){
       if(err) return done(err);
       if(isMatch){
         return done(null, customer);

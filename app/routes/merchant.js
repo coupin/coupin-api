@@ -39,7 +39,6 @@ passport.use(new LocalStrategy(function(email, password, done){
   // middleware to use for all requests
   router.use(function(req, res, next) {
       // do logging
-      console.log('Something is happening.');
       next(); // make sure we go to the next routes and don't stop here
   });
 
@@ -56,11 +55,10 @@ passport.use(new LocalStrategy(function(email, password, done){
 
       // create a bear (accessed at POST http://localhost:8080/api/bears)
       .post(function(req, res) {
-        console.log('Inside the merch post');
-
 
         var companyName = req.body.companyName;  // set the customer name (comes from the request)
         var email = req.body.email;
+        var categories = req.body.categories;
         var companyDetails = req.body.companyDetails;
         // var mobileNumber =  req.body.mobileNumber;
         // var password = req.body.password;
@@ -73,47 +71,33 @@ passport.use(new LocalStrategy(function(email, password, done){
         // Form Validator
         req.checkBody('companyName','Company Name field is required').notEmpty();
         req.checkBody('email','Email field is required').isEmail();
+        req.checkBody('categories', 'Categories cannot be empty').notEmpty();
         req.checkBody('companyDetails', 'Company Details field is required').notEmpty();
         // req.checkBody('mobileNumber','mobileNumber is not valid').notEmpty().isInt();
         // req.checkBody('password','Password field is required').notEmpty();
         // req.checkBody('password2','Passwords do not match').equals(req.body.password);
 
-        console.log('Inside 1');
         // Check Errors
         var errors = req.validationErrors();
 
-        // console.log('Inside 2');
         if(errors) {
-          // console.log('Inside 3');
-        	res.json({success: false, message: errors });
+        	res.send({success: false, message: errors });
         } else {
-          console.log('Inside 4');
           var createdDate = Date.now();
-          console.log(createdDate);
         	var merchant = new Merchant();      // create a new instance of the Customer model
             merchant.companyName = companyName;
             merchant.email = email;
+            merchant.categories = categories;
             merchant.companyDetails = companyDetails;
             merchant.createdDate = createdDate;
-          // console.log(merchant);
 
-          Merchant.find({}, function(err, merchant){
+          merchant.save(function(err) {
             console.log(err);
-            console.log(merchant);
+            if(err)
+              throw err;
+
+            res.send({success: true, message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
           });
-          // merchant.save(function(err) {
-          //   console.log("inside save");
-          //   console.log(err);
-          //   if(err)
-          //     throw err;
-
-          //   res.send({success: true, message: 'Merchant Created!'});
-          // });
-          // Merchant.createMerchant(merchant, function(err, newMerchant){
-          //   if(err) throw err;
-          //   res.json({ success: true, message: 'Merchant created!' });
-          // });
-
       }
 
     }).get(function(req, res) {

@@ -53,6 +53,14 @@
 /* Admin View Styling End */
 
 /*General Styling*/
+.body {
+    width: 100%;
+}
+
+.registration {
+    background: linear-gradient(to right bottom, #67BC57, deepskyblue);
+    color: white;
+}
 .custom, .custom:active , .custom:focus {
     background: #E3C313;
     border: #E3C313;
@@ -67,6 +75,25 @@
     outline: none;
 }
 
+.light {
+    font-weight: 100;
+}
+
+.right-divider {
+    border-right: 1px solid lightgray;
+    height: 60%;
+
+    transform: translateY(30%);
+    -moz-transform: translateY(30%);
+    -o-transform: translateY(30%);
+    -webkit-transform: translateY(30%);
+}
+
+.row {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+
 .space-20 {
     margin-bottom: 5%;
     margin-left: 20%;
@@ -76,19 +103,24 @@
 .no-space-below {
     margin-bottom: 0px !important;
 }
-/*General Styling End*/
+/* General Styling End */
 
-/*Merchant Registration*/
+/* Merchant Registration */
 .merchantRegBox {
-    border: 1px solid lightgray;
+    background: rgba(0, 0, 0, .5);
     border-radius: 3px;
+    color: white;
     height: inherit;
     margin: 5% auto;
-    padding-bottom: 2%;
-    width: 70%;
+    padding: 1%;
+    width: 90%;
 
     /*Shadow*/
     box-shadow: 1px 1px 3px #a0a0a0;
+}
+
+.merchantRegBox small {
+    color: #f0f0f0;
 }
 
 .merchantRegBox form {
@@ -107,4 +139,13 @@
     margin-bottom: 50px !important;
     width: 100%;
 }
-/*Merchant Registration End*/
+/* Merchant Registration End */
+
+/* Alert */
+.top-right {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    width: 50%;
+}
+/* Alert End */

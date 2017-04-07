@@ -7,12 +7,16 @@
         <title> Log In To Panel </title>
         <!-- CSS -->
         <link rel="stylesheet" href="/libs/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.css">
+        <link rel="stylesheet" href="libs/angular-motion/dist/angular-motion.css">
         <!-- Custom CSS -->
         <link rel="stylesheet" href="/css/style.css">
 
         <!-- JS -->
         <script src="/libs/angular/angular.js"></script>
         <script src="/libs/angular-route/angular-route.js"></script>
+        <script src="/libs/angular-strap/dist/angular-strap.min.js"></script>
+        <script src="/libs/angular-strap/dist/angular-strap.tpl.min.js"></script>
 
         <!-- ANGULAR CUSTOM -->
         <script src="/js/controllers/LoginCtrl.js"></script>
@@ -39,6 +43,7 @@
                         <input type="password" name="password" class="form-control" id="password" aria-describedby="passwordHelper" placeholder="Enter Password" ng-model="formData.password" required/>
                         <small id="passwordHelper" class="form-text text-muted">Do not share this with anyone.</small>
                     </div>
+                    <i ng-show="loading" class="fa fa-spinner fa-spin fa-3x fa-fw"></i><br/>
                     <button class="btn custom" id="submit" ng-click="check()"> Sign In </button>
                 </form>
             </div>
