@@ -43,8 +43,8 @@
                         <input type="password" name="password" class="form-control" id="password" aria-describedby="passwordHelper" placeholder="Enter Password" ng-model="formData.password" required/>
                         <small id="passwordHelper" class="form-text text-muted">Do not share this with anyone.</small>
                     </div>
-                    <i ng-show="loading" class="fa fa-spinner fa-spin fa-3x fa-fw"></i><br/>
-                    <button class="btn custom" id="submit" ng-click="check()"> Sign In </button>
+                    <button class="btn custom" id="submit" ng-click="check()"> Sign In </button><br/><br/>
+                    <i ng-show="loading[0]" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
                 </form>
             </div>
         </div>

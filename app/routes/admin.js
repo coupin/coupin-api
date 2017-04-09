@@ -9,10 +9,27 @@ var User = require('../models/admin');
 // Admin api routes
 router.get('/', function(req, res) {
     User.find({
-        'local.superAdmin' : false 
+        // 'local.superAdmin' : false 
     }, function(req, users) {
         res.json(users);
     });
+});
+
+router.post('/sadmin', function(req, res) {
+    console.log(User);
+    var user = new User();
+    user.local.email = req.body.email;
+    user.local.password = User.schema.methods.encryptPassword(req.body.password);
+    user.local.isActive = true;
+    user.local.superAdmin = true;
+
+    user.save(function(err) {
+        if(err)
+            throw err;
+
+        res.send({message: 'SuperAdmin Created!'});
+    });
+
 });
 
 router.route('/:id').delete(function(req, res) {

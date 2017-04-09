@@ -39,16 +39,20 @@
 /* Admin Login Box Styling */
 
 /* Admin View Styling */
-.admin-view {
+.admin-list-view {
     background: #f0f0f0;
-    border-bottom: 1px solid #E38F13;
-    height: 30px;
+    border-bottom: 1px solid #c0c0c0;
+    height: 40px;
     margin: 0 !important;
 }
 
-.admin-view div {
+.admin-list-view div {
     border-right: 1px solid #a0a0a0;
-    height: 30px;
+    height: 40px;
+}
+
+.admin-list-view div h5, .admin-list-view div button {
+    margin-top: 5px;
 }
 /* Admin View Styling End */
 
@@ -57,31 +61,45 @@
     width: 100%;
 }
 
-.registration {
-    background: linear-gradient(to right bottom, #67BC57, deepskyblue);
-    color: white;
+.bottom-space {
+    margin-bottom: 50px;
 }
+
 .custom, .custom:active , .custom:focus {
-    background: #E3C313;
-    border: #E3C313;
-    color: black;
+    background: deepskyblue;
+    border: deepskyblue;
+    color: white;
     outline: none;
 }
 
 .custom:hover {
-    background: #E38F13;
-    border: #E38F13;
-    color: black;
+    background: #00ace6;
+    border: #00ace6;
+    color: white;
     outline: none;
+}
+
+.footer {
+    color: white;
 }
 
 .light {
     font-weight: 100;
 }
 
-.right-divider {
-    border-right: 1px solid lightgray;
-    height: 60%;
+.modal-space-text {
+    font-size: 18px;
+    padding: 20px;
+}
+
+.registration {
+    background: linear-gradient(to right bottom, #67BC57, deepskyblue);
+    color: white;
+}
+
+.left-divider {
+    border-left: 1px solid lightgray;
+    height: 40%;
 
     transform: translateY(30%);
     -moz-transform: translateY(30%);
@@ -103,6 +121,68 @@
 .no-space-below {
     margin-bottom: 0px !important;
 }
+
+/* Vertical Divider */
+
+.vertical-divider {
+  position: absolute;
+  z-index: 10;
+  font-size: 20px;
+  top: 50%;
+  left: 42%;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: 45%;
+  line-height: 0;
+  text-align:center;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
+/*.vertical-divider span {
+    background: rgba(0,0,0,.5);
+    padding: 8px;
+    color: white;
+    border-radius: 24px;
+    z-index: 9;
+}*/
+
+.vertical-divider:before, 
+.vertical-divider:after {
+  position: absolute;
+  left: 42%;
+  content: '';
+  z-index: 1;
+  border-left: 1px solid rgba(34,36,38,.15);
+  border-right: 1px solid rgba(255,255,255,.1);
+  width: 0;
+  height: calc(100% - 2rem);
+}
+
+.row-divided > .vertical-divider {
+  height: calc(50% - 1rem);    
+}
+
+.vertical-divider:before {
+  top: -100%;
+}
+
+.vertical-divider:after {
+  top: auto;
+  bottom: 0;
+}
+
+.row-divided {
+  position:relative;
+}
+
+.row-divided > [class^="col-"],
+.row-divided > [class*=" col-"] {
+  padding-left: 30px;  /* gutter width (give a little extra room) 2x default */
+  padding-right: 30px; /* gutter width (give a little extra room) 2x default */
+}
+
 /* General Styling End */
 
 /* Merchant Registration */
@@ -120,7 +200,11 @@
 }
 
 .merchantRegBox small {
-    color: #f0f0f0;
+    color: gray;
+}
+
+.merchantRegBox small b {
+    color: white;
 }
 
 .merchantRegBox form {

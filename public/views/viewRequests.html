@@ -1,0 +1,75 @@
+<div>
+    <div class="jumbotron">
+        <div class="row text-center">
+            <div class="col-md-4 col-xs-12">
+                <h2>{{totalReq.length}}<br/> Requests</h2>
+            </div>
+            <div class="col-md-4 col-xs-12">
+                <h2>{{totalPen.length}}<br/> Pending</h2>
+            </div>
+            <div class="col-md-4 col-xs-12">
+                <h2>{{totalCom.length}}<br/> Completed</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <ul class="nav nav-tabs">
+            <li><a data-toggle="tab" href="#requests"><h3>Requests</h3></a></li>
+            <li><a data-toggle="tab" href="#pending"><h3>Pending</h3></a></li>
+            <li><a data-toggle="tab" href="#completed"><h3>Completed</h3></a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="requests" class="tab-pane fade in active">
+                <div class="row admin-list-view" ng-repeat="(index, request) in totalReq" data-toggle="modal" data-target="#selectedMerch" ng-click="selectMerch(index)">
+                    <div class="col-xs-1">{{index + 1}}</div>
+                    <div class="col-xs-11">{{request.email}}</div>
+                </div>
+                <h1 ng-show="totalReq.length == 0">There are no current requests</h1>
+            </div>
+            <div id="pending" class="tab-pane fade">
+                <div class="row admin-list-view" ng-repeat="(index, pending) in totalPen">
+                    <div class="col-xs-1">index</div>
+                    <div class="col-xs-11">pending.email</div>
+                </div>
+                <h1 ng-show="totalPen.length == 0">There are no pending requests</h1>
+            </div>
+            <div id="completed" class="tab-pane fade">
+                <div class="row admin-list-view" ng-repeat="(index, complete) in totaCom">
+                    <div class="col-xs-1">index</div>
+                    <div class="col-xs-11">complete.email</div>
+                </div>
+                <h1 ng-show="totalCom.length == 0">There are no completed requests</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected Merchant Modal -->
+    <div class="modal fade" id="selectedMerch" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h3>Merchant Info</h3>
+                </div>
+                <div class="modal-body modal-space-text">
+                    <label for="companyName">Company Name: </label>
+                    <span id="companyName"> {{currentRequest.companyName}} </span>
+                    <br/>
+                    <label for="companyEmail">Email: </label>
+                    <span id="companyEmail"> {{currentRequest.email}} </span>
+                    <br/>
+                    <label for="categories">Categories: </label>
+                    <div style="display: inline-block;" id="categories" ng-init="x = currentRequest.categories.length - 1" ng-repeat="(index, category) in currentRequest.categories">
+                        <span>{{ (index == x) ? category : (category + ", ") }}</span>
+                    </div>
+                    <br/>
+                    <label for="companyDetails">Company Details: </label>
+                    <span id="companyDetails"> {{currentRequest.companyDetails}} </span>
+                    <br/>
+                    <button class="btn btn-success">Approve</button> <button class="btn btn-danger">Decline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Selected Merchant Modal -->
+</div>

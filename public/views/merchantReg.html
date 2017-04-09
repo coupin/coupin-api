@@ -26,19 +26,19 @@
     </head>
     <body ng-app="coupinApp" ng-controller="LoginController" class="registration">
         <div class="row text-center">
-            <h3 class="light"> <b>Merchant</b> Login and Registration Form </h3>
-            <h5 class="light"> One thing you should know, is that <b>We are glad to have you on the team</b> </h5>
+            <h1 class="light"> <b>Merchant</b> Login and Registration Form </h1>
+            <h4 class="light"> One thing you should know, is that <b>we are glad to have you on the team</b> </h4>
         </div>
-        <div class="row">
-            <div class="col-md-5 col-xs-12 right-divider">
-                <h3 class="light"><b>Sign in</b> welcome back</h3>
+        <div class="row row-divided">
+            <div class="col-md-5 col-xs-12">
+                <h3 class="light bottom-space"><b>Sign in</b> welcome back</h3>
                 <div class="merchantRegBox">
                     <form>
                         <div class="form-group">
                             <label for="loginEmail">Email: </label>
                             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                 <div class="input-group-addon"><i class="fa fa-at"></i></div>
-                                <input type="text" class="form-control" id="loginEmail" aria-describedby="loginEmailHelp" placeholder="" ng-model="formData.loginEmail" required>
+                                <input type="text" class="form-control" id="loginEmail" aria-describedby="loginEmailHelp" placeholder="Email" ng-model="formData.loginEmail" required>
                             </div>
                             <small id="loginEmailHelp" class="form-text text-muted">Email you registered with</small>
                         </div>
@@ -46,16 +46,18 @@
                             <label for="loginPassword">Password: </label>
                             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                 <div class="input-group-addon"><i class="fa fa-key"></i></div>
-                                <input type="text" class="form-control" id="loginPassword" aria-describedby="loginPasswordHelp" placeholder="" ng-model="formData.loginPassword" required>
+                                <input type="text" class="form-control" id="loginPassword" aria-describedby="loginPasswordHelp" placeholder="Password" ng-model="formData.loginPassword" required>
                             </div>
                             <small id="loginPasswordHelp" class="form-text text-muted">Email you registered with</small>
                         </div>
-                        <button class="btn btn-default" type="submit" ng-click="">Sign In</button>
+                        <button class="btn btn-default" type="submit" ng-click="">Sign In</button><i ng-show="loading[0]" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
                     </form>
+                    <small class="form-text text-muted light" style="margin-left:20px;">Forgot your password? Click <b>here</b></small>
                 </div>
             </div>
+            <div class="vertical-divider"><span>or</span></div>
             <div class="col-md-7 col-xs-12">
-                <h3 class="light"><b>Sign up</b> with us to start now...</h3>
+                <h3 class="light bottom-space"><b>Sign up</b> with us to start now...</h3>
                 <div class="merchantRegBox">
                     <form>
                         <div class="form-group">
@@ -76,13 +78,13 @@
                         </div>
                         <div class="form-group">
                             <label>Business Categories: </label><br/>
-                            <input type="checkbox" name="category" id="entertainment" ng-checked="categories.entertainment" ng-click="addCat('entertainment')"> <label for="entertainment">Entertainment </label>
-                            <input type="checkbox" name="category" id="foodndrinks" ng-checked="categories.foodndrinks" ng-click="addCat('foodndrinks')"> <label for="foodndrinks">Food and Drink </label>
-                            <input type="checkbox" name="category" id="gadgets" ng-checked="categories.gadgets" ng-click="addCat('gadgets')"> <label for="gadgets">Gadgets </label>
-                            <input type="checkbox" name="category" id="healthnbeauty" ng-checked="categories.healthnbeauty" ng-click="addCat('healthnbeauty')"> <label for="healthnbeauty">Health &amp; Beauty </label>
-                            <input type="checkbox" name="category" id="shopping" ng-checked="categories.shopping" ng-click="addCat('shopping')"> <label for="shopping">Shopping </label>
-                            <input type="checkbox" name="category" id="tickets" ng-checked="categories.tickets" ng-click="addCat('tickets')"> <label for="tickets">Tickets </label>
-                            <input type="checkbox" name="category" id="travel" ng-checked="categories.travel" ng-click="addCat('travel')"> <label for="travel">Travel </label>
+                            <input type="checkbox" name="category" id="entertainment" ng-checked="categories.entertainment" ng-click="addCat('entertainment')"> <label class="light" for="entertainment">Entertainment </label>
+                            <input type="checkbox" name="category" id="foodndrinks" ng-checked="categories.foodndrinks" ng-click="addCat('foodndrinks')"> <label class="light" for="foodndrinks">Food and Drink </label>
+                            <input type="checkbox" name="category" id="gadgets" ng-checked="categories.gadgets" ng-click="addCat('gadgets')"> <label class="light" for="gadgets">Gadgets </label>
+                            <input type="checkbox" name="category" id="healthnbeauty" ng-checked="categories.healthnbeauty" ng-click="addCat('healthnbeauty')"> <label class="light" for="healthnbeauty">Health &amp; Beauty </label>
+                            <input type="checkbox" name="category" id="shopping" ng-checked="categories.shopping" ng-click="addCat('shopping')"> <label class="light" for="shopping">Shopping </label>
+                            <input type="checkbox" name="category" id="tickets" ng-checked="categories.tickets" ng-click="addCat('tickets')"> <label class="light" for="tickets">Tickets </label>
+                            <input type="checkbox" name="category" id="travel" ng-checked="categories.travel" ng-click="addCat('travel')"> <label class="light" for="travel">Travel </label>
                             <br/>
                             <small id="emailHelp" class="form-text text-muted">Please tick categories that best describe your business.</small>
                         </div>
@@ -92,10 +94,14 @@
                             <small id="descrHelp" class="form-text text-muted">Describe business in 80 words or less</small>
                         </div>
                         
-                        <i ng-show="loading" class="fa fa-spinner fa-spin fa-3x fa-fw"></i><br/>
-                        <button class="btn btn-default" type="submit" ng-click="registerMerch()">Submit Request</button>
+                        <button class="btn btn-default" type="submit" ng-click="registerMerch()">Submit Request</button><i ng-show="loading[1]" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
                     </form>
                 </div>
+            </div>
+        </div>
+        <div class="row footer">
+            <div class="row text-center">
+                <small id="descrHelp" class="form-text">Copyrite of CoupinApp &copy;</small>
             </div>
         </div>
     </body>

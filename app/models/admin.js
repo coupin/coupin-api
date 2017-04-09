@@ -10,9 +10,8 @@ var schema = mongoose.Schema;
 
 var adminSchema = new schema({
     local: {
-        username: String, 
-        password: String,
         email: String,
+        password: String,
         isActive: {
             type: Boolean,
             default: true

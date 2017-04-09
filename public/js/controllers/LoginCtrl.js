@@ -3,7 +3,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
     $scope.formData = {};
     // to show error and loading
     $scope.showError = false;
-    $scope.loading = false;
+    $scope.loading = [false, false];
     // to hold categories
     $scope.categories = {
         foodndrinks : false,
@@ -37,7 +37,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
     // For Admin Login
     $scope.check = () => {
         // show loading
-        $scope.loading = true;
+        $scope.loading[0] = true;
         // reset show error back to false
         $scope.showError = false;
 
@@ -48,11 +48,12 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
             .then(function(data){
                 $window.location.href = '/homepage';
             }, function(err) {
-                $scope.loading = false;
+                $scope.loading[0] = false;
                 $scope.loginError = "Email or Password is invalid."
                 $scope.showError = true;
             });
         } else {
+            $scope.loading[0] = false;
             $scope.loginError = "Email and Password Cannot Be Empty";
             $scope.showError = true;
         }
@@ -72,14 +73,14 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
         $scope.formData.categories = finalCat;
 
         // Show loading icon
-        $scope.loading = true;
+        $scope.loading[1] = true;
 
         // User service to register merchant
         AdminLoginSrv.registerMerch($scope.formData)
         .then(function(response) {
             if(response.data.success) {
                 // Hide loading icon
-                $scope.loading = false;
+                $scope.loading[1] = false;
 
                 // Reset form data
                 $scope.formData = {};
@@ -103,7 +104,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
                 });
             } else {
                 // hide loading icon
-                $scope.loading = false;
+                $scope.loading[1] = false;
                 var errorArray = response.data.message;
 
                 // check if errorArray is an object, if so send an alert for each item
@@ -132,7 +133,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
             }
         })
         .catch(function(err) {
-            $scope.loading = false;
+            $scope.loading[1] = false;
                 $alert({
                     'title': "Request Failed",
                     'content': err,
