@@ -10,18 +10,19 @@
     "express": "~4.8.0",
     "express-session": "^1.15.1",
     "express-validator": "^3.1.2",
+    "jsonwebtoken": "*",
     "method-override": "~2.0.2",
     "mongoose": "~4.9.2",
     "morgan": "^1.8.1",
+    "nodemailer": "^4.0.0",
     "passport": "*",
     "passport-facebook": "^2.1.1",
     "passport-google-auth": "^1.0.1",
     "passport-http": "*",
-    "passport-local": "*",
-    "passport-twitter": "^1.0.4",
     "passport-http-bearer": "*",
     "passport-jwt": "*",
-    "jsonwebtoken": "*"
+    "passport-local": "*",
+    "passport-twitter": "^1.0.4"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

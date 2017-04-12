@@ -87,6 +87,14 @@
     font-weight: 100;
 }
 
+.loading-screen {
+    background: rgba(255, 255, 255, .5);
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    z-index: 23;
+}
+
 .modal-space-text {
     font-size: 18px;
     padding: 20px;

@@ -34,6 +34,17 @@ var merchantSchema = new schema({
         type: Boolean,
         default: false
       },
+      isPending: {
+        type: Boolean,
+        default: false
+      },
+      rejected: {
+        type: Boolean,
+        default: false
+      },
+      reason: {
+        type: String
+      },
       createdDate: {
         type: Date
       },

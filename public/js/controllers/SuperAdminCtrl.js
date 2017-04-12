@@ -33,7 +33,8 @@ angular.module('SuperAdminCtrl', []).controller('SuperAdminController', function
                 $alert({
                     'title': "Success",
                     'content': $scope.currentAdmin.local.email + data.data.message,
-                    'placement': 'center',
+                    'duration': 5,
+                    'placement': 'top-right',
                     'show' : true ,
                     'type' : 'success'
                 });
@@ -41,7 +42,8 @@ angular.module('SuperAdminCtrl', []).controller('SuperAdminController', function
                 $alert({
                     'title': "Failure",
                     'content': $scope.currentAdmin.local.email + data.data.message,
-                    'placement': 'center',
+                    'duration': 5,
+                    'placement': 'top-right',
                     'show' : true ,
                     'type' : 'error'
                 });
@@ -50,7 +52,8 @@ angular.module('SuperAdminCtrl', []).controller('SuperAdminController', function
             $alert({
                     'title': "Failure",
                     'content': err,
-                    'placement': 'center',
+                    'duration': 5,
+                    'placement': 'top-right',
                     'show' : true ,
                     'type' : 'error'
                 });
@@ -71,7 +74,8 @@ angular.module('SuperAdminCtrl', []).controller('SuperAdminController', function
                 $alert({
                     'title': "Success",
                     'content': $scope.currentAdmin.local.email + data.data.message,
-                    'placement': 'center',
+                    'duration': 5,
+                    'placement': 'top-right',
                     'show' : true ,
                     'type' : 'success'
                 });
@@ -79,7 +83,8 @@ angular.module('SuperAdminCtrl', []).controller('SuperAdminController', function
                 $alert({
                     'title': "Failure",
                     'content': $scope.currentAdmin.local.email + data.data.message,
-                    'placement': 'center',
+                    'duration': 5,
+                    'placement': 'top-right',
                     'show' : true ,
                     'type' : 'error'
                 });
@@ -88,7 +93,8 @@ angular.module('SuperAdminCtrl', []).controller('SuperAdminController', function
             $alert({
                     'title': "Failure",
                     'content': err,
-                    'placement': 'center',
+                    'duration': 5,
+                    'placement': 'top-right',
                     'show' : true ,
                     'type' : 'error'
                 });
@@ -105,7 +111,8 @@ angular.module('SuperAdminCtrl', []).controller('SuperAdminController', function
                 $alert({
                     'title': "Success",
                     'content': $scope.currentAdmin.local.email + data.data.message,
-                    'placement': 'center',
+                    'duration': 5,
+                    'placement': 'top-right',
                     'show' : true ,
                     'type' : 'success'
                 });
@@ -114,7 +121,8 @@ angular.module('SuperAdminCtrl', []).controller('SuperAdminController', function
             $alert({
                     'title': "Failed",
                     'content': err,
-                    'placement': 'center',
+                    'duration': 5,
+                    'placement': 'top-right',
                     'show' : true ,
                     'type' : 'error'
                 });
