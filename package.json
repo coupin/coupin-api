@@ -1,10 +1,9 @@
 {
-  "name": "discount_test",
+  "name": "coupin-app",
   "main": "server.js",
   "dependencies": {
     "bcryptjs": "^2.3.0",
     "body-parser": "~1.4.2",
-    "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.3",
     "crypto-js": "^3.1.8",
     "express": "~4.8.0",
@@ -19,7 +18,6 @@
     "passport-facebook": "^2.1.1",
     "passport-google-auth": "^1.0.1",
     "passport-http": "*",
-    "passport-http-bearer": "*",
     "passport-jwt": "*",
     "passport-local": "*",
     "passport-twitter": "^1.0.4"
@@ -28,3 +26,4 @@
     "nodemon": "^1.11.0"
   }
 }
+

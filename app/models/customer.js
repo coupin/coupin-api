@@ -7,43 +7,14 @@ var bcrypt = require('bcryptjs');
 var schema = mongoose.Schema;
 
 var customerSchema = new schema({
-    local: {
-        username: String, 
-        password: String,
-        email: String,
-        admin: {
-            type: Boolean,
-            default: false
-            }
-    },
-    facebook         : {
-        id           : String,
-        token        : String,
-        email        : String,
-        name         : String
-    },
-    // TODO: Remove twitter
-    twitter          : {
-        id           : String,
-        token        : String,
-        displayName  : String,
-        username     : String
-    },
-    google           : {
-        id           : String,
-        token        : String,
-        email        : String,
-        name         : String
-    },
-    info : {
-        name: {
+
+      name: {
           type: String
           //default: ''
       },
       email: {
         type: String
       },
-    //   TODO: leave for analytics
       address: {
           type: String
           //default: ''
@@ -76,30 +47,33 @@ var customerSchema = new schema({
       modifiedDate: {
         type: Date
       }
-    }
-});
 
-customerSchema.methods.getCustomerById = function(id, callback){
+
+});
+// module.exports allows is to pass this to other files when it is called
+var Customer = module.exports = mongoose.model('Customer', customerSchema);
+
+module.exports.getCustomerById = function(id, callback){
 	Customer.findById(id, callback);
 }
 
-customerSchema.methods.getCustomerByNumber = function(mobileNumber, callback){
+module.exports.getCustomerByNumber = function(mobileNumber, callback){
   var query = {mobileNumber: mobileNumber};
 	Customer.findOne(query, callback);
 }
 
-customerSchema.methods.getCustomerByEmail = function(email, callback){
+module.exports.getCustomerByEmail = function(email, callback){
 	var query = {email: email};
 	Customer.findOne(query, callback);
 }
 
-customerSchema.methods.comparePassword = function(candidatePassword, hash, callback){
+module.exports.comparePassword = function(candidatePassword, hash, callback){
 	bcrypt.compare(candidatePassword, hash, function(err, isMatch) {
     	callback(null, isMatch);
 	});
 }
 
-customerSchema.methods.createCustomer = function(newCustomer, callback){
+module.exports.createCustomer = function(newCustomer, callback){
 	bcrypt.genSalt(10, function(err, salt) {
     	bcrypt.hash(newCustomer.password, salt, function(err, hash) {
    			newCustomer.password = hash;
@@ -107,6 +81,3 @@ customerSchema.methods.createCustomer = function(newCustomer, callback){
     	});
 	});
 }
-
-// module.exports allows is to pass this to other files when it is called
-module.exports = mongoose.model('Customer', customerSchema);

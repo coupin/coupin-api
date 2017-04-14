@@ -5,6 +5,15 @@ const messages = require('../../config/messages');
 const router = express.Router();
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+var jwt = require('jsonwebtoken');
+var passportJWT = require("passport-jwt");
+
+var ExtractJwt = passportJWT.ExtractJwt;
+var JwtStrategy = passportJWT.Strategy;
+
+var jwtOptions = {}
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+jwtOptions.secretOrKey = 'coupinappmerchant';
 
 // models
 var Merchant = require('../models/merchant');
@@ -15,42 +24,10 @@ passport.serializeUser(function(merchant, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  Merchant.getMerchantById(id, function(err, merchant) {
+  Merchant.findById(id, function(err, merchant) {
     done(err, merchant);
   });
 });
-
-passport.use('merchant-login', new LocalStrategy({
-        usernameField : 'email',
-        passwordField: 'password',
-        passReqToCallback : true
-    }, function(req, email, password, done){ 
-    // Check to see if user exists
-    Merchant.findOne({ 'email' : email }, function(err, user) {
-      if(err) 
-          return done(err);
-
-      //If no user is found return the signupMessage
-      if(!user) 
-          return done(null, false, {success : false, message: "No such user exists"});
-
-      if(!user.password)
-        return done(null, false, {success : false, message: "You are yet to complete your registration"});
-
-      // id user is found but password is wrong
-      if(!user.isValidPassword(password))
-          return done(null, false, {success : false, message: 'Wrong Password'});
-      
-      // if everything is okay
-      if(user.activated) {
-          return done(null, user);
-      }
-
-      return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
-      
-  });
-}));
-
 
 // middleware to use for all requests
 router.use(function(req, res, next) {
@@ -58,25 +35,64 @@ router.use(function(req, res, next) {
     next(); // make sure we go to the next routes and don't stop here
 });
 
+// Signing in for a merchant
+router.route('/authenticate')
+.post(function(req, res) {
+    // Validate request
+    req.checkBody('email', 'Email is required').notEmpty();
+    req.checkBody('password', 'Password is required').notEmpty();
 
-router.route('/merchant/login')
-      .post(function(req, res) {
-        console.log('inside');
-  passport.authenticate('merchant-login',{
-    successRedirect: '/admin/login'
+    // Get errors if any
+    var errors = req.validationErrors();
+
+    if(errors){
+      res.status(401).json({success: false, message: errors});
+    } else {
+      var email = req.body.email;
+      var password = req.body.password;
+
+      // Find merchant with email
+      Merchant.findOne({'email': email}, function(err, merchant) {
+        if (err) 
+          throw err;
+
+        // Check if merchant exists
+        if(!merchant)
+          res.json({success: false, message: 'Authentication failed. Merchant not found'})
+        
+        // Check if password exists
+        if(merchant.isValid(password)) {
+          var payload = {id: merchant.id, name: merchant.companyName, email: merchant.email};
+          var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+          //var token = jwt.sign(customer, secretKey, {
+          //  expiresInMinutes: 1440
+          //});
+
+          res.json({
+            success: true,
+            message: 'Here is your Merchant token',
+            token: token
+          });
+        } else {
+          res.status(401).json({success: false, message: "Invalid Password"});
+        }
+      });
+    }
+  })
+  // Used to validate sessions
+  .get(passport.authenticate('jwt-1',{session: false}), function(req, res){
+    res.json({success: true, message: "Merchant token was validated"});
   });
-  // function(req, res) {
-  //   console.log(req.body);
-  //   // res.json(message, 'You are now logged in');
-  // }
-});
 
+// For Registration of merchants
 router.route('/merchant/register')
 
     // create a bear (accessed at POST http://localhost:8080/api/bears)
     .post(function(req, res) {
 
-      var companyName = req.body.companyName;  // set the customer name (comes from the request)
+      // Get merchant details
+      var companyName = req.body.companyName;
       var email = req.body.email;
       var mobileNumber = req.body.mobileNumber;
       var companyDetails = req.body.companyDetails;
@@ -118,6 +134,7 @@ router.route('/merchant/register')
   res.sendfile('./public/views/merchantReg.html');
 });
 
+// To handle getting merchants
 router.route('/merchant')
 .get(function(req, res) {
     Merchant.find(function(err, merchant) {
@@ -126,15 +143,9 @@ router.route('/merchant')
 
         res.json(merchant);
     });
-}).delete(function(req, res) {
-  Merchant.remove(function(err, merchant){
-    if(err)
-      throw err;
-
-    res.send({message: 'Delete Successful'});
-  });
 });
 
+// To call the completion
 router.route('/merchant/confirm/:id').get(function(req, res) {
   // load the merchant registration page
   Merchant.findById(req.params.id, function(err, merchant){
@@ -148,14 +159,13 @@ router.route('/merchant/confirm/:id').get(function(req, res) {
     }
   });
 })
+// Completion of merchant registration
 .post(function(req, res){
   // get the data from the the 
     var address = req.body.address;
     var city = req.body.city;
     var password = req.body.password;
     var state = req.body.state;
-
-    console.log(req.body);
 
     // Form Validator
     req.checkBody('address','Address field is required').notEmpty();
@@ -190,7 +200,9 @@ router.route('/merchant/confirm/:id').get(function(req, res) {
           });
       });
     }
-}).put(function(req, res) {
+})
+// For when the admin approves
+.put(function(req, res) {
   var decision = req.body;
 
   Merchant.findById(req.params.id, function(err, merchant){
@@ -228,53 +240,53 @@ router.route('/merchant/confirm/:id').get(function(req, res) {
 
 });
 
-      // on routes that end in /bears/:bear_id
-      // ----------------------------------------------------
-      router.route('/merchant/:id')
+// Querying by Id
+router.route('/merchant/:id')
+.get(function(req, res) {
+  Merchant.findById(req.params.id, function(err, merchant) {
+    if (err)
+      throw(err);
 
-      .get(function(req, res) {
-        Merchant.findById(req.params.id, function(err, merchant) {
-          if (err)
-            throw(err);
+    res.json(merchant);
+  })
+})
+// .delete(function(req, res) {
+//   Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
+//     if(err)
+//       throw err;
 
-          res.json(merchant);
-        })
-      })
-      .delete(function(req, res) {
-        Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
-          if(err)
-            throw err;
+//     res.send({message: 'Merchant Deleted'});
+//   })
+// })
+// update the bear with this id (accessed at PUT http://localhost:8080/api/bears/:bear_id)
+.put(function(req, res) {
 
-          res.send({message: 'Merchant Deleted'});
-        })
-      })
-      // update the bear with this id (accessed at PUT http://localhost:8080/api/bears/:bear_id)
-      .put(function(req, res) {
+    // use our customer model to find the bear we want
+    Merchant.findById(req.params.id, function(err, merchant) {
 
-          // use our customer model to find the bear we want
-          Merchant.findById(req.params.id, function(err, merchant) {
+        if (err)
+            res.send(err);
 
-              if (err)
-                  res.send(err);
+        if (req.body.mobileNumber)
+          merchant.mobileNumber = req.body.mobileNumber;  // update the customers info
+        if (req.body.email)
+          merchant.email = req.body.email;
+        if (req.body.address)
+          merchant.address =  req.body.address;
+        if (req.body.city)
+          merchant.city = req.body.city;
+        if (req.body.state)
+          merchant.state =  req.body.state;
 
-              if (req.body.name)
-                merchant.name = req.body.companyName;  // update the customers info
-              if (req.body.email)
-                merchant.email = req.body.email;
-              if (req.body.address)
-                merchant.address =  req.body.address;
+        merchant.modifiedDate = Date.now();
 
-              merchant.modifiedDate = Date.now();
+        // save the customer updateCustomer
+        merchant.save(function(err) {
+            if (err)
+                res.send(err);
 
-              // save the customer updateCustomer
-              merchant.save(function(err) {
-                  if (err)
-                      res.send(err);
+            res.json({ message: 'Merchant updated!' });
+        });
 
-                  res.json({ message: 'Merchant updated!' });
-              });
-
-          });
-      });
-
-  module.exports = router;
+    });
+});

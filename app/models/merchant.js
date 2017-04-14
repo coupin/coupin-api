@@ -13,9 +13,6 @@ var merchantSchema = new schema({
       companyName: {
           type: String
           //default: ''
-      },
-      categories: {
-        type: [String]
       }
       ,
       email: {
@@ -41,6 +38,10 @@ var merchantSchema = new schema({
           type: String
       },
       activated: {
+        type: Boolean,
+        default: false
+      },
+      deactivated: {
         type: Boolean,
         default: false
       },
