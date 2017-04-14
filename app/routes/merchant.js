@@ -25,9 +25,11 @@ passport.deserializeUser(function(id, done) {
 
 var jwtOptions = {}
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
-jwtOptions.secretOrKey = 'c0upinAppM3rchAn+';
+jwtOptions.secretOrKey = 'coupinappmerchant';
 
-var merchantStrategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
+//var strategy =
+
+passport.use('jwt-1', new JwtStrategy(jwtOptions, function(jwt_payload, next) {
   console.log('payload received', jwt_payload);
 
 Merchant.getMerchantByEmail(jwt_payload.email, function(err, merchant) {
@@ -39,9 +41,8 @@ Merchant.getMerchantByEmail(jwt_payload.email, function(err, merchant) {
     }
 });
 
-});
-
-passport.use(merchantStrategy);
+})
+);
 
   // middleware to use for all requests
   router.use(function(req, res, next) {
@@ -94,7 +95,7 @@ passport.use(merchantStrategy);
   }
   })
 
-  .get(passport.authenticate('jwt',{session: false}), function(req, res){
+  .get(passport.authenticate('jwt-1',{session: false}), function(req, res){
     res.json("Merchant token was validated");
   });
 

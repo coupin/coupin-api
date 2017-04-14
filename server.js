@@ -17,6 +17,7 @@ var JwtStrategy = passportJWT.Strategy;
 var db = require('./config/db').module;
 var merchant = require('./app/routes/merchant');
 var customer = require('./app/routes/customer');
+var rewards = require('./app/routes/rewards');
 // set our port
 var port = process.env.PORT || 5030;
 
@@ -80,9 +81,9 @@ var mongoose = require('mongoose');
 // configure our routes
 
 
-app.use('/api/merchant', merchant);
-app.use('/api/customer', customer);
-
+app.use('/merchant', merchant);
+app.use('/customer', customer);
+app.use('/rewards', rewards);
 //start app
 
 //start on localhost 3030

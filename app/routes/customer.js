@@ -27,21 +27,23 @@ var jwtOptions = {}
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
 jwtOptions.secretOrKey = 'coupinappcustomer';
 
-var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-  console.log('payload received', jwt_payload);
+var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, done) {
+
   // usually this would be a database call:
-Customer.getCustomerByEmail(jwt_payload.email, function(err, customer) {
+Customer.getCustomerById(jwt_payload.id, function(err, customer) {
+
     if (err) throw err;
-    if (customer) {
-      next(null, customer);
-    } else {
-      next(null, false,{message: 'Unknown Customer'});
+    if (!customer) {
+      return done(null, false,{message: 'Unknown Customer'});
     }
-});
+    return done(null, customer);
+
 
 });
 
-passport.use(strategy);
+});
+
+passport.use('jwt-2',strategy);
 
 
 // middleware to use for all requests
@@ -72,7 +74,7 @@ router.route('/authenticate')
           res.status(401).json({message:"Invalid Password"});
         } else {
           var payload = {id: customer.id, name: customer.name, email: customer.email};
-    var token = jwt.sign(payload, jwtOptions.secretOrKey);
+          var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
           //var token = jwt.sign(customer, secretKey, {
           //  expiresInMinutes: 1440
@@ -94,7 +96,7 @@ else{
 }
 })
 
-.get(passport.authenticate('jwt',{session: false}), function(req, res){
+.get(passport.authenticate('jwt-2',{session: false}), function(req, res){
   res.json("Success! You have used a token for this");
 });
 
@@ -127,6 +129,8 @@ router.route('/register')
   if(errors){
     res.json({ message: errors });
   } else{
+    var nowD = new Date();
+    var currentDate = nowD.toUTCString();
     var customer = new Customer({      // create a new instance of the Customer model
       name: name,
       email: email,
@@ -134,7 +138,7 @@ router.route('/register')
       password: password,
       address: address,
       dateOfBirth: dateOfBirth,
-      createdDate: Date.now
+      createdDate: currentDate
     });
 
     Customer.createCustomer(customer, function(err, newCustomer){
