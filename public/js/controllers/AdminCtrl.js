@@ -45,12 +45,12 @@ angular.module('AdminCtrl', []).controller('AdminController', function($location
             $scope.showSuccess = false;
             $scope.showError = true;
         });
-    }
+    };
 
     // Function to change views
     $scope.changeView = (view) => {
         $location.path(view);
-    }
+    };
 
     // Function to log user out
     $scope.logout = () => {

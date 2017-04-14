@@ -7,43 +7,14 @@ var bcrypt = require('bcryptjs');
 var schema = mongoose.Schema;
 
 var customerSchema = new schema({
-    local: {
-        username: String, 
-        password: String,
-        email: String,
-        admin: {
-            type: Boolean,
-            default: false
-            }
-    },
-    facebook         : {
-        id           : String,
-        token        : String,
-        email        : String,
-        name         : String
-    },
-    // TODO: Remove twitter
-    twitter          : {
-        id           : String,
-        token        : String,
-        displayName  : String,
-        username     : String
-    },
-    google           : {
-        id           : String,
-        token        : String,
-        email        : String,
-        name         : String
-    },
-    info : {
-        name: {
+
+      name: {
           type: String
           //default: ''
       },
       email: {
         type: String
       },
-    //   TODO: leave for analytics
       address: {
           type: String
           //default: ''
@@ -76,7 +47,8 @@ var customerSchema = new schema({
       modifiedDate: {
         type: Date
       }
-    }
+
+
 });
 // module.exports allows is to pass this to other files when it is called
 var Customer = module.exports = mongoose.model('Customer', customerSchema);

@@ -6,13 +6,15 @@ var User = require('./models/admin');
 var passport = require('passport');
 
 // Routes
-var locationRouters = require('./routes/locations');
 var adminRouters = require('./routes/admin');
+var locationRouters = require('./routes/locations');
+var merchantRouters = require('./routes/merchant');
 
 module.exports = function(app) {
     // server routes
-    app.use('/api/locations', locationRouters);
     app.use('/admin', adminRouters);
+    app.use('/api', merchantRouters);
+    app.use('/api/locations', locationRouters);
 
     // frontend routers
     
@@ -25,6 +27,11 @@ module.exports = function(app) {
     app.get('/homepage', isLoggedIn, function(req, res) {
         // load the home page
         res.sendfile('./public/views/base.html');
+    });
+
+    app.get('/merchant/login', function(req, res) {
+        //load the merchant login page
+        res.sendfile('./public/views/merchantReg.html');
     });
 
     app.get('/logout', function(req, res) {

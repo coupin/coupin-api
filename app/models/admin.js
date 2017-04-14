@@ -1,7 +1,6 @@
 // module
 var crypto = require('crypto-js');
 var mongoose = require('mongoose');
-var passportLocalMongoose = require('passport-local-mongoose');
 
 // config file
 var config = require('../../config/env');
@@ -11,9 +10,8 @@ var schema = mongoose.Schema;
 
 var adminSchema = new schema({
     local: {
-        username: String, 
-        password: String,
         email: String,
+        password: String,
         isActive: {
             type: Boolean,
             default: true

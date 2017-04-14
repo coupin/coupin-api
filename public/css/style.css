@@ -1,4 +1,4 @@
-/* Login Box Styling */
+/* Admin Login Box Styling */
 .login-box {
     border-radius: 20px;
     height: 400px;
@@ -36,21 +36,88 @@
     margin-bottom: 10px;
     text-align: center;
 }
-/* Login Box Styling */
+/* Admin Login Box Styling */
+
+/* Admin View Styling */
+.admin-list-view {
+    background: #f0f0f0;
+    border-bottom: 1px solid #c0c0c0;
+    height: 40px;
+    margin: 0 !important;
+}
+
+.admin-list-view div {
+    border-right: 1px solid #a0a0a0;
+    height: 40px;
+}
+
+.admin-list-view div h5, .admin-list-view div button {
+    margin-top: 5px;
+}
+/* Admin View Styling End */
 
 /*General Styling*/
+.body {
+    width: 100%;
+}
+
+.bottom-space {
+    margin-bottom: 50px;
+}
+
 .custom, .custom:active , .custom:focus {
-    background: #E3C313;
-    border: #E3C313;
-    color: black;
+    background: deepskyblue;
+    border: deepskyblue;
+    color: white;
     outline: none;
 }
 
 .custom:hover {
-    background: #E38F13;
-    border: #E38F13;
-    color: black;
+    background: #00ace6;
+    border: #00ace6;
+    color: white;
     outline: none;
+}
+
+.footer {
+    color: white;
+}
+
+.light {
+    font-weight: 100;
+}
+
+.loading-screen {
+    background: rgba(255, 255, 255, .5);
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    z-index: 23;
+}
+
+.modal-space-text {
+    font-size: 18px;
+    padding: 20px;
+}
+
+.registration {
+    background: linear-gradient(to right bottom, #67BC57, deepskyblue);
+    color: white;
+}
+
+.left-divider {
+    border-left: 1px solid lightgray;
+    height: 40%;
+
+    transform: translateY(30%);
+    -moz-transform: translateY(30%);
+    -o-transform: translateY(30%);
+    -webkit-transform: translateY(30%);
+}
+
+.row {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
 }
 
 .space-20 {
@@ -62,18 +129,115 @@
 .no-space-below {
     margin-bottom: 0px !important;
 }
-/*General Styling End*/
 
-/* Admin View Styling */
-.admin-view {
-    background: #f0f0f0;
-    border-bottom: 1px solid #E38F13;
-    height: 30px;
-    margin: 0 !important;
+/* Vertical Divider */
+
+.vertical-divider {
+  position: absolute;
+  z-index: 10;
+  font-size: 20px;
+  top: 50%;
+  left: 42%;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: 45%;
+  line-height: 0;
+  text-align:center;
+  text-transform: uppercase;
+  transform: translateX(-50%);
 }
 
-.admin-view div {
-    border-right: 1px solid #a0a0a0;
-    height: 30px;
+/*.vertical-divider span {
+    background: rgba(0,0,0,.5);
+    padding: 8px;
+    color: white;
+    border-radius: 24px;
+    z-index: 9;
+}*/
+
+.vertical-divider:before, 
+.vertical-divider:after {
+  position: absolute;
+  left: 42%;
+  content: '';
+  z-index: 1;
+  border-left: 1px solid rgba(34,36,38,.15);
+  border-right: 1px solid rgba(255,255,255,.1);
+  width: 0;
+  height: calc(100% - 2rem);
 }
-/* Admin View Styling End */
+
+.row-divided > .vertical-divider {
+  height: calc(50% - 1rem);    
+}
+
+.vertical-divider:before {
+  top: -100%;
+}
+
+.vertical-divider:after {
+  top: auto;
+  bottom: 0;
+}
+
+.row-divided {
+  position:relative;
+}
+
+.row-divided > [class^="col-"],
+.row-divided > [class*=" col-"] {
+  padding-left: 30px;  /* gutter width (give a little extra room) 2x default */
+  padding-right: 30px; /* gutter width (give a little extra room) 2x default */
+}
+
+/* General Styling End */
+
+/* Merchant Registration */
+.merchantRegBox {
+    background: rgba(0, 0, 0, .5);
+    border-radius: 3px;
+    color: white;
+    height: inherit;
+    margin: 5% auto;
+    padding: 1%;
+    width: 90%;
+
+    /*Shadow*/
+    box-shadow: 1px 1px 3px #a0a0a0;
+}
+
+.merchantRegBox small {
+    color: gray;
+}
+
+.merchantRegBox small b {
+    color: white;
+}
+
+.merchantRegBox form {
+    margin: 5% 5%;
+}
+
+.merchantRegBox .top-label {
+    background: linear-gradient(to right bottom, #67BC57, deepskyblue);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 1px 1px 3px #c0c0c0;
+    color: white;
+    height: inherit;
+    font-family: FontAwesome;
+    font-size: 32px;
+    line-height: 2em;
+    margin-bottom: 50px !important;
+    width: 100%;
+}
+/* Merchant Registration End */
+
+/* Alert */
+.top-right {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    width: 50%;
+}
+/* Alert End */

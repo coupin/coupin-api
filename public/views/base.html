@@ -6,6 +6,7 @@
 
         <!-- CSS -->
         <link rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap.css">
+        <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.css">
         <link rel="stylesheet" href="libs/angular-motion/dist/angular-motion.css"
         <!-- Custom CSS -->
         <link rel="stylesheet" href="css/style.css">
@@ -21,7 +22,9 @@
         <script src="js/controllers/AdminCtrl.js"></script>
         <script src="js/controllers/SuperAdminCtrl.js"></script>
         <script src="js/controllers/WelcomeCtrl.js"></script>
+        <script src="js/controllers/RequestCtrl.js"></script>
         <script src="js/services/AdminSrv.js"></script>
+        <script src="js/services/MerchantSrv.js"></script>
         <script src="js/appRoutes.js"></script>
         <script src="js/app.js"></script>
 
@@ -53,6 +56,13 @@
                                 <li><a href="/addAdmin">Add New Admin</a></li>
                             </ul>
                         </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Merchants <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/viewRequests">View Requests</a></li>
+                                <li><a href="/viewMerch">View Merchants</a></li>
+                            </ul>
+                        </li>
                     </ul>
                     <ul class="nav navbar-right">
                         <li>
@@ -67,7 +77,7 @@
         <!-- Dynamic Angular Content -->
         <div ng-view></div>
 
-        <script src="libs/jquery/dist/jquery.js"></script> 
+         <script src="libs/jQuery/dist/jquery.js"></script>  
         <script src="libs/bootstrap/dist/js/bootstrap.js"></script>
     </body>
 </html>

@@ -85,4 +85,30 @@ module.exports = function(passport) {
             });
         });
     }));
+
+    // Strategy for merchants
+    passport.use('jwt-1', new JwtStrategy(jwtOptions, function(jwt_payload, next) {
+        Merchant.findOne({ 
+            'email' : jwt_payload.email
+        }, function(err, merchant) {
+            if (err) throw err;
+            if (merchant) {
+            next(null, merchant);
+            } else {
+            next(null, false,{message: 'Unknown Merchant'});
+            }
+        });
+    }));
+
+    passport.use('jwt-2', new JwtStrategy(jwtOptions, function(jwt_payload, done) {
+        // usually this would be a database call:
+        Customer.findById(jwt_payload.id, function(err, customer) {
+
+            if (err) throw err;
+            if (!customer) {
+                return done(null, false,{message: 'Unknown Customer'});
+            }
+            return done(null, customer);
+        });
+    }));
 };
