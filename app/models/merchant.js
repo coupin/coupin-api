@@ -1,8 +1,11 @@
 // module
 var mongoose = require('mongoose');
+var crypto = require('crypto-js');
 
-// define the customer schema
+// config file
+var config = require('../../config/env');
 
+// define the schema
 var schema = mongoose.Schema;
 
 var merchantSchema = new schema({
@@ -16,12 +19,19 @@ var merchantSchema = new schema({
       }
       ,
       email: {
-        type: String
+        type: String,
+        unique: true
       },
       companyDetails: {
         type: String
       },
       address: {
+          type: String
+      },
+      city: {
+          type: String
+      },
+      state: {
           type: String
       },
       mobileNumber: {
@@ -62,10 +72,11 @@ merchantSchema.methods.getMerchantByEmail = function(email, callback){
 	Merchant.findOne(query, callback);
 }
 
-merchantSchema.methods.comparePassword = function(candidatePassword, hash, callback){
-	bcrypt.compare(candidatePassword, hash, function(err, isMatch) {
-    	callback(null, isMatch);
-	});
+merchantSchema.methods.isValid = function(candidatePassword, hash, callback){
+	if(crypto.AES.decrypt(this.local.password, config.secret).toString(crypto.enc.Utf8) === password)
+      return true;
+
+  return false;
 }
 
 merchantSchema.methods.createMerchant = function(newMerchant, callback){
@@ -76,6 +87,17 @@ merchantSchema.methods.createMerchant = function(newMerchant, callback){
     	});
 	});
 }
+
+merchantSchema.methods.encryptPassword = function(password) {
+    return crypto.AES.encrypt(password, config.secret).toString();
+};
+
+merchantSchema.methods.isValidPassword = function(password) {
+        if(crypto.AES.decrypt(this.local.password, config.secret).toString(crypto.enc.Utf8) === password)
+            return true;
+
+        return false;
+    };
 
 // module.exports allows is to pass this to other files when it is called
 module.exports = mongoose.model('Merchant', merchantSchema);

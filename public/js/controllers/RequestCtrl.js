@@ -32,7 +32,7 @@ angular.module('RequestCtrl', []).controller('RequestController', function($scop
     $scope.selectMerch = (x) => {
         $scope.currentRequest = $scope.totalReq[x];
     };
-
+    
     $scope.confirm = (id, approve, details) => {
         // Show loading screen and add details for decline
         $scope.loading = true;

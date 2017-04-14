@@ -1,1 +1,1 @@
-angular.module('coupinApp', ['ngRoute', 'mgcrea.ngStrap', 'LoginCtrl', 'LoginSrv']);
+angular.module('coupinApp', ['ngRoute', 'mgcrea.ngStrap', 'LoginCtrl', 'LoginSrv', 'MerchantSrv']);

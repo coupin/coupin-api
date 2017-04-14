@@ -20,21 +20,34 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-passport.use(new LocalStrategy(function(email, password, done){
-  Merchant.getMerchantByEmail(email, function(err, merchant){
-    if(err) throw err;
-    if(!merchant){
-      return done(null, false, {message: 'Unknown Merchant'});
-    }
+passport.use('merchant-login', new LocalStrategy({
+        usernameField : 'email',
+        passwordField: 'password',
+        passReqToCallback : true
+    }, function(req, email, password, done){ 
+    // Check to see if user exists
+    Merchant.findOne({ 'email' : email }, function(err, user) {
+      if(err) 
+          return done(err);
 
-    Merchant.comparePassword(password, merchant.password, function(err, isMatch){
-      if(err) return done(err);
-      if(isMatch){
-        return done(null, merchant);
-      } else {
-        return done(null, false, {message:'Invalid Password'});
+      //If no user is found return the signupMessage
+      if(!user) 
+          return done(null, false, {success : false, message: "No such user exists"});
+
+      if(!user.password)
+        return done(null, false, {success : false, message: "You are yet to complete your registration"});
+
+      // id user is found but password is wrong
+      if(!user.isValidPassword(password))
+          return done(null, false, {success : false, message: 'Wrong Password'});
+      
+      // if everything is okay
+      if(user.activated) {
+          return done(null, user);
       }
-    });
+
+      return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
+      
   });
 }));
 
@@ -48,10 +61,14 @@ router.use(function(req, res, next) {
 
 router.route('/merchant/login')
       .post(function(req, res) {
-  passport.authenticate('local',{}),
-  function(req, res) {
-    res.json(message, 'You are now logged in');
-  }
+        console.log('inside');
+  passport.authenticate('merchant-login',{
+    successRedirect: '/admin/login'
+  });
+  // function(req, res) {
+  //   console.log(req.body);
+  //   // res.json(message, 'You are now logged in');
+  // }
 });
 
 router.route('/merchant/register')
@@ -118,31 +135,53 @@ router.route('/merchant')
   });
 });
 
-router.route('/merchant/confirm/:id').post(function(req, res){
-    var companyName = req.body.companyName;  // set the customer name (comes from the request)
-    var email = req.body.email;
-    var mobileNumber = req.body.mobileNumber;
-    var companyDetails = req.body.companyDetails;
+router.route('/merchant/confirm/:id').get(function(req, res) {
+  // load the merchant registration page
+  Merchant.findById(req.params.id, function(err, merchant){
+    if(err) 
+      res.sendfile('./public/views/error.html');
 
+    if(merchant.activated) {
+      res.sendfile('./public/views/merchantReg.html');
+    } else {
+      res.sendfile('./public/views/merchantCon.html');
+    }
+  });
+})
+.post(function(req, res){
+  // get the data from the the 
+    var address = req.body.address;
+    var city = req.body.city;
+    var password = req.body.password;
+    var state = req.body.state;
 
-
+    console.log(req.body);
 
     // Form Validator
     req.checkBody('address','Address field is required').notEmpty();
-    req.checkBody('password','Password field is required').isEmail();
+    req.checkBody('password','Password field is required').notEmpty();
     req.checkBody('password2', 'Please confirm password').notEmpty();
-    req.checkBody('password2', 'Passwords are not the same').equals('password');
+    req.checkBody('password2', 'Passwords are not the same').equals(req.body.password);
+    req.checkBody('city', 'City field is required').notEmpty();
+    req.checkBody('state', 'State field is required').notEmpty();
 
     var errors = req.validationErrors();
 
     if(errors) {
-      res.send({success: false, errors: errors});
+      res.send({success: false, message: errors});
     } else {
       Merchant.findById(req.params.id, function(err, merchant){
         if(err)
           throw err;
 
+          merchant.address = address;
+          merchant.password = Merchant.schema.methods.encryptPassword(password);
+          merchant.city = city;
+          merchant.state = state;
           merchant.activated = true;
+          merchant.isPending = false;
+          merchant.rejected = false;
+
           merchant.save(function(err) {
             if(err)
               throw err;
@@ -159,8 +198,6 @@ router.route('/merchant/confirm/:id').post(function(req, res){
       throw err;
       
     if(Object.keys(decision).length === 0) {
-      console.log('Merchant');
-      console.log(merchant);
       // set isPending to true and save
       if(merchant.isPending) {
         res.send({success: false, message: 'User is already pending.'});

@@ -1,5 +1,5 @@
-<!DOCType html/>
-<head>
+<!DOCType html>
+<html>
     <head>
         <meta charset="utf-8"/>
         <meta lang="en"/>
@@ -21,6 +21,7 @@
         <!-- ANGULAR CUSTOM -->
         <script src="/js/controllers/LoginCtrl.js"></script>
         <script src="/js/services/LoginSrv.js"></script>
+        <script src="/js/services/MerchantSrv.js"></script>
         <script src="/js/appRoutes.js"></script>
         <script src="/js/loginapp.js"></script>
     </head>
@@ -46,11 +47,11 @@
                             <label for="loginPassword">Password: </label>
                             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                 <div class="input-group-addon"><i class="fa fa-key"></i></div>
-                                <input type="text" class="form-control" id="loginPassword" aria-describedby="loginPasswordHelp" placeholder="Password" ng-model="formData.loginPassword" required>
+                                <input type="password" class="form-control" id="loginPassword" aria-describedby="loginPasswordHelp" placeholder="Password" ng-model="formData.loginPassword" required>
                             </div>
                             <small id="loginPasswordHelp" class="form-text text-muted">Email you registered with</small>
                         </div>
-                        <button class="btn btn-default" type="submit" ng-click="">Sign In</button><i ng-show="loading[0]" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+                        <button class="btn btn-default" type="submit" ng-click="loginMerch()">Sign In</button><i ng-show="loading[0]" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
                     </form>
                     <small class="form-text text-muted light" style="margin-left:20px;">Forgot your password? Click <b>here</b></small>
                 </div>
@@ -101,4 +102,4 @@
             </div>
         </div>
     </body>
-</head>
+</html>

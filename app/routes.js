@@ -29,6 +29,11 @@ module.exports = function(app) {
         res.sendfile('./public/views/base.html');
     });
 
+    app.get('/merchant/login', function(req, res) {
+        //load the merchant login page
+        res.sendfile('./public/views/merchantReg.html');
+    });
+
     app.get('/logout', function(req, res) {
         req.logout();
         res.redirect('/admin/login');

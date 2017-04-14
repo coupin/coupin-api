@@ -1,9 +1,26 @@
-angular.module('LoginCtrl', []).controller('LoginController', function($scope, $http, $window, $alert, AdminLoginSrv) {
+angular.module('LoginCtrl', []).controller('LoginController', function($scope, $http, $location, $window, $alert, AdminLoginSrv, MerchantService) {
     // scope variable to hold form data
     $scope.formData = {};
+    
     // to show error and loading
     $scope.showError = false;
     $scope.loading = [false, false];
+
+    // Get merchant id
+    const merchId = $location.$$absUrl.match(/(\w)*$/g);
+
+    // States
+    $scope.states = ['lagos'];
+
+    // Get current merchant if merchant route called
+    if(($location.$$absUrl).includes('merchant/confirm')) {
+        MerchantService.retrieve(merchId[0]).then(function(response) {
+            $scope.merchant = response.data;
+        }).catch(function() {
+            console.log("The user doesn't exist.");
+        });
+    }
+
     // to hold categories
     $scope.categories = {
         foodndrinks : false,
@@ -59,7 +76,70 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
         }
     };
 
-    // Register a Merchant
+    /**
+     * Used to complete merchants registration
+     */
+    $scope.completeMerch = () => {
+        $scope.loading[1] = true;
+        
+        MerchantService.complete(merchId[0], $scope.formData).then(function(response){
+            // Get response data
+            let data = response.data;
+
+            // Show loading icon/screen
+            $scope.loading[1] = false;
+
+            // Handle service response
+            if(data.success === true) {
+                $alert({
+                    'title': "Confirmation Success",
+                    'content': data.message,
+                    'placement': 'top-right',
+                    'show' : true ,
+                    'type' : 'success'
+                });
+                $window.location.href = '/merchant/login';
+            } else {
+                // hide loading icon
+                $scope.loading[1] = false;
+
+                $scope.showErrors("Confirmation Failed", response);
+            }
+        }).catch(function(err){
+            $scope.loading[1] = false;
+            console.log(err);
+            $alert({
+                'title': "Confirmation Failed",
+                'content': err,
+                'duration': 5,
+                'placement': 'top-right',
+                'show' : true ,
+                'type' : 'danger'
+            });
+        });
+    };
+
+    /**
+     * Logs merchant into the system
+     */
+    $scope.loginMerch = () => {
+        let details = {
+            email : $scope.formData.loginEmail,
+            password : $scope.formData.loginPassword
+        };
+
+        MerchantService.login(details).then(function(response) {
+            console.log('Details');
+            console.log(details);
+        }).catch(function(err) {
+            console.log('Error');
+            console.log(err);
+        });
+    }
+
+    /**
+     * Used to register a merchant after they have been approved
+     */
     $scope.registerMerch = () => {
         // Hide any existing alert
         hideAllAlerts();
@@ -105,43 +185,54 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
             } else {
                 // hide loading icon
                 $scope.loading[1] = false;
-                var errorArray = response.data.message;
 
-                // check if errorArray is an object, if so send an alert for each item
-                if(typeof errorArray === 'object') {
-                    for(var i = 0; i < errorArray.length; i++) {
-                        multipleAlerts[multipleAlerts.length] = $alert({
-                            'title': "Request Failed",
-                            'content': errorArray[i].msg,
-                            'duration': 5,
-                            'placement': 'top-right',
-                            'show' : true ,
-                            'type' : 'danger'
-                        });
-                    }
-                } else {
-                    // else just show the message
-                    $alert({
-                        'title': "Request Failed",
-                        'content': response.data.message,
-                        'duration': 5,
-                        'placement': 'top-right',
-                        'show' : true ,
-                        'type' : 'danger'
-                    });
-                }
+                // display errors using alerts
+                $scope.showErrors("Request Failed", response);
             }
         })
         .catch(function(err) {
             $scope.loading[1] = false;
-                $alert({
-                    'title': "Request Failed",
-                    'content': err,
+            $alert({
+                'title': "Request Failed",
+                'content': err,
+                'duration': 5,
+                'placement': 'top-right',
+                'show' : true ,
+                'type' : 'danger'
+            });
+        });
+    };
+
+    /**
+     * Used to show errors from the service response
+     */
+    $scope.showErrors = function(title, response) {
+        var data = response.data.message;
+
+        console.log(response.data);
+        
+        // check if errorArray is an object, if so send an alert for each item
+        if(typeof data === 'object') {
+            for(var i = 0; i < data.length; i++) {
+                multipleAlerts[multipleAlerts.length] = $alert({
+                    'title': title,
+                    'content': data[i].msg,
                     'duration': 5,
                     'placement': 'top-right',
                     'show' : true ,
                     'type' : 'danger'
                 });
-        });
+            }
+        } else {
+            // else just show the message
+            $alert({
+                'title': title,
+                'content': data,
+                'duration': 5,
+                'placement': 'top-right',
+                'show' : true ,
+                'type' : 'danger'
+            });
+        }
     };
 });
