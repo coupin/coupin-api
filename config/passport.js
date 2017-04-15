@@ -2,6 +2,16 @@
 
 // load everything we need
 var LocalStrategy = require('passport-local').Strategy;
+var jwt = require('jsonwebtoken');
+var passportJWT = require("passport-jwt");
+
+var ExtractJwt = passportJWT.ExtractJwt;
+var JwtStrategy = passportJWT.Strategy;
+
+var jwtOptions = {}
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+jwtOptions.secretOrKey = 'coupinappmerchant';
+
 // Get the user model
 var User = require('../app/models/admin');
 

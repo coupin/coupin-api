@@ -290,3 +290,5 @@ router.route('/merchant/:id')
 
     });
 });
+
+module.exports = router;

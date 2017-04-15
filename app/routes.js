@@ -1,20 +1,14 @@
-// models
-var Location = require('./models/location');
-var User = require('./models/admin');
-
 // Get passport
 var passport = require('passport');
 
 // Routes
 var adminRouters = require('./routes/admin');
-var locationRouters = require('./routes/locations');
 var merchantRouters = require('./routes/merchant');
 
 module.exports = function(app) {
     // server routes
     app.use('/admin', adminRouters);
     app.use('/api', merchantRouters);
-    app.use('/api/locations', locationRouters);
 
     // frontend routers
     
