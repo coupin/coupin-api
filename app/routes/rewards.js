@@ -43,69 +43,12 @@ router.route('/')
 });
 
 
-//router.route('/register')
-
-// create a bear (accessed at POST http://localhost:8080/api/bears)
-// .post(function(req, res) {
-//
-//
-//   var name = req.body.name;  // set the reward name (comes from the request)
-//   var email = req.body.email;
-//   var mobileNumber =  req.body.mobileNumber;
-//   var password = req.body.password;
-//   var password2 = req.body.password2;
-//   var address = req.body.address;
-//   var dateOfBirth = req.body.dateOfBirth;
-//
-//
-//   // Form Validator
-//   req.checkBody('name','Name field is required').notEmpty();
-//   req.checkBody('email','Email field is required').isEmail();
-//   req.checkBody('mobileNumber','mobileNumber is not valid').notEmpty().isInt();
-//   req.checkBody('password','Password field is required').notEmpty();
-//   req.checkBody('password2','Passwords do not match').equals(req.body.password);
-//
-//   // Check Errors
-//   var errors = req.validationErrors();
-//
-//   if(errors){
-//     res.json({ message: errors });
-//   } else{
-//     var reward = new Reward({      // create a new instance of the Reward model
-//       name: name,
-//       email: email,
-//       mobileNumber: mobileNumber,
-//       password: password,
-//       address: address,
-//       dateOfBirth: dateOfBirth,
-//       createdDate: Date.now
-//     });
-//
-//     Reward.createReward(reward, function(err, newReward){
-//       if(err) throw err;
-//       res.json({ message: 'Reward created!' });
-//     });
-//
-//   };
-//
-// });
-//
-// router.route('/')
-// .get(passport.authenticate('bearer', { session: false }),function(req, res) {
-//   Reward.find(function(err, reward) {
-//     if (err)
-//     res.send(err);
-//
-//     res.json(reward);
-//   });
-// });
-
 // on routes that end in /bears/:bear_id
 // ----------------------------------------------------
 router.route('/:mobileNumber')
 
 .get(function(req, res){
-  Reward.getRewardByNumber(req.params.mobileNumber, function(err, reward){
+  Reward.getRewardById(req.params.mobileNumber, function(err, reward){
     if (err)
     res.send(err);
     res.json(reward);
@@ -142,5 +85,50 @@ router.route('/:mobileNumber')
 
   });
 });
+
+//The route to Get all rewards
+//The route to Get reward
+router.route('/reward/:id')
+.get(function(req, res) {
+  Reward.getRewardById(req.params.id, function(err, reward) {
+    if (err)
+      throw(err);
+
+    res.json(reward);
+  })
+})
+//The route to Get rewards for a customer
+router.route('/reward/:customerId')
+.get(function(req, res) {
+  Reward.getRewardByCustomerId(req.params.customerId, function(err, reward) {
+    if (err)
+      throw(err);
+
+    res.json(reward);
+  })
+})
+//The route to Get rewards under a merchant
+router.route('/reward/:merchantId')
+.get(function(req, res) {
+  Reward.getRewardByMerchantId(req.params.merchantId, function(err, reward) {
+    if (err)
+      throw(err);
+
+    res.json(reward);
+  })
+})
+//The route to Get rewards for a category
+router.route('/reward/:category')
+.get(function(req, res) {
+  Reward.getRewardByCategoryId(req.params.category, function(err, reward) {
+    if (err)
+      throw(err);
+
+    res.json(reward);
+  })
+})
+//The route to create a reward
+//The route to add reward to a customer
+
 
 module.exports = router;

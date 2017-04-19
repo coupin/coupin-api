@@ -54,13 +54,18 @@ module.exports.getRewardById = function(id, callback){
 }
 
 
-module.exports.getRewardByMerchantId = function(email, callback){
+module.exports.getRewardByMerchantId = function(merchantId, callback){
 	var query = {merchantId: merchantId};
 	Reward.findOne(query, callback);
 }
 
-module.exports.getRewardByRewardId = function(email, callback){
+module.exports.getRewardByCustomerId = function(customerId, callback){
 	var query = {customerId: customerId};
+	Reward.findOne(query, callback);
+}
+
+module.exports.getRewardByCategoryId = function(category, callback){
+	var query = {category: category};
 	Reward.findOne(query, callback);
 }
 
