@@ -13,6 +13,7 @@ var JwtStrategy = passportJWT.Strategy;
 // models
 var Reward = require('../models/reward');
 var Customer = require('../models/customer');
+var CustomerReward = require('../models/customerRewards');
 
 
 passport.serializeUser(function(reward, done) {
@@ -88,7 +89,7 @@ router.route('/:mobileNumber')
 
 //The route to Get all rewards
 //The route to Get reward
-router.route('/reward/:id')
+router.route('/:id')
 .get(function(req, res) {
   Reward.getRewardById(req.params.id, function(err, reward) {
     if (err)
@@ -98,7 +99,7 @@ router.route('/reward/:id')
   })
 })
 //The route to Get rewards for a customer
-router.route('/reward/:customerId')
+router.route('/customer/:customerId')
 .get(function(req, res) {
   Reward.getRewardByCustomerId(req.params.customerId, function(err, reward) {
     if (err)
@@ -108,7 +109,7 @@ router.route('/reward/:customerId')
   })
 })
 //The route to Get rewards under a merchant
-router.route('/reward/:merchantId')
+router.route('/merchant/:merchantId')
 .get(function(req, res) {
   Reward.getRewardByMerchantId(req.params.merchantId, function(err, reward) {
     if (err)
@@ -118,7 +119,7 @@ router.route('/reward/:merchantId')
   })
 })
 //The route to Get rewards for a category
-router.route('/reward/:category')
+router.route('/category/:category')
 .get(function(req, res) {
   Reward.getRewardByCategoryId(req.params.category, function(err, reward) {
     if (err)
@@ -127,8 +128,92 @@ router.route('/reward/:category')
     res.json(reward);
   })
 })
-//The route to create a reward
+
+//The route to create a reward for a merchant
+router.route('/')
+.post(function(req, res) {
+
+  // Get information of reward
+  var name = req.body.name;
+  var merchantID = req.body.merchantID;
+  var location =  req.body.location;
+  var categories = req.body.categories;
+  var startDate = req.body.startDate;
+  var endDate = req.body.endDate;
+  var multiple =  req.body.multiple;
+  var applicableDays = req.body.applicableDays;
+
+
+  // Form Validator
+  req.checkBody('name','Name field is required').notEmpty();
+  req.checkBody('merchantID','Merchant ID field is required').notEmpty();
+  req.checkBody('location','Location field is required').notEmpty();
+  req.checkBody('categories','Categories field is required').notEmpty();
+  req.checkBody('multiple','The Multiple field is required').notEmpty();
+  req.checkBody('applicableDays','Applicable Days field is required').notEmpty();
+
+  // Check Errors
+  var errors = req.validationErrors();
+
+  if(errors){
+    res.json({ message: errors });
+  } else{
+    // Create new reward
+    var reward = new Reward({
+       name : name,
+       merchantID : merchantID,
+       location : location,
+       categories : categories,
+       startDate : startDate,
+       endDate : endDate,
+       multiple : multiple,
+       applicableDays : applicableDays,
+      createdDate: Date.now(),
+      isActive: true
+    });
+
+    Reward.createReward(reward, function(err, newReward){
+      if(err)
+        throw err;
+
+      res.json({success: true, message: 'Reward created!' });
+    });
+  };
+});
+
+
 //The route to add reward to a customer
+router.route('/customer/')
+// register new user
+.post(function(req, res) {
+
+  // Get information on customer
+  var token = req.body.token;
+  var customerId = req.body.customerId;
+
+  // Form Validator
+  req.checkBody('token','Token field is required').notEmpty();
+  req.checkBody('customerId','Customer ID field is required').notEmpty();
+  // Check Errors
+  var errors = req.validationErrors();
+
+  if(errors){
+    res.json({ message: errors });
+  } else{
+    // Create new user
+    var reward = new CustomerReward({
+       token : token,
+       customerId : customerId
+    });
+
+    CustomerReward.createCustomerRewards(reward, function(err, newCustomerReward){
+      if(err)
+        throw err;
+
+      res.json({success: true, message: 'Customer reward has been successfuly added!' });
+    });
+  };
+});
 
 
 module.exports = router;
