@@ -53,13 +53,13 @@ router.route('/authenticate')
 
       // Find merchant with email
       Merchant.findOne({'email': email}, function(err, merchant) {
-        if (err) 
+        if (err)
           throw err;
 
         // Check if merchant exists
         if(!merchant)
           res.json({success: false, message: 'Authentication failed. Merchant not found'})
-        
+
         // Check if password exists
         if(merchant.isValid(password)) {
           var payload = {id: merchant.id, name: merchant.companyName, email: merchant.email};
@@ -125,7 +125,9 @@ router.route('/merchant/register')
           if(err)
             throw err;
 
-          res.send({success: true, message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
+          res.send({
+            success: true,
+            message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
         });
     }
 
@@ -149,7 +151,7 @@ router.route('/merchant')
 router.route('/merchant/confirm/:id').get(function(req, res) {
   // load the merchant registration page
   Merchant.findById(req.params.id, function(err, merchant){
-    if(err) 
+    if(err)
       res.sendfile('./public/views/error.html');
 
     if(merchant.activated) {
@@ -161,7 +163,7 @@ router.route('/merchant/confirm/:id').get(function(req, res) {
 })
 // Completion of merchant registration
 .post(function(req, res){
-  // get the data from the the 
+  // get the data from the the
     var address = req.body.address;
     var city = req.body.city;
     var password = req.body.password;
@@ -208,7 +210,7 @@ router.route('/merchant/confirm/:id').get(function(req, res) {
   Merchant.findById(req.params.id, function(err, merchant){
     if(err)
       throw err;
-      
+
     if(Object.keys(decision).length === 0) {
       // set isPending to true and save
       if(merchant.isPending) {
@@ -218,7 +220,7 @@ router.route('/merchant/confirm/:id').get(function(req, res) {
         merchant.save(function(err) {
           if(err)
             throw(err);
-          
+
           emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id), function(response) {
             res.send({success: true, rejected: false, message: 'Merchant Aprroved and email sent to ' + merchant.companyName});
           });

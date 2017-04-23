@@ -7,7 +7,7 @@ var schema = mongoose.Schema;
 
 var rewardSchema = new schema({
 
-    name: {
+    description: {
         type: String
     },
     merchantID: {
@@ -29,6 +29,9 @@ var rewardSchema = new schema({
     },
     endDate: {
       type: Date
+    },
+    address:{
+      type: String
     },
     createdDate: {
       type: Date

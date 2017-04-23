@@ -24,7 +24,7 @@ passport.deserializeUser(function(id, done) {
 
 var jwtOptions = {}
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
-jwtOptions.secretOrKey = 'coupinappcustomer'; 
+jwtOptions.secretOrKey = 'coupinappcustomer';
 
 // middleware to use for all requests
 router.use(function(req, res, next) {
@@ -48,7 +48,7 @@ router.route('/authenticate')
     var customer = Customer.findOne({
       'email': email
     }, function(err, customer) {
-      if (err) 
+      if (err)
         throw err;
 
       if(!customer)
@@ -57,9 +57,9 @@ router.route('/authenticate')
       if(customer) {
       //Check password
       Customer.comparePassword(password, customer.password, function(err, isMatch){
-        if(err) 
+        if(err)
           return done(err);
-        
+
         if(!isMatch) {
           res.status(401).json({success: false, message:"Invalid Password"});
         } else {
@@ -95,7 +95,7 @@ router.route('/register')
 .post(function(req, res) {
 
   // Get information on customer
-  var name = req.body.name;  
+  var name = req.body.name;
   var email = req.body.email;
   var network =  req.body.network;
   var password = req.body.password;
@@ -119,18 +119,28 @@ router.route('/register')
     var customer = new Customer({
       name: name,
       email: email,
-      mobileNumber: mobileNumber,
+      network: network,
       password: password,
-      address: address,
-      dateOfBirth: dateOfBirth,
       createdDate: Date.now()
     });
 
     Customer.createCustomer(customer, function(err, newCustomer){
-      if(err) 
+      if(err)
         throw err;
 
-      res.json({success: true, message: 'Customer created!' });
+        var cust = Customer.findOne({
+          'email': email
+        }, function(err, customer) {
+          if (err)
+            throw err;
+
+    var payload = {id: cust.id, name: cust.name, email: cust.email};
+    var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+      res.json({
+        success: true,
+        message: 'Customer created!',
+        token: token });
     });
   };
 });
@@ -155,7 +165,7 @@ router.route('/:mobileNumber')
      throw err;
 
     if (req.body.name)
-    customer.name = req.body.name; 
+    customer.name = req.body.name;
 
     if (req.body.email)
     customer.email = req.body.email;

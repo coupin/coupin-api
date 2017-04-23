@@ -44,12 +44,12 @@ router.route('/')
 });
 
 
-// on routes that end in /bears/:bear_id
+//
 // ----------------------------------------------------
-router.route('/:mobileNumber')
+router.route('/:Id')
 
 .get(function(req, res){
-  Reward.getRewardById(req.params.mobileNumber, function(err, reward){
+  Reward.getRewardById(req.params.Id, function(err, reward){
     if (err)
     res.send(err);
     res.json(reward);
@@ -57,22 +57,45 @@ router.route('/:mobileNumber')
 })
 
 // update the bear with this id (accessed at PUT http://localhost:8080/api/bears/:bear_id)
+
+//The route to Get all rewards
+//The route to Get reward
+router.route('/:id')
+.get(function(req, res) {
+  Reward.getRewardById(req.params.id, function(err, reward) {
+    if (err)
+      throw(err);
+
+    res.json(reward);
+  })
+})
+
 .put(function(req, res) {
 
   // use our reward model to find the bear we want
-  Reward.getRewardByNumber(req.params.mobileNumber, function(err, reward) {
+  Reward.getRewardById(req.params.Id, function(err, reward) {
 
     if (err)
     res.send(err);
 
-    if (req.body.name)
-    reward.name = req.body.name;  // update the rewards info
-    if (req.body.email)
-    reward.email = req.body.email;
+    if (req.body.description)
+    reward.description = req.body.description;  // update the rewards info
+    if (req.body.merchantID)
+    reward.merchantID = req.body.merchantID;
+    if (req.body.location)
+    reward.location =  req.body.location;
+    if (req.body.categories)
+    reward.categories = req.body.categories;
+    if (req.body.startDate)
+    reward.startDate = req.body.startDate;
+    if (req.body.endDate)
+    reward.endDate = req.body.endDate;
+    if (req.body.multiple)
+    reward.multiple = req.body.multiple;
+    if (req.body.applicableDays)
+    reward.applicableDays = req.body.applicableDays;
     if (req.body.address)
-    reward.address =  req.body.address;
-    if (req.body.dateOfBirth)
-    reward.dateOfBirth = req.body.dateOfBirth;
+    reward.address = req.body.address;
 
     reward.modifiedDate = Date.now();
 
@@ -87,17 +110,6 @@ router.route('/:mobileNumber')
   });
 });
 
-//The route to Get all rewards
-//The route to Get reward
-router.route('/:id')
-.get(function(req, res) {
-  Reward.getRewardById(req.params.id, function(err, reward) {
-    if (err)
-      throw(err);
-
-    res.json(reward);
-  })
-})
 //The route to Get rewards for a customer
 router.route('/customer/:customerId')
 .get(function(req, res) {
