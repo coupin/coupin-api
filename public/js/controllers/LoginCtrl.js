@@ -130,7 +130,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
 
         MerchantService.login(details).then(function(response) {
             console.log('Details');
-            console.log(details);
+            console.log(response);
         }).catch(function(err) {
             console.log('Error');
             console.log(err);
@@ -192,14 +192,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
         })
         .catch(function(err) {
             $scope.loading[1] = false;
-            $alert({
-                'title': "Request Failed",
-                'content': err,
-                'duration': 5,
-                'placement': 'top-right',
-                'show' : true ,
-                'type' : 'danger'
-            });
+            $scope.showErrors("Request Failed", err);
         });
     };
 

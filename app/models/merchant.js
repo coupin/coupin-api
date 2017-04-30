@@ -31,6 +31,10 @@ var merchantSchema = new schema({
       state: {
           type: String
       },
+      location: {
+        lat: Number,
+        long: Number
+      },
       mobileNumber: {
           type: Number
       },
@@ -73,32 +77,21 @@ merchantSchema.methods.getMerchantByEmail = function(email, callback){
 	Merchant.findOne(query, callback);
 }
 
-merchantSchema.methods.isValid = function(candidatePassword, hash, callback){
-	if(crypto.AES.decrypt(this.local.password, config.secret).toString(crypto.enc.Utf8) === password)
+merchantSchema.methods.isValid = function(encryptedPassword, password) {
+	if(crypto.AES.decrypt(encryptedPassword, config.secret).toString(crypto.enc.Utf8) === password)
       return true;
 
   return false;
 }
 
 merchantSchema.methods.createMerchant = function(newMerchant, callback){
-	bcrypt.genSalt(10, function(err, salt) {
-    	bcrypt.hash(newMerchant.password, salt, function(err, hash) {
-   			newMerchant.password = hash;
+   			newMerchant.password = crypto.AES.encrypt(password, config.secret).toString();
    			newMerchant.save(callback);
-    	});
-	});
 }
 
 merchantSchema.methods.encryptPassword = function(password) {
     return crypto.AES.encrypt(password, config.secret).toString();
 };
-
-merchantSchema.methods.isValidPassword = function(password) {
-        if(crypto.AES.decrypt(this.local.password, config.secret).toString(crypto.enc.Utf8) === password)
-            return true;
-
-        return false;
-    };
 
 // module.exports allows is to pass this to other files when it is called
 module.exports = mongoose.model('Merchant', merchantSchema);

@@ -105,7 +105,7 @@ router.route('/register')
   // Form Validator
   req.checkBody('name','Name field is required').notEmpty();
   req.checkBody('email','Email field is required').isEmail();
-  req.checkBody('network','Network is required').notEmpty().isInt();
+  req.checkBody('network','Network is required').notEmpty();
   req.checkBody('password','Password field is required').notEmpty();
   req.checkBody('password2','Passwords do not match').equals(req.body.password);
 
@@ -113,16 +113,14 @@ router.route('/register')
   var errors = req.validationErrors();
 
   if(errors){
-    res.json({ message: errors });
+    res.json({success: false, message: errors });
   } else{
     // Create new user
     var customer = new Customer({
       name: name,
       email: email,
-      mobileNumber: mobileNumber,
+      network: network,
       password: password,
-      address: address,
-      dateOfBirth: dateOfBirth,
       createdDate: Date.now()
     });
 

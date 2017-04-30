@@ -57,11 +57,9 @@ router.route('/authenticate')
           throw err;
 
         // Check if merchant exists
-        if(!merchant)
+        if(!merchant) {
           res.json({success: false, message: 'Authentication failed. Merchant not found'})
-        
-        // Check if password exists
-        if(merchant.isValid(password)) {
+        } else if (merchant.schema.methods.isValid(merchant.password, password)) {
           var payload = {id: merchant.id, name: merchant.companyName, email: merchant.email};
           var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
@@ -86,7 +84,7 @@ router.route('/authenticate')
   });
 
 // For Registration of merchants
-router.route('/merchant/register')
+router.route('/register')
 
     // create a bear (accessed at POST http://localhost:8080/api/bears)
     .post(function(req, res) {
@@ -135,7 +133,7 @@ router.route('/merchant/register')
 });
 
 // To handle getting merchants
-router.route('/merchant')
+router.route('/')
 .get(function(req, res) {
     Merchant.find(function(err, merchant) {
         if (err)
@@ -146,7 +144,7 @@ router.route('/merchant')
 });
 
 // To call the completion
-router.route('/merchant/confirm/:id').get(function(req, res) {
+router.route('/confirm/:id').get(function(req, res) {
   // load the merchant registration page
   Merchant.findById(req.params.id, function(err, merchant){
     if(err) 
@@ -241,7 +239,7 @@ router.route('/merchant/confirm/:id').get(function(req, res) {
 });
 
 // Querying by Id
-router.route('/merchant/:id')
+router.route('/:id')
 .get(function(req, res) {
   Merchant.findById(req.params.id, function(err, merchant) {
     if (err)
@@ -250,14 +248,14 @@ router.route('/merchant/:id')
     res.json(merchant);
   })
 })
-// .delete(function(req, res) {
-//   Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
-//     if(err)
-//       throw err;
+.delete(function(req, res) {
+  Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
+    if(err)
+      throw err;
 
-//     res.send({message: 'Merchant Deleted'});
-//   })
-// })
+    res.send({message: 'Merchant Deleted'});
+  })
+})
 // update the bear with this id (accessed at PUT http://localhost:8080/api/bears/:bear_id)
 .put(function(req, res) {
 

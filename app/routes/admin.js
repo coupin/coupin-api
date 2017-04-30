@@ -15,6 +15,7 @@ router.get('/', function(req, res) {
     });
 });
 
+// TODO: Create init and remove this
 router.post('/sadmin', function(req, res) {
     console.log(User);
     var user = new User();
@@ -32,6 +33,7 @@ router.post('/sadmin', function(req, res) {
 
 });
 
+// To Delete an Admin 
 router.route('/:id').delete(function(req, res) {
     User.findById(req.params.id, function(err, user) {
         if(err)

@@ -2,13 +2,15 @@
 var passport = require('passport');
 
 // Routes
-var adminRouters = require('./routes/admin');
-var merchantRouters = require('./routes/merchant');
+var adminRouter = require('./routes/admin');
+var merchantRouter = require('./routes/merchant');
+var userRouter = require('./routes/customer.js');
 
 module.exports = function(app) {
     // server routes
-    app.use('/admin', adminRouters);
-    app.use('/api', merchantRouters);
+    app.use('/admin', adminRouter);
+    app.use('/merchant', merchantRouter);
+    app.use('/customer', userRouter);
 
     // frontend routers
     
