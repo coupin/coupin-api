@@ -37,10 +37,10 @@ module.exports = function(app) {
 
     // frontend routers
     // routes to handle all angular requests
-    app.get('*', function(req, res) {
-        // load the index page
-        res.sendfile('./public/views/index.html');
-    });
+    // app.get('*', function(req, res) {
+    //     // load the index page
+    //     res.sendfile('./public/views/index.html');
+    // });
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
         // if user is logged in then carry frontend

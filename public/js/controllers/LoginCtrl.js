@@ -98,7 +98,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
                     'show' : true ,
                     'type' : 'success'
                 });
-                $window.location.href = '/merchant/login';
+                $window.location.href = '/merchant/register';
             } else {
                 // hide loading icon
                 $scope.loading[1] = false;
@@ -129,11 +129,12 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
         };
 
         MerchantService.login(details).then(function(response) {
-            console.log('Details');
-            console.log(response);
+            if(response.status === 200) {
+                $window.location.href = "/merchant/home";
+            }
         }).catch(function(err) {
-            console.log('Error');
-            console.log(err);
+            $scope.loading[1] = false;
+            $scope.showErrors("Request Failed", err);
         });
     }
 
