@@ -59,6 +59,14 @@ var merchantSchema = new schema({
       createdDate: {
         type: Date
       },
+      location: {
+          latitude: {
+              type: Number
+          },
+          longitude: {
+              type: Number
+          }
+      },
       modifiedDate: {
         type: Date
       }
