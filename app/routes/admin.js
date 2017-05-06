@@ -1,56 +1,29 @@
 // Modules
 var express = require('express');
 var router = express.Router();
-var passport = require('passport');
+var passport = require('./../middleware/passport');
 
 // Models
-var User = require('../models/admin');
+var User = require('../models/users');
+
+// Middles ware
+const auth = require('./../middleware/auth');
+
+// Controllers
+const AdminCtrl = require('./../controllers/admin');
 
 // Admin api routes
-router.get('/', function(req, res) {
-    User.find({
-        // 'local.superAdmin' : false 
-    }, function(req, users) {
+router.route('/').get(auth.isSuperAdmin, AdminCtrl.getAllAdmins);
+
+// TODO: Create init and remove this
+router.route('/sadmin').post(AdminCtrl.addSuperAdmin).get(function (req, res) {
+    User.find({}, function (err, users) {
         res.json(users);
     });
 });
 
-router.post('/sadmin', function(req, res) {
-    console.log(User);
-    var user = new User();
-    user.local.email = req.body.email;
-    user.local.password = User.schema.methods.encryptPassword(req.body.password);
-    user.local.isActive = true;
-    user.local.superAdmin = true;
-
-    user.save(function(err) {
-        if(err)
-            throw err;
-
-        res.send({message: 'SuperAdmin Created!'});
-    });
-
-});
-
-router.route('/:id').delete(function(req, res) {
-    User.findById(req.params.id, function(err, user) {
-        if(err)
-            throw err;
-
-        if(user) {
-            User.remove({
-                _id : req.params.id
-            }, function(err, user) {
-                if(err) {
-                    throw err;
-                } else {
-                    res.send({success : true, message: 'Admin has been deleted'});
-                }
-                
-            });
-        }
-    });
-});
+// To Delete an Admin 
+router.route('/:id').delete(auth.isSuperAdmin, AdminCtrl.delete);
 
 // frontend routers
 // routes to handle all angular requests
@@ -59,77 +32,14 @@ router.route('/login').get(function(req, res) {
     res.sendfile('./public/views/index.html');
 })
 // Log a user in from the form
-.post(passport.authenticate('local-login', {
-    successRedirect : '/homepage' 
-}));
+.post(passport.verify, AdminCtrl.login);
 
 // Add new admin
-router.post('/addAdmin', function(req, res, next) {
+router.route('/addAdmin').post(auth.isSuperAdmin, AdminCtrl.addAdmin);
 
-    // Form Validator
-    req.checkBody('email', 'Email cannot be empty').notEmpty();
-    req.checkBody('email', 'Email is required to login').isEmail();
-    req.checkBody('password', 'Password cannot be empty').notEmpty();
-    req.checkBody('confirm', 'Please Confirm Password').notEmpty();
-    req.checkBody('confirm','Passwords do not match').equals(req.body.password);
+router.route('/activate/:id').post(auth.isSuperAdmin, AdminCtrl.activate);
 
-    // Check for Errors
-    var errors = req.validationErrors();
-
-    if(errors) {
-        res.json({ errors: errors});
-    } else {
-        passport.authenticate('local-signup', function(err, user, info){
-
-            if(err)
-                throw err;
-
-            if(info) 
-                return res.send({success: false, message: info});
-
-            if(user)
-                return res.send({success: true, message: 'User Created.'});
-        })(req, res, next);
-    }
-});
-
-router.route('/activate/:id').post(function(req, res) {
-    User.findById(req.params.id, function(err, user) {
-        if(err) 
-            throw err;
-
-        if(!user) {
-            res.send({success: false, message: 'No Such User Exists'});
-        } else {
-            user.local.isActive = true;
-            user.save( function(err) {
-                if(err)
-                    throw err;
-
-                res.send({success: true, message: ' was Activated.'});
-            });
-        }
-    });
-});
-
-router.route('/deactivate/:id').post(function(req, res) {
-    User.findById(req.params.id, function(err, user) {
-        if(err) 
-            throw err;
-
-        if(!user) {
-            res.send({success: false, message: 'No Such User Exists'});
-        } else {
-            user.local.isActive = false;
-            user.save( function(err) {
-                if(err)
-                    throw err;
-
-                res.send({success: true, message: ' was Deactivated.'});
-            });
-        }
-    });
-});
+router.route('/deactivate/:id').post(auth.isSuperAdmin, AdminCtrl.deactivate);
 
 // Get currently logged in user
 router.route('/getCurrentUser').get(function(req, res){

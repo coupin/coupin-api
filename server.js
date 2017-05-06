@@ -37,9 +37,6 @@ var port = process.env.PORT || 5030;
 // connect to db
 mongoose.connect(db.url);
 
-// Passport Configuration
-require('./config/passport')(passport);
-
 /**
  * get all data of the body parameters
  * parse application/json
@@ -73,6 +70,7 @@ app.use(expressValidator({
 app.use(bodyParser.json({
     type: 'application/vnd.api+json'
 }));
+app.use(bodyParser.urlencoded({extended: true}));
 
 // Passport
 app.use(passport.initialize());

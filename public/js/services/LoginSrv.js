@@ -4,7 +4,7 @@ angular.module('LoginSrv', []).factory('AdminLoginSrv', function($http) {
             return $http.post('/admin/login', adminData);
         },
         registerMerch : function(merchantData) {
-            return $http.post('/api/merchant/register', merchantData);
+            return $http.post('/merchant/register', merchantData);
         }
     }
 });
