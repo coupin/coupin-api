@@ -13,14 +13,6 @@ var rewardSchema = new schema({
     merchantID: {
         type: String
     },
-    location: {
-        latitude: {
-            type: Number
-        },
-        longitude: {
-            type: Number
-        }
-    },
     categories: {
       type: String
     },
@@ -29,9 +21,6 @@ var rewardSchema = new schema({
     },
     endDate: {
       type: Date
-    },
-    address:{
-      type: String
     },
     createdDate: {
       type: Date
