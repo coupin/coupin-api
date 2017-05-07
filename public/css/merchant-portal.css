@@ -1,0 +1,30 @@
+body {
+    background: #000428; /* fallback for old browsers */
+    background: -webkit-linear-gradient(left, #000428, #004e92);
+    background: -moz-linear-gradient(left, #000428, #004e92);
+    background: -o-linear-gradient(left, #000428, #004e92);
+    background: linear-gradient(to right, #000428, #004e92); /* Chrome 10-25, Safari 5.1-6 */
+}
+
+
+.container-fluid {
+    padding-left: 0px;
+}
+
+.info-box {
+    padding-top: 20px;
+}
+
+.nav-merch, .nav-merch:focus {
+    color: black !important;
+    outline: none;
+}
+
+.nav-merch:hover {
+    background: #000F3B !important;
+    color: white !important;
+}
+
+.navbar {
+    border: 0px !important;
+}

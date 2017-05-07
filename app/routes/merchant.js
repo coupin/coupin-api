@@ -17,7 +17,15 @@ router.route('/authenticate')
   // });
 
 router.route('/home').get(function (req, res) {
-  res.sendfile('./public/views/MerchantHome.html');
+  if (req.user) {
+    if (req.user.role == 2) {
+      res.sendfile('./public/views/MerchantIndex.html');
+    } else {
+      res.sendfile('./public/views/merchantReg.html');
+    }
+  } else {
+    res.sendfile('./public/views/merchantReg.html');
+  }
 });
 
 // For Registration of merchants
