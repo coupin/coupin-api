@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <meta lang="en"/>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, intial-scale=1"/>
+
+        <title>CoupinApp: Merchant Home </title>
+        <!-- CSS -->
+        <link rel="stylesheet" href="/libs/bootstrap/dist/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.css"/>
+        <link rel="stylesheet" href="/libs/angular-motion/dist/angular-motion.css"/>
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="/css/style.css"/>
+        <link rel="stylesheet" href="/css/merchant-portal.css"/>
+        <link rel="stylesheet" href="/css/navbar-fixed-side.css"/>
+
+        <!-- JS -->
+        <script src="/libs/angular/angular.js"></script>
+        <script src="/libs/angular-route/angular-route.js"></script>
+        <script src="/libs/angular-strap/dist/angular-strap.min.js"></script>
+        <script src="/libs/angular-strap/dist/angular-strap.tpl.min.js"></script>
+        <script src="/libs/ng-file-upload/ng-file-upload-shim.min.js"></script> <!-- for no html5 browsers support -->
+        <script src="/libs/ng-file-upload/ng-file-upload.min.js"></script>
+
+        <!-- ANGULAR CUSTOM -->
+        <script src="/js/controllers/MerchantCtrl.js"></script>
+        <script src="/js/controllers/RewardsCtrl.js"></script>
+        <script src="/js/services/MerchantSrv.js"></script>
+        <script src="/js/services/RewardsSrv.js"></script>
+        <script src="/js/adminMerchantApp.js"></script>
+        <script src="/js/merchappRoutes.js"></script>
+    </head>
+    <body ng-app="coupinApp" ng-controller="MerchantController">
+        <!-- Side Navbar -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-3 col-lg-2">
+                    <nav class="navbar navbar-default navbar-fixed-side">
+                        <div class="container">
+                            <div class="navbar-header">
+                                <button class="navbar-toggle" data-target="#merchant-menu" data-toggle+"collapse">
+                                    <span class="sr-only">Toggle Navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                                <a class="navbar-brand" href="/merchant/home"><img class="center-item" src="/img/logo.png" style="display:block" width="180px"/></a>
+                            </div>
+                            <div class="collapse navbar-collapse" id="merchant-menu">
+                                <ul class="nav navbar-nav">
+                                    <li><a class="nav-merch" href="" ng-disabled="true"><h3>{{user.merchantInfo.companyName}}</h3></a></li>
+                                    <li><a class="nav-merch" href="/merchant/home">Rewards</a></li>
+                                    <li><a class="nav-merch" href="">Merchant Profile</a></li>
+                                </ul>
+                                <ul class="nav navbar-nav navbar-right">
+                                    <li><a class="nav-merch" href="">Work</a></li>
+                                    <li><a class="nav-merch" href="">Tomorrow</a></li>
+                                    <li><a class="nav-merch" href="">Morning</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+                <div class="col-sm-9 col-lg-10 merchant-space">
+                    <!-- Dynamic Angular Content -->
+                    <div ng-view></div>
+                </div>
+            </div>
+        </div>
+        <!-- End Side Navbar -->
+        <script src="/libs/jQuery/dist/jquery.js"></script>  
+        <script src="/libs/bootstrap/dist/js/bootstrap.js"></script>
+    </body>
+</html>

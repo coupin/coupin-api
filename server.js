@@ -19,6 +19,8 @@ var morgan = require('morgan');
 // For token validation
 var jwt = require('jsonwebtoken');
 var passportJWT = require("passport-jwt");
+const fs = require('fs-extra');
+const busboy = require('connect-busboy');
 
 
 var ExtractJwt = passportJWT.ExtractJwt;
@@ -41,6 +43,7 @@ mongoose.connect(db.url);
  * get all data of the body parameters
  * parse application/json
  */
+app.use(busboy());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
@@ -96,6 +99,28 @@ app.use(passport.session());
 
 // set the static files location /public/img will be /img
 app.use(express.static(__dirname + '/public'));
+
+
+app.use('/admin', function (req, res) {
+  res.sendfile('public/views/index.html');
+});
+
+app.use('/upload', function (req, res) {
+  var fsStream;
+
+  req.pipe(req.busboy);
+  req.busboy.on('file', function (fieldname, file, filename) {
+    console.log('Uploading: ' + filename);
+
+    // Path where image will be stored
+    fsStream = fs.createWriteStream(__dirname + '/public/img/' + filename);
+    file.pipe(fsStream);
+    fsStream.on('close', function () {
+      console.log('Upload complete');
+      res.status(200).send({Success: true});
+    });
+  });
+});
 
 // configure our routes
 require('./app/routes')(app);

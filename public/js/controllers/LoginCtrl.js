@@ -130,7 +130,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
 
         MerchantService.login(details).then(function(response) {
             if(response.status === 200) {
-                $window.location.href = "/merchant/home";
+                $window.location.href = "/merchant";
             }
         }).catch(function(err) {
             $scope.loading[1] = false;

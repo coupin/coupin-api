@@ -1,0 +1,1 @@
+angular.module('coupinApp', ['ngRoute', 'ngFileUpload', 'mgcrea.ngStrap', 'merchappRoutes', 'MerchantCtrl', 'MerchantSrv', 'RewardsCtrl', 'RewardsSrv']);

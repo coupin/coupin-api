@@ -58,19 +58,6 @@ module.exports = {
             
             res.status(200).send({success: true, user: user});
         });
-        // const merchant = req.user;
-        // const payload = {id: merchant._id, name: merchant.name, email: merchant.email};
-        // const token = jwt.sign(payload, jwtOptions.secretOrKey);
-
-        // //var token = jwt.sign(customer, secretKey, {
-        // //  expiresInMinutes: 1440
-        // //});
-
-        // res.json({
-        //     success: true,
-        //     message: 'Here is your Merchant token',
-        //     token: token
-        // });
     },
     confirm: function (req, res) {
         // get the data from the the
@@ -112,6 +99,9 @@ module.exports = {
                 });
             });
         }
+    },
+    currentUser: function (req, res) {
+        res.status(200).send(req.user);
     },
     register: function (req, res) {
         // Get merchant details

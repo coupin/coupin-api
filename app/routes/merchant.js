@@ -4,20 +4,33 @@ const emailer = require('../../config/email');
 const router = express.Router();
 const passport = require('./../middleware/passport');
 
+// Middleware
+const authenticate = require('./../middleware/auth');
+
 // models and controllers
 const Merchant = require('../models/users');
 const MerchantCtrl = require('./../controllers/merchant');
 
 // Signing in for a merchant
 router.route('/authenticate')
+.get(authenticate.authenticate, MerchantCtrl.currentUser)
 .post(passport.verify, MerchantCtrl.authenticate);
   // Used to validate sessions
   // .get(passport.verifyJWT, function(req, res){
   //   res.json({success: true, message: "Merchant token was validated"});
   // });
 
-router.route('/home').get(function (req, res) {
-  res.sendfile('./public/views/MerchantHome.html');
+router.route('/').get(function (req, res) {
+  console.log(req.user);
+  if (req.user) {
+    if (req.user.role == 2) {
+      res.sendfile('./public/views/merchant/index.html');
+    } else {
+      res.sendfile('./public/views/merchantReg.html');
+    }
+  } else {
+    res.sendfile('./public/views/merchantReg.html');
+  }
 });
 
 // For Registration of merchants
@@ -29,7 +42,7 @@ router.route('/register')
 });
 
 // To handle getting merchants
-router.route('/')
+router.route('/all')
 .get(function(req, res) {
     Merchant.find({role : 2},function(err, merchant) {
         if (err)
@@ -59,7 +72,7 @@ router.route('/confirm/:id').get(function(req, res) {
 .put(MerchantCtrl.adminReview);
 
 // Querying by Id
-router.route('/:id')
+router.route('/one/:id')
 .get(function(req, res) {
   Merchant.findById(req.params.id, function(err, merchant) {
     if (err)

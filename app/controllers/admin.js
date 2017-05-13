@@ -1,3 +1,5 @@
+const User = require('./../models/users');
+
 module.exports = {
     activate : function(req, res) {
         User.findById(req.params.id, function(err, user) {

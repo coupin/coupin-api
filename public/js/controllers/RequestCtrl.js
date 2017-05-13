@@ -79,26 +79,22 @@ angular.module('RequestCtrl', []).controller('RequestController', function($scop
                 });
             } else {
                 // Send an alert that approval failed
-                $alert({
-                    'title': "Activation Failed",
-                    'content': data.data.message,
-                    'duration': 5,
-                    'placement': 'top-right',
-                    'show' : true ,
-                    'type' : 'danger'
-                });
+                showError('Activation Failed', data.data.message);
             }
         }).catch(function(err) {
             $scope.loading = false;
-            console.log('Error');
-            $alert({
-                'title': "Activation Failed",
-                'content': err,
-                'duration': 5,
-                'placement': 'top-right',
-                'show' : true ,
-                'type' : 'danger'
-            });
+            showError('Activation Failed', err);
+        });
+    };
+
+    const showError = function (title, msg) {
+        $alert({
+            'title': title,
+            'content': msg,
+            'duration': 5,
+            'placement': 'top-right',
+            'show' : true ,
+            'type' : 'danger'
         });
     };
 });
