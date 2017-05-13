@@ -6,66 +6,74 @@ var mongoose = require('mongoose');
 var schema = mongoose.Schema;
 
 var rewardSchema = new schema({
-
-    description: {
-        type: String
-    },
-    merchantID: {
-        type: String
-    },
-    categories: {
+  name: {
+    type: String,
+    required: true
+  },
+  description: {
       type: String
+  },
+  merchantID: {
+      type: String,
+      required: true
+  },
+  categories: [{
+    type: String
+  }],
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true
+  },
+  picture: {
+    type: String
+  },
+  createdDate: {
+    type: Date
+  },
+  modifiedDate: {
+    type: Date
+  },
+  multiple: {
+    status: {
+      type: Boolean,
+      default: false
     },
-    startDate: {
-      type: Date
-    },
-    endDate: {
-      type: Date
-    },
-    createdDate: {
-      type: Date
-    },
-    modifiedDate: {
-      type: Date
-    },
-    multiple: {
-      type: Boolean
-    },
-    applicableDays: {
-      type: String
-    },
-    isActive: {
-        type: Boolean
-    }
+    capacity: Number
+  },
+  applicableDays: [{
+    type: Number,
+    required: true
+  }],
+  isActive: {
+      type: Boolean,
+      default: false
+  }
 });
 // module.exports allows is to pass this to other files when it is called
 var Reward = module.exports = mongoose.model('Reward', rewardSchema);
 
-module.exports.getRewardById = function(id, callback){
+Reward.getRewardById = function(id, callback){
 	Reward.findById(id, callback);
 }
 
 
-module.exports.getRewardByMerchantId = function(merchantId, callback){
+Reward.getRewardByMerchantId = function(merchantId, callback){
 	var query = {merchantId: merchantId};
-	Reward.findOne(query, callback);
+	Reward.find(query, callback);
 }
 
-module.exports.getRewardByCustomerId = function(customerId, callback){
+Reward.getRewardByCustomerId = function(customerId, callback){
 	var query = {customerId: customerId};
 	Reward.findOne(query, callback);
 }
 
-module.exports.getRewardByCategoryId = function(category, callback){
+Reward.getRewardByCategoryId = function(category, callback){
 	var query = {category: category};
 	Reward.findOne(query, callback);
 }
 
-module.exports.createReward = function(newReward, callback){
-	bcrypt.genSalt(10, function(err, salt) {
-    	bcrypt.hash(newReward.password, salt, function(err, hash) {
-   			newReward.password = hash;
-   			newReward.save(callback);
-    	});
-	});
-}
+module.exports = Reward;

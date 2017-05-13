@@ -2,15 +2,17 @@
 var passport = require('passport');
 
 // Routes
-var adminRouter = require('./routes/admin');
-var merchantRouter = require('./routes/merchant');
-var userRouter = require('./routes/customer.js');
+const adminRouter = require('./routes/admin');
+const merchantRouter = require('./routes/merchant');
+const userRouter = require('./routes/customer');
+const rewardRouter = require('./routes/rewards');
 
 module.exports = function(app) {
     // server routes
     app.use('/admin', adminRouter);
-    app.use('/merchant', merchantRouter);
+    app.use('/reward', rewardRouter);
     app.use('/customer', userRouter);
+    app.use('/merchant', merchantRouter);
 
     // frontend routers
     
@@ -25,10 +27,10 @@ module.exports = function(app) {
         res.sendfile('./public/views/base.html');
     });
 
-    app.get('/merchant/login', function(req, res) {
-        //load the merchant login page
-        res.sendfile('./public/views/merchantReg.html');
-    });
+    // app.get('/merchant/login', function(req, res) {
+    //     //load the merchant login page
+    //     res.sendfile('./public/views/merchantReg.html');
+    // });
 
     app.get('/logout', function(req, res) {
         req.logout();

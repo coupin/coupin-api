@@ -1,0 +1,90 @@
+<div class="jumbotron" ng-init="loadRewards()">
+    <button class="btn btn-primary" ng-click="addReward()"><i class="fa fa-plus"></i> Add New Discount</button>
+    <div class="row text-center">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item jumbo-headers">
+                <a class="nav-link" data-toggle="tab" href="#total" role="tab"><h3>200 in Total</h3></a>
+            </li>
+            <li class="nav-item jumbo-headers">
+                <a class="nav-link" data-toggle="tab" href="#active" role="tab"><h3>200 Active</h3></a>
+            </li>
+            <li class="nav-item jumbo-headers">
+                <a class="nav-link" data-toggle="tab" href="#inactive" role="tab"><h3>200 Inactive</h3></a>
+            </li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div class="tab-pane active" id="total" role="tabpanel">
+            <h5>Total</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(index, discount) in rewards">
+                        <th scope="row">{{ index + 1 }}</td>
+                        <td>{{ discount.name }}</td>
+                        <td>{{ discount.description }}</td>
+                        <td>{{ discount.isActive ? 'Visible' : 'Hidden' }}</td>
+                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive)"></i></td>
+                        <td><i class="fa fa-pencil icon" data-toggle="tooltip" data-placement="top" title="Edit" ng-click="editReward(index)"></i></td>
+                        <td><i class="fa fa-trash icon" data-toggle="tooltip" data-placement="top" title="Delete" ng-click="deleteReward()"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane" id="active" role="tabpanel">
+            <h5>Active</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(index, discount) in rewards">
+                        <th scope="row">{{ index + 1 }}</td>
+                        <td>{{ discount.name }}</td>
+                        <td>{{ discount.description }}</td>
+                        <td>{{ discount.isActive ? 'Visible' : 'Hidden' }}</td>
+                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive)"></i></td>
+                        <td><i class="fa fa-pencil icon" data-toggle="tooltip" data-placement="top" title="Edit" ng-click="editReward(index)"></i></td>
+                        <td><i class="fa fa-trash icon" data-toggle="tooltip" data-placement="top" title="Delete" ng-click="deleteReward()"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane" id="inactive" role="tabpanel">
+            <h5>Inactive</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(index, discount) in rewards">
+                        <th scope="row">{{ index + 1 }}</td>
+                        <td>{{ discount.name }}</td>
+                        <td>{{ discount.description }}</td>
+                        <td>{{ discount.isActive ? 'Visible' : 'Hidden' }}</td>
+                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive)"></i></td>
+                        <td><i class="fa fa-pencil icon" data-toggle="tooltip" data-placement="top" title="Edit" ng-click="editReward(index)"></i></td>
+                        <td><i class="fa fa-trash icon" data-toggle="tooltip" data-placement="top" title="Delete" ng-click="deleteReward()"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

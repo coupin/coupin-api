@@ -1,0 +1,85 @@
+<div class="info-box">
+    <div class="loading text-center" ng-if="loading">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span> Submiting</span>
+    </div>
+    <div class="text-center">
+        <h2>Discount Creation</h2>
+    </div>
+    <form>
+        <div class="form-group">
+            <label for="name">Discount Name: </label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-tags"></i></div>
+                <input type="name" class="form-control" id="name" aria-describedby="nameHelp" placeholder="e.g. Family Meal" ng-model="newReward.name"/>
+            </div>
+            <small id="categoryHelp" class="form-text text-muted">The name of the discount.</small>
+        </div>
+        <div class="form-group">
+            <label for="description">Discount Description: </label>
+                <textarea type="text" class="form-control" id="description" aria-describedby="descriptionHelp" placeholder="Description.." ng-model="newReward.description" required></textarea>
+            <small id="descriptionlHelp" class="form-text text-muted">Description of the reward</small>
+        </div>
+        <div class="form-group">
+            <label>Discount Categories: </label><br/>
+            <input type="checkbox" name="category" id="entertainment" ng-checked="categories.entertainment" ng-click="addCat('entertainment')"> <label for="entertainment">Entertainment </label>
+            <input type="checkbox" name="category" id="foodndrinks" ng-checked="categories.foodndrinks" ng-click="addCat('foodndrinks')"> <label for="foodndrinks">Food and Drink </label>
+            <input type="checkbox" name="category" id="gadgets" ng-checked="categories.gadgets" ng-click="addCat('gadgets')"> <label for="gadgets">Gadgets </label>
+            <input type="checkbox" name="category" id="healthnbeauty" ng-checked="categories.healthnbeauty" ng-click="addCat('healthnbeauty')"> <label for="healthnbeauty">Health &amp; Beauty </label>
+            <input type="checkbox" name="category" id="shopping" ng-checked="categories.shopping" ng-click="addCat('shopping')"> <label for="shopping">Shopping </label>
+            <input type="checkbox" name="category" id="tickets" ng-checked="categories.tickets" ng-click="addCat('tickets')"> <label for="tickets">Tickets </label>
+            <input type="checkbox" name="category" id="travel" ng-checked="categories.travel" ng-click="addCat('travel')"> <label for="travel">Travel </label>
+            <br/>
+            <small id="categoryHelp" class="form-text text-muted">Please tick categories that best describe your business.</small>
+        </div>
+        <div class="form-group">
+            <label for="customerUse">Can this discount be used multiple times: </label><br/>
+            <label><input type="radio" name="multiple" id="multiple" ng-model="newReward.multiple.status" ng-value="true"/> Yes </label>
+            <label><input type="radio" name="multiple" id="multiple" ng-model="newReward.multiple.status" ng-value="false"> No </label>
+            <small id="endHelp" class="form-text text-muted">How many times a user can use reward.</small>
+        </div>
+        <div class="form-group" ng-if="newReward.multiple.status == true">
+            <label for="start">How many times: </label><br/>
+            <input class="form-control" id="capacity" type="number" ng-model="newReward.multiple.capacity"/>
+            <small id="startHelp" class="form-text text-muted">Put in 0 for countless times.</small>
+        </div>
+        <div class="form-group">
+            <label for="start">Start Date: </label><br/>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-calendar"></i></div>
+                <input class="form-control" id="start" type="date" ng-model="newReward.startDate"/>
+            </div>
+            <small id="startHelp" class="form-text text-muted">Start date for the reward.</small>
+        </div>
+        <div class="form-group">
+            <label for="end">End Date: </label><br/>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-calendar"></i></div>
+                <input class="form-control" id="end" type="date" ng-model="newReward.endDate"/>
+            </div>
+            <small id="endHelp" class="form-text text-muted">End date for the reward.</small>
+        </div>
+        <div class="form-group">
+            <label for="appDays">Applicable Days: </label><br/>
+            <input type="checkbox" ng-click="checkAll()"/> Select All Days
+            <input type="checkbox" ng-click="weekDay()"/> Select Weekdays
+            <input type="checkbox" ng-click="weekEnd()"/> Select Weekends <br/>
+            <button class="btn btn-outline-primary" id="0" ng-click="day(0)">Monday</button>
+            <button class="btn btn-outline-primary" id="1" ng-click="day(1)">Tuesday</button>
+            <button class="btn btn-outline-primary" id="2" ng-click="day(2)">Wednesday</button>
+            <button class="btn btn-outline-primary" id="3" ng-click="day(3)">Thursday</button>
+            <button class="btn btn-outline-primary" id="4" ng-click="day(4)">Friday</button>
+            <button class="btn btn-outline-primary" id="5" ng-click="day(5)">Saturday</button>
+            <button class="btn btn-outline-primary" id="6" ng-click="day(6)">Sunday</button></br>
+            <small id="appDaysHelp" class="form-text text-muted">Pick the days of the week that apply to you.</small>
+        </div>
+        <div class="form-group">
+            <label for="end">Discount Picture: </label><br/>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-file"></i></div>
+                <input class="form-control" id="end" type="file"/>
+            </div>
+            <small id="endHelp" class="form-text text-muted">Sample Picture of Discount.</small>
+        </div>
+        <Button class="btn btn-primary btn-full" ng-click="createReward(newReward)">Create Reward</Button>
+    </form>
+</div>

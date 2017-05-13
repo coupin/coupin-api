@@ -11,21 +11,10 @@ var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
 //var db = require('../../config/db').module;
 // models
-var Reward = require('../models/reward');
-var Customer = require('../models/customer');
-var CustomerReward = require('../models/customerRewards');
-
-
-passport.serializeUser(function(reward, done) {
-  done(null, Reward.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  Reward.getRewardById(id, function(err, reward) {
-    done(err, reward);
-  });
-});
-
+const Reward = require('./../models/reward');
+const Customer = require('./../models/users');
+const CustomerReward = require('./../models/customerRewards');
+const auth = require('./../middleware/auth');
 
 
 // middleware to use for all requests
@@ -45,22 +34,9 @@ router.route('/')
 
 
 //
-// ----------------------------------------------------
-router.route('/:Id')
 
-.get(function(req, res){
-  Reward.getRewardById(req.params.Id, function(err, reward){
-    if (err)
-    res.send(err);
-    res.json(reward);
-  })
-})
-
-// update the bear with this id (accessed at PUT http://localhost:8080/api/bears/:bear_id)
-
-//The route to Get all rewards
 //The route to Get reward
-router.route('/:id')
+router.route('/get/:id')
 .get(function(req, res) {
   Reward.getRewardById(req.params.id, function(err, reward) {
     if (err)
@@ -121,9 +97,10 @@ router.route('/customer/:customerId')
   })
 })
 //The route to Get rewards under a merchant
-router.route('/merchant/:merchantId')
-.get(function(req, res) {
-  Reward.getRewardByMerchantId(req.params.merchantId, function(err, reward) {
+router.route('/merchant')
+.get(auth.isMerchant, function(req, res) {
+  const id = req.params.id || req.user._id;
+  Reward.getRewardByMerchantId(id, function(err, reward) {
     if (err)
       throw(err);
 
@@ -143,52 +120,48 @@ router.route('/category/:category')
 
 //The route to create a reward for a merchant
 router.route('/')
-.post(function(req, res) {
-
-  // Get information of reward
-  var name = req.body.name;
-  var merchantID = req.body.merchantID;
-  var location =  req.body.location;
-  var categories = req.body.categories;
-  var startDate = req.body.startDate;
-  var endDate = req.body.endDate;
-  var multiple =  req.body.multiple;
-  var applicableDays = req.body.applicableDays;
+.post(auth.isMerchant, function(req, res) {
 
 
   // Form Validator
   req.checkBody('name','Name field is required').notEmpty();
-  req.checkBody('merchantID','Merchant ID field is required').notEmpty();
-  req.checkBody('location','Location field is required').notEmpty();
+  req.checkBody('description','Description field is required').notEmpty();
   req.checkBody('categories','Categories field is required').notEmpty();
   req.checkBody('multiple','The Multiple field is required').notEmpty();
+  req.checkBody('startDate','Start Date field is required').notEmpty();
+  req.checkBody('endDate','End Date field is required').notEmpty();
   req.checkBody('applicableDays','Applicable Days field is required').notEmpty();
 
   // Check Errors
   var errors = req.validationErrors();
 
   if(errors){
-    res.json({ message: errors });
+    res.status(400).json({ message: errors });
   } else{
-    // Create new reward
-    var reward = new Reward({
-       name : name,
-       merchantID : merchantID,
-       location : location,
-       categories : categories,
-       startDate : startDate,
-       endDate : endDate,
-       multiple : multiple,
-       applicableDays : applicableDays,
+    // Get information of reward
+    var newReward = {
+      name : req.body.name,
+      merchantID : req.user._id || req.body.merchantID,
+      description :  req.body.description,
+      categories : req.body.categories,
+      startDate : req.body.startDate,
+      endDate : req.body.endDate,
+      picture : req.body.picture || 'default.png',
+      multiple :  req.body.multiple,
+      applicableDays : req.body.applicableDays,
       createdDate: Date.now(),
       isActive: true
-    });
+    };
 
-    Reward.createReward(reward, function(err, newReward){
-      if(err)
-        throw err;
+    // Create new reward
+    var reward = new Reward(newReward);
 
-      res.json({success: true, message: 'Reward created!' });
+    reward.save(function (err) {
+      if(err) {
+        res.status(500).send(err);
+      } else {
+        res.status(200).json({success: true, message: 'Reward created!' });
+      }
     });
   };
 });
