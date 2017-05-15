@@ -1,3 +1,20 @@
+const jwt = require('jsonwebtoken');
+const passportJWT = require('passport-jwt');
+
+const Customer = require('../models/users');
+const emailer = require('../../config/email');
+
+// Coupin App Messages
+const messages = require('../../config/messages');
+
+const ExtractJwt = passportJWT.ExtractJwt;
+const JwtStrategy = passportJWT.Strategy;
+
+const jwtOptions = {
+    jwtFromRequest : ExtractJwt.fromAuthHeader(),
+    secretOrKey : 'coupinappcustomer'
+}
+
 module.exports = {
     login : function (req, res) {
         var payload = {id: customer.id, name: customer.name, email: customer.email, mobileNumber: customer.mobileNumber};
@@ -36,7 +53,7 @@ module.exports = {
             res.json({success: false, message: errors[0].msg });
         } else{
             // Create new user
-            var customer = new User({
+            var customer = new Customer({
             name: name,
             email: email,
             network: network,
