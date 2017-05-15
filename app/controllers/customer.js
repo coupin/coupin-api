@@ -36,7 +36,7 @@ module.exports = {
             res.json({success: false, message: errors[0].msg });
         } else{
             // Create new user
-            var customer = new Customer({
+            var customer = new User({
             name: name,
             email: email,
             network: network,
