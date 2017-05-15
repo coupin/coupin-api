@@ -5,7 +5,7 @@ const router = express.Router();
 const passport = require('./../middleware/passport');
 
 // Middleware
-const authenticate = require('./../middleware/auth');
+const auth = require('./../middleware/auth');
 
 // models and controllers
 const Merchant = require('../models/users');
@@ -13,7 +13,7 @@ const MerchantCtrl = require('./../controllers/merchant');
 
 // Signing in for a merchant
 router.route('/authenticate')
-.get(authenticate.authenticate, MerchantCtrl.currentUser)
+.get(auth.authenticate, MerchantCtrl.currentUser)
 .post(passport.verify, MerchantCtrl.authenticate);
   // Used to validate sessions
   // .get(passport.verifyJWT, function(req, res){

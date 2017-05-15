@@ -62,7 +62,7 @@ Reward.getRewardById = function(id, callback){
 
 
 Reward.getRewardByMerchantId = function(merchantId, callback){
-	var query = {merchantId: merchantId};
+	var query = {merchantID: merchantId};
 	Reward.find(query, callback);
 }
 

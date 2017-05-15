@@ -82,6 +82,10 @@ fieldset[disabled] .btn-outline-primary.focus {
     padding-left: 0px;
 }
 
+.icon {
+  cursor: pointer;
+}
+
 .info-box {
     background: white;
     border-radius: 2px;
@@ -120,6 +124,15 @@ fieldset[disabled] .btn-outline-primary.focus {
   left: 50%;
 }
 
+.logo {
+  border-radius: 10px;
+  height: 180px;
+  width: 180px;
+
+  /* Box Shadow */
+  box-shadow: 2px 2px 4px black;
+}
+
 .merchant-space {
   padding: 20px;
 }
@@ -143,4 +156,11 @@ fieldset[disabled] .btn-outline-primary.focus {
 
 .navbar {
     border: 0px !important;
+}
+
+.row-no-space {
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+  padding-left: 0px !important;
+  padding-right: 0px !important;
 }

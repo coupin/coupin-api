@@ -5,7 +5,7 @@ var passport = require('passport');
 const adminRouter = require('./routes/admin');
 const merchantRouter = require('./routes/merchant');
 const userRouter = require('./routes/customer');
-const rewardRouter = require('./routes/rewards');
+const rewardRouter = require('./routes/reward');
 
 module.exports = function(app) {
     // server routes

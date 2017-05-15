@@ -3,13 +3,13 @@
     <div class="row text-center">
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item jumbo-headers">
-                <a class="nav-link" data-toggle="tab" href="#total" role="tab"><h3>200 in Total</h3></a>
+                <a class="nav-link" data-toggle="tab" href="#total" role="tab"><h3>{{rewards.length}} in Total</h3></a>
             </li>
             <li class="nav-item jumbo-headers">
-                <a class="nav-link" data-toggle="tab" href="#active" role="tab"><h3>200 Active</h3></a>
+                <a class="nav-link" data-toggle="tab" href="#active" role="tab"><h3>{{activeRewards.length}} Active</h3></a>
             </li>
             <li class="nav-item jumbo-headers">
-                <a class="nav-link" data-toggle="tab" href="#inactive" role="tab"><h3>200 Inactive</h3></a>
+                <a class="nav-link" data-toggle="tab" href="#inactive" role="tab"><h3>{{inactiveRewards.length}} Inactive</h3></a>
             </li>
         </ul>
     </div>
@@ -28,10 +28,10 @@
                 <tbody>
                     <tr ng-repeat="(index, discount) in rewards">
                         <th scope="row">{{ index + 1 }}</td>
-                        <td>{{ discount.name }}</td>
-                        <td>{{ discount.description }}</td>
+                        <td class="icon" ng-click="loadReward(discount._id)">{{ discount.name }}</td>
+                        <td class="icon" ng-click="loadReward(discount._id)">{{ discount.description }}</td>
                         <td>{{ discount.isActive ? 'Visible' : 'Hidden' }}</td>
-                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive)"></i></td>
+                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive, 0)"></i></td>
                         <td><i class="fa fa-pencil icon" data-toggle="tooltip" data-placement="top" title="Edit" ng-click="editReward(index)"></i></td>
                         <td><i class="fa fa-trash icon" data-toggle="tooltip" data-placement="top" title="Delete" ng-click="deleteReward()"></i></td>
                     </tr>
@@ -50,12 +50,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="(index, discount) in rewards">
+                    <tr ng-repeat="(index, discount) in activeRewards">
                         <th scope="row">{{ index + 1 }}</td>
-                        <td>{{ discount.name }}</td>
-                        <td>{{ discount.description }}</td>
+                        <td class="icon" ng-click="loadReward(discount._id)">{{ discount.name }}</td>
+                        <td class="icon" ng-click="loadReward(discount._id)">{{ discount.description }}</td>
                         <td>{{ discount.isActive ? 'Visible' : 'Hidden' }}</td>
-                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive)"></i></td>
+                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive, 1)"></i></td>
                         <td><i class="fa fa-pencil icon" data-toggle="tooltip" data-placement="top" title="Edit" ng-click="editReward(index)"></i></td>
                         <td><i class="fa fa-trash icon" data-toggle="tooltip" data-placement="top" title="Delete" ng-click="deleteReward()"></i></td>
                     </tr>
@@ -74,12 +74,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="(index, discount) in rewards">
+                    <tr ng-repeat="(index, discount) in inactiveRewards">
                         <th scope="row">{{ index + 1 }}</td>
-                        <td>{{ discount.name }}</td>
-                        <td>{{ discount.description }}</td>
+                        <td class="icon" ng-click="loadReward(discount._id)">{{ discount.name }}</td>
+                        <td class="icon" ng-click="loadReward(discount._id)">{{ discount.description }}</td>
                         <td>{{ discount.isActive ? 'Visible' : 'Hidden' }}</td>
-                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive)"></i></td>
+                        <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive, 2)"></i></td>
                         <td><i class="fa fa-pencil icon" data-toggle="tooltip" data-placement="top" title="Edit" ng-click="editReward(index)"></i></td>
                         <td><i class="fa fa-trash icon" data-toggle="tooltip" data-placement="top" title="Delete" ng-click="deleteReward()"></i></td>
                     </tr>

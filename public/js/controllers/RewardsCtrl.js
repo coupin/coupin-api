@@ -5,6 +5,9 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
         categories: [],
         multiple: {}
     };
+    $scope.activeRewards = [];
+    $scope.inactiveRewards = [];
+    $scope.daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     var selectAll = false;
     var weekDays = false;
@@ -19,12 +22,49 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
         } else {
             $scope.newReward.categories.splice($scope.newReward.categories.indexOf(category), 1);
         }
-        console.log($scope.newReward.categories);
-    }
+    };
 
     $scope.addReward = function () {
         $location.url('/merchant/rewards');
     };
+    $scope.changeStatus = function (index, isActive, tab) {
+        var reward = {};
+        if (tab === 0) {
+            reward = $scope.rewards[index];
+        } else if (tab === 1) {
+            reward = $scope.activeRewards[index];
+        } else if (tab === 2) {
+            rewards = $scope.inactiveRewards[index];
+        }
+
+        if (isActive) {
+            RewardsService.deactivate(reward._id).then(function (result) {
+                if (result.status === 200) {
+                    reward.isActive = false;
+                    $location.url('/merchant#inactive');
+                } else if (result.status === 500) {
+                    showError(errTitle, errMsg);
+                } else {
+                    showError(errTitle, result.data);
+                }
+            }).catch(function (err) {
+                showError(errTitle, errMsg);
+            });   
+        } else {
+            RewardsService.activate(reward._id).then(function (result) {
+                if (result.status === 200) {
+                    reward.isActive = true;
+                    $location.url('/merchant#active');
+                } else if (result.status === 500) {
+                    showError(errTitle, errMsg);
+                } else {
+                    showError(errTitle, result.data);
+                }
+            }).catch(function (err) {
+                showError(errTitle, errMsg);
+            });
+        }
+    }
 
     // Check all the days of the week
     $scope.checkAll = function () {
@@ -48,8 +88,7 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
                 }
             }
         }
-        console.log($scope.newReward.applicableDays);
-    }
+    };
 
     // Check the day of the week
     $scope.day = function (x) {
@@ -62,7 +101,7 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
             $('#'+x).css('background', '#fff');
             $('#'+x).css('color', '#2e6da4');
         }
-    }
+    };
 
     // Check weekdays
     $scope.weekDay = function () {
@@ -86,8 +125,7 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
                 }
             }
         }
-        console.log($scope.newReward.applicableDays);
-    }
+    };
 
     // Check weekends
     $scope.weekEnd = function () {
@@ -111,7 +149,7 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
                 }
             }
         }
-    }
+    };
 
     /**
      * Submit form for a new Reward
@@ -138,13 +176,39 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
     };
 
     /**
+     * Load a reward or route to reward page
+     */
+    $scope.loadReward = function (id) {
+
+        if (id === undefined) {
+            const _id = $location.search().id;
+            RewardsService.getReward(_id).then(function (result) {
+                if (result.status === 200) {
+                    $scope.reward = result.data;
+                } else {
+                    showError(errTitle, errMsg);
+                }
+            }).catch();
+        } else {
+            $location.url('/reward?id=' + id);
+        }
+
+    };
+
+    /**
      * Load rewards for home screen
      */
     $scope.loadRewards = function () {
         RewardsService.getMerchRewards().then(function (result) {
-            console.log(result);
             if (result.status === 200) {
                 $scope.rewards = result.data;
+                $scope.inactiveRewards = $scope.rewards.filter(function (reward) {
+                    if (reward.isActive === false) {
+                        return reward;
+                    } else {
+                        $scope.activeRewards.push(reward);
+                    }
+                });
             } else if (result.status === 500) {
                 showError(errTitle, errMsg);
             } else {
