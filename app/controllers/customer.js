@@ -17,6 +17,14 @@ const jwtOptions = {
 
 module.exports = {
     login : function (req, res) {
+      // req.logIn(req.user, function (err, user) {
+      //     if (err)
+      //         throw err;
+      //  console.log('User ' + user);
+      //     res.status(200).send({success: true, user: user});
+      // });
+
+        var customer = req.user;
         var payload = {id: customer.id, name: customer.name, email: customer.email, mobileNumber: customer.mobileNumber};
         var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
