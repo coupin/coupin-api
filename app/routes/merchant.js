@@ -51,8 +51,11 @@ router.route('/all')
     });
 });
 
+router.route('/:id')
+  .put(auth.isMerchant, MerchantCtrl.update);
+
 // To call the completion
-router.route('/confirm/:id').get(function(req, res) {
+router.route('/:id/confirm').get(function(req, res) {
   // load the merchant registration page
   Merchant.findById(req.params.id, function(err, merchant){
     if(err)
@@ -71,7 +74,7 @@ router.route('/confirm/:id').get(function(req, res) {
 .put(MerchantCtrl.adminReview);
 
 // Querying by Id
-router.route('/one/:id')
+router.route('/:id/one')
 .get(function(req, res) {
   Merchant.findById(req.params.id, function(err, merchant) {
     if (err)
@@ -87,7 +90,6 @@ router.route('/one/:id')
 
     res.send({message: 'Merchant Deleted'});
   })
-})
-.put(MerchantCtrl.update);
+});
 
 module.exports = router;

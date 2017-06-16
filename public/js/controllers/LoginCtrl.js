@@ -107,7 +107,6 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
             }
         }).catch(function(err){
             $scope.loading[1] = false;
-            console.log(err);
             $alert({
                 'title': "Confirmation Failed",
                 'content': err,
@@ -202,8 +201,6 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
      */
     $scope.showErrors = function(title, response) {
         var data = response.data.message;
-
-        console.log(response.data);
         
         // check if errorArray is an object, if so send an alert for each item
         if(typeof data === 'object') {

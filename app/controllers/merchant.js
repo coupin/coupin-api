@@ -53,10 +53,11 @@ module.exports = {
     },
     authenticate: function (req, res) {
         req.logIn(req.user, function (err, user) {
-            if (err)
-                throw err;
-            
-            res.status(200).send({success: true, user: user});
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                res.status(200).send({success: true, user: user});
+            }
         });
     },
     confirm: function (req, res) {
@@ -92,10 +93,11 @@ module.exports = {
                 merchant.rejected = false;
 
                 Merchant.createCustomer(merchant, function(err) {
-                    if (err)
-                    throw err;
+                    if (err) {
+                        res.status(500).send(err);
+                    }
 
-                    res.send({success: true, message: 'You have been confirmed!'});
+                    res.status(200).send({success: true, message: 'You have been confirmed!'});
                 });
             });
         }
@@ -135,41 +137,69 @@ module.exports = {
             merchant.role = 2;
 
             merchant.save(function(err) {
-            if(err)
-                throw err;
-
-            res.send({
-                success: true,
-                message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
+            if(err) {
+                res.status(500).send(err);
+            } else {
+                res.status(200).send({
+                    success: true,
+                    message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
+                };
             });
         }
     },
     update: function (req, res) {
         Merchant.findById(req.params.id, function(err, merchant) {
-            if (err)
-                res.send(err);
+            console.log(req.body);
+            if (err) {
+                res.status(500).send(err);
+            } else if (!merchant) {
+                res.status(404).send({message: 'No such user exists'});
+            } else {
+                if (req.body.email) {
+                    merchant.email = req.body.email;
+                }
 
-            if (req.body.mobileNumber)
-            merchant.merchantInfo.mobileNumber = req.body.mobileNumber;  // update the customers info
-            if (req.body.email)
-            merchant.email = req.body.email;
-            if (req.body.address)
-            merchant.merchantInfo.address =  req.body.address;
-            if (req.body.city)
-            merchant.merchantInfo.city = req.body.city;
-            if (req.body.state)
-            merchant.merchantInfo.state =  req.body.state;
+                if ('mobileNumber' in req.body.merchantInfo) {
+                    merchant.merchantInfo.mobileNumber = req.body.merchantInfo.mobileNumber;
+                }
 
-            merchant.modifiedDate = Date.now();
+                if ('companyName' in req.body.merchantInfo) {
+                    merchant.merchantInfo.companyName = req.body.merchantInfo.companyName;
+                }
 
-            // save the customer updateCustomer
-            merchant.save(function(err) {
-                if (err)
-                    res.send(err);
+                if (req.body.merchantInfo.companyDetails) {
+                    merchant.merchantInfo.companyDetails = req.body.merchantInfo.companyDetails;
+                }
 
-                res.json({ message: 'Merchant updated!' });
-            });
+                if (req.body.merchantInfo.address) {
+                    merchant.merchantInfo.address =  req.body.merchantInfo.address;
+                }
 
+                if (req.body.merchantInfo.city) {
+                    merchant.merchantInfo.city = req.body.merchantInfo.city;
+                }
+
+                if (req.body.merchantInfo.state) {
+                    merchant.merchantInfo.state =  req.body.merchantInfo.state;
+                }
+
+                if (req.body.merchantInfo.location) {
+                    merchant.merchantInfo.location = req.body.merchantInfo.location;
+                }
+
+                merchant.modifiedDate = Date.now();
+
+                // save the customer updateCustomer
+                merchant.save(function(err) {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send(err);
+                    } else {
+                        res.status(200).send({ message: 'Merchant updated!' });
+                    }
+
+                });
+            }
         });
     }
 }
