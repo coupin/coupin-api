@@ -101,9 +101,9 @@ app.use(passport.session());
 app.use(express.static(__dirname + '/public'));
 
 
-app.use('/admin', function (req, res) {
-  res.sendfile('public/views/index.html');
-});
+// app.use('/admin', function (req, res) {
+//   res.sendfile('public/views/index.html');
+// });
 
 app.use('/upload', function (req, res) {
   var fsStream;

@@ -1,5 +1,23 @@
+const jwt = require('jsonwebtoken');
+const passportJWT = require('passport-jwt');
+
+const Customer = require('../models/users');
+const emailer = require('../../config/email');
+
+// Coupin App Messages
+const messages = require('../../config/messages');
+
+const ExtractJwt = passportJWT.ExtractJwt;
+const JwtStrategy = passportJWT.Strategy;
+
+const jwtOptions = {
+    jwtFromRequest : ExtractJwt.fromAuthHeader(),
+    secretOrKey : 'coupinappcustomer'
+}
+
 module.exports = {
     login : function (req, res) {
+        var customer = req.user;
         var payload = {id: customer.id, name: customer.name, email: customer.email, mobileNumber: customer.mobileNumber};
         var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
