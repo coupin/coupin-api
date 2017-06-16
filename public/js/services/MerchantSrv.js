@@ -1,5 +1,9 @@
 angular.module('MerchantSrv', []).factory('MerchantService', function($http) {
     return {
+        changePassword : function (password) {
+            return $http.post('/auth/password', {password: password});
+        }
+        ,
         // Complete Registration
         complete : function(id, details) {
             return $http.post('/merchant/' + id + '/confirm/', details);

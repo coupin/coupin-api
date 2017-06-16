@@ -15,6 +15,30 @@ angular.module('MerchantCtrl', []).controller('MerchantController', function ($s
         console.log(err);
     });
 
+    $scope.changePassword = function (password, confirm) {
+        if (password.match(confirm)) {
+            MerchantService.changePassword(password).then(function (response) {
+                $alert({
+                    'title': 'Success!',
+                    'content': 'Password was updated successfully',
+                    'duration': 5,
+                    'placement': 'top-right',
+                    'show' : true ,
+                    'type' : 'success'
+                });
+                $('#passwordModal').modal('hide');
+            }).catch(function (err) {
+                if (err.status === 500) {
+                    showError('Oops!', 'An Error Occured, Please Try Again');
+                } else {
+                    showError('oops!', err.data.message);
+                }
+            });
+        } else {
+            showError('Oops', 'The passwords do not match');
+        }
+    };
+
     $scope.getLocation = function () {
         $scope.loadingPosition = true;
         navigator.geolocation.getCurrentPosition(function (position) {

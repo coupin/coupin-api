@@ -137,6 +137,15 @@ User.createCustomer = function (newCustomer, callback) {
 	});
 };
 
+User.updatePassword = function (user, password, callback) {
+    bcrypt.genSalt(10, function(err, salt) {
+    	bcrypt.hash(password, salt, function(err, hash) {
+   			user.password = hash;
+   			user.save(callback);
+    	});
+	});
+};
+
 User.isValid = function (plainPassword, hashedPassword, callback) {
     const salt = bcrypt.genSalt(10);
     return bcrypt.compareSync(plainPassword, hashedPassword);

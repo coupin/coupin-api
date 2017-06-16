@@ -3,12 +3,14 @@ var passport = require('passport');
 
 // Routes
 const adminRouter = require('./routes/admin');
+const authRouter = require('./routes/auth');
 const merchantRouter = require('./routes/merchant');
 const userRouter = require('./routes/customer');
 const rewardRouter = require('./routes/reward');
 
 module.exports = function(app) {
     // server routes
+    app.use('/auth', authRouter);
     app.use('/admin', adminRouter);
     app.use('/reward', rewardRouter);
     app.use('/customer', userRouter);

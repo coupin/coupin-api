@@ -15,7 +15,7 @@
             </div>
             <small id="emailHelp" class="form-text text-muted">User email.</small>
         </div>
-        <button class="btn btn-primary">Change Password</button>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#passwordModal">Change Password</button>
     </form>
     <form>
         <h3> Company Information </h3>
@@ -91,4 +91,32 @@
         <br><br>
         <btton class="btn btn-primary btn-full" ng-click="update()">Update Profile <i class="fa fa-spin fa-spinner" ng-disabled="updating === true" ng-show="updating"></i></btton>
     </form>
+</div>
+<div class="modal fade" id="passwordModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Password Change</h3>
+            </div>
+            <div class="modal-body">
+                <form ng-submit="changePassword(password, confirm)">
+                    <div class="form-group">
+                        <label for="email">New Passowrd: </label>
+                        <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                            <div class="input-group-addon icons-input"><i class="fa fa-key"></i></div>
+                            <input type="password" class="form-control" id="password" placeholder="Enter new password.." ng-model="password" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Confirm Passowrd: </label>
+                        <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                            <div class="input-group-addon icons-input"><i class="fa fa-key"></i></div>
+                            <input type="password" class="form-control" id="confirm" placeholder="Confirm Password" ng-model="confirm" required/>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full">Change Passowrd <i class="fa fa-spin fa-spinner" ng-disabled="changing === true" ng-show="changing"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
