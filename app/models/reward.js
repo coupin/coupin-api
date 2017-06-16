@@ -62,11 +62,7 @@ Reward.getRewardById = function(id, callback){
 
 
 Reward.getRewardByMerchantId = function(merchantId, callback){
-<<<<<<< HEAD
-	var query = {merchantId: merchantId};
-=======
 	var query = {merchantID: merchantId};
->>>>>>> merchant-homepage
 	Reward.find(query, callback);
 }
 

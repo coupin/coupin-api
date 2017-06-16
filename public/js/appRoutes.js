@@ -19,8 +19,8 @@ angular.module('appRoutes', []).config(['$routeProvider', '$locationProvider', f
             controller: 'RequestController'
         })
         .otherwise({
-            templateUrl: 'views/welcome.html',
-            controller: 'WelcomeController'
+            templateUrl: 'views/home.html',
+            controller: 'MainController'
         });
 
         $locationProvider.html5Mode({
