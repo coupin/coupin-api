@@ -21,7 +21,6 @@ router.route('/authenticate')
   // });
 
 router.route('/').get(function (req, res) {
-  console.log(req.user);
   if (req.user) {
     if (req.user.role == 2) {
       res.sendfile('./public/views/merchant/index.html');
