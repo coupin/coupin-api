@@ -8,6 +8,10 @@ angular.module('merchappRoutes', []).config(['$routeProvider', '$locationProvide
         templateUrl: '/views/merchant/rewards.html',
         controller: 'RewardsController'
     })
+    .when('/profile', {
+        templateUrl: '/views/merchant/profile.html',
+        controller: 'MerchantController'
+    })
     .when('/reward', {
         templateUrl: '/views/merchant/view.html',
         controller: 'RewardsController'

@@ -1,0 +1,94 @@
+<div class="info-box">
+    <div class="loading text-center" ng-if="loading">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span> Submiting</span>
+    </div>
+    <div class="text-center">
+        <h2>Profile Information</h2>
+    </div>
+    <form>
+        <h3> Login/Contact Information </h3>
+        <div class="form-group">
+            <label for="email">Email: </label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-at"></i></div>
+                <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@domain.com" ng-model="user.email" required/>
+            </div>
+            <small id="emailHelp" class="form-text text-muted">User email.</small>
+        </div>
+        <button class="btn btn-primary">Change Password</button>
+    </form>
+    <form>
+        <h3> Company Information </h3>
+        <div class="form-group">
+            <label for="name">Name: </label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-meetup"></i></div>
+                <input type="text" class="form-control" id="name" aria-describedby="emailHelp" placeholder="example@domain.com" ng-model="user.merchantInfo.companyName" required/>
+            </div>
+            <small id="nameHelp" class="form-text text-muted">Company Name.</small>
+        </div>
+        <div class="form-group">
+            <label for="name">Details: </label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-info"></i></div>
+                <textarea type="text" class="form-control" id="detail" aria-describedby="emailHelp" placeholder="Company Details.." ng-model="user.merchantInfo.companyDetails" required></textarea>
+            </div>
+            <small id="detailHelp" class="form-text text-muted">Company Details.</small>
+        </div>
+        <div class="form-group">
+            <label for="name">Phone Number: </label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-phone"></i></div>
+                <input type="text" class="form-control" id="phoneNumber"  minlength="11" maxlength="11"  aria-describedby="emailHelp" placeholder="e.g. 08032455555" ng-model="user.merchantInfo.mobileNumber" required/>
+            </div>
+            <small id="nameHelp" class="form-text text-muted">Branch Phone Number.</small>
+        </div>
+        <div class="form-group">
+            <label for="email">Address: </label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-map-signs"></i></div>
+                <input type="text" class="form-control" id="address" aria-describedby="addressHelp" placeholder="e.g. 3 example street, off another drive" ng-model="user.merchantInfo.address" required/>
+            </div>
+            <small id="addressHelp" class="form-text text-muted">Branch Address</small>
+        </div>
+        <div class="form-group">
+            <label for="city">City:</label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon icons-input"><i class="fa fa-map-marker"></i></div>
+                <input type="text" class="form-control" id="city" minlength="3" maxlength="15" aria-describedby="cityHelp" placeholder="e.g. Benin" ng-model="user.merchantInfo.city" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="state">State:</label>
+            <select class="form-control" id="state" aria-describedby="stateHelp" ng-model="user.merchantInfo.state" ng-options="state for state in states" required></select>
+        </div>
+        <h3>Geolocation Details</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="email">Latitude: </label>
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon icons-input"><i class="fa fa-map-pin"></i></div>
+                        <input type="text" maxlength="8" minlength="8" class="form-control" id="latitude" placeholder="e.g. 6.473655" ng-model="position.lat"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="email">Longitude: </label>
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon icons-input"><i class="fa fa-map-pin"></i></div>
+                        <input type="text" maxlength="8" minlength="8" class="form-control" id="longitude" placeholder="e.g. 3.474655" ng-model="position.long"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <button class="btn btn-primary btn-full" ng-click="getLocation()">User My Current Location <i class="fa fa-spin fa-spinner" ng-disabled="loadingPosition === true" ng-show="loadingPosition"></i></button>
+                </div>
+            </div>
+        </div>
+        <br><br>
+        <btton class="btn btn-primary btn-full">Update Profile</btton>
+    </form>
+</div>
