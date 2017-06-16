@@ -1,0 +1,24 @@
+<div class="jumbotron" ng-init="loadReward()">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="logo"></div>
+        </div>
+        <div class="col-md-9">
+            <h3>{{reward.name}}</h3>
+            <h5><label>Description: </label>{{reward.description}}</h5>
+            <div class="row row-no-space">
+                <div class="col-md-6 row-no-space">
+                    <ul class="list-inline"><label>Applicable Days: </label><li ng-repeat="(index, day) in reward.applicableDays">{{ index + 1 < reward.applicableDays.length ? daysOfWeek[day] + ',' : daysOfWeek[day]}}</li></ul>
+                    <label>Started: </label><span>{{' ' + (reward.startDate | date:'medium')}}</span><br/>
+                    <label>Expires: </label><span>{{' ' + (reward.endDate | date:'medium')}}</span>
+                </div>
+                <div class="col-md-6">
+                   <ul class="list-inline"><label>Categories: </label><li ng-repeat="(index, category) in reward.categories">{{ index + 1 < reward.categories.length ? category + ',' : category}}</li></ul>
+                   <label>Multiple Uses: </label><span>{{reward.multiple.status ? ' Yes' : ' No'}}</span>
+                   <div ng-if="reward.multiple.status === true"><label>Max No. of Uses: </label><span>{{reward.multiple.capacity === 0 ? ' Unlimited' : ' ' + reward.multiple.capacity}}</span></div>
+                   <label>Status: </label><span>{{reward.isActive ? ' Active' : ' Inactive'}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

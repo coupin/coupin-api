@@ -21,10 +21,10 @@ angular.module('appRoutes', []).config(['$routeProvider', '$locationProvider', f
         .otherwise({
             templateUrl: 'views/welcome.html',
             controller: 'WelcomeController'
-        });;
+        });
 
         $locationProvider.html5Mode({
             enabled: true,
             requireBase: false
-        })
+        });
 }])

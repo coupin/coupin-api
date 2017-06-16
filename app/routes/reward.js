@@ -1,5 +1,4 @@
 var express = require('express');
-var expressValidator = require('express-validator');
 var router = express.Router();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
@@ -9,19 +8,17 @@ var passportJWT = require("passport-jwt");
 
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
-//var db = require('../../config/db').module;
+
+// Reward Controller
+const rewardCtrl = require('./../controllers/reward');
+
 // models
 const Reward = require('./../models/reward');
 const Customer = require('./../models/users');
 const CustomerReward = require('./../models/customerRewards');
 const auth = require('./../middleware/auth');
 
-
-// middleware to use for all requests
-router.use(function(req, res, next) {
-  // do logging
-  next(); // make sure we go to the next routes and don't stop here
-});
+router.use(auth.authenticate);
 
 router.route('/')
 
@@ -32,18 +29,27 @@ router.route('/')
   res.send(req.body);
 });
 
+// Route to activate a reward
+router.route('/activate/:id').post(auth.isMerchant, rewardCtrl.activate);
 
-//
+// Route to deactivate a reward
+router.route('/deactivate/:id').post(auth.isMerchant, rewardCtrl.deactivate);
+
+router.route('/all').get(auth.isAdmin, function (req, res) {
+  Reward.find({}, function (err, rewards) {
+    res.status(200).send(rewards);
+  });
+});
 
 //The route to Get reward
 router.route('/get/:id')
 .get(function(req, res) {
-  Reward.getRewardById(req.params.id, function(err, reward) {
+  Reward.findById(req.params.id, function(err, reward) {
     if (err)
       throw(err);
 
     res.json(reward);
-  })
+  });
 })
 
 .put(function(req, res) {
@@ -96,6 +102,7 @@ router.route('/customer/:customerId')
     res.json(reward);
   })
 })
+
 //The route to Get rewards under a merchant
 router.route('/merchant')
 .get(auth.isMerchant, function(req, res) {
@@ -107,6 +114,7 @@ router.route('/merchant')
     res.json(reward);
   })
 })
+
 //The route to Get rewards for a category
 router.route('/category/:category')
 .get(function(req, res) {
@@ -120,51 +128,7 @@ router.route('/category/:category')
 
 //The route to create a reward for a merchant
 router.route('/')
-.post(auth.isMerchant, function(req, res) {
-
-
-  // Form Validator
-  req.checkBody('name','Name field is required').notEmpty();
-  req.checkBody('description','Description field is required').notEmpty();
-  req.checkBody('categories','Categories field is required').notEmpty();
-  req.checkBody('multiple','The Multiple field is required').notEmpty();
-  req.checkBody('startDate','Start Date field is required').notEmpty();
-  req.checkBody('endDate','End Date field is required').notEmpty();
-  req.checkBody('applicableDays','Applicable Days field is required').notEmpty();
-
-  // Check Errors
-  var errors = req.validationErrors();
-
-  if(errors){
-    res.status(400).json({ message: errors });
-  } else{
-    // Get information of reward
-    var newReward = {
-      name : req.body.name,
-      merchantID : req.user._id || req.body.merchantID,
-      description :  req.body.description,
-      categories : req.body.categories,
-      startDate : req.body.startDate,
-      endDate : req.body.endDate,
-      picture : req.body.picture || 'default.png',
-      multiple :  req.body.multiple,
-      applicableDays : req.body.applicableDays,
-      createdDate: Date.now(),
-      isActive: true
-    };
-
-    // Create new reward
-    var reward = new Reward(newReward);
-
-    reward.save(function (err) {
-      if(err) {
-        res.status(500).send(err);
-      } else {
-        res.status(200).json({success: true, message: 'Reward created!' });
-      }
-    });
-  };
-});
+.post(auth.isMerchant, rewardCtrl.create);
 
 
 //The route to add reward to a customer
