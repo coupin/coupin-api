@@ -13,7 +13,7 @@ const auth = require('./../middleware/auth');
 const AdminCtrl = require('./../controllers/admin');
 
 // Admin api routes
-router.route('/').get(auth.isSuperAdmin, AdminCtrl.getAllAdmins);
+router.route('/').get(AdminCtrl.getAllAdmins);
 
 // TODO: Create init and remove this
 router.route('/sadmin').post(AdminCtrl.addSuperAdmin).get(function (req, res) {

@@ -40,6 +40,9 @@ var userSchema = new schema({
       sex: {
           type: String
       },
+      picture: {
+          type: String
+      },
       city: {
           type: String
       },
