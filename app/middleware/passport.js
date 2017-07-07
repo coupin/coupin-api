@@ -6,9 +6,10 @@ const passportJWT = require("passport-jwt");
 const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 
-const jwtOptions = {}
-jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
-jwtOptions.secretOrKey = 'coupinappmerchant';
+const jwtOptions = {
+    jwtFromRequest : ExtractJwt.fromAuthHeader(),
+    secretOrKey : 'coupinappcustomer'
+};
 
 // User Model
 const User = require('./../models/users');
@@ -43,13 +44,11 @@ function(req, email, password, done){
 
         // id user is found but password is wrong
         if(!User.isValid(password, user.password)) {
-            console.log("Shouldn't");
             return done(null, false, {success : false, message: 'Wrong Password'});
         }
         
         // if everything is okay
         if(user.role === 0 || user.isActive) {
-            console.log('Does it');
             return done(null, user);
         }
 
@@ -98,7 +97,7 @@ function(req, email, password, done) {
 
 // Strategy for merchants
 passport.use('jwt-1', new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-    Merchant.findOne({ 
+    User.findOne({ 
         'email' : jwt_payload.email
     }, function(err, merchant) {
         if (err) throw err;
@@ -111,9 +110,8 @@ passport.use('jwt-1', new JwtStrategy(jwtOptions, function(jwt_payload, next) {
 }));
 
 passport.use('jwt-2', new JwtStrategy(jwtOptions, function(jwt_payload, done) {
-    // usually this would be a database call:
-    Customer.findById(jwt_payload.id, function(err, customer) {
-
+    console.log(jwt_payload);
+    User.findById(jwt_payload.id, function(err, customer) {
         if (err) throw err;
         if (!customer) {
             return done(null, false,{message: 'Unknown Customer'});

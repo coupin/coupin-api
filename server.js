@@ -70,15 +70,6 @@ app.use(expressValidator({
 
 // app.use(expressValidator());
 // parse application/vnd.api+json as json
-app.use(bodyParser.json({
-    type: 'application/vnd.api+json'
-}));
-app.use(bodyParser.urlencoded({extended: true}));
-
-// Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
 
 /**
  * override with the X-HTTP-Override header in the request.

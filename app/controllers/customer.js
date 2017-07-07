@@ -27,8 +27,7 @@ module.exports = {
 
         res.json({
         success: true,
-        message: 'Here is your token',
-        token: token
+        token: 'JWT ' + token
         });
     },
     register : function(req, res) {

@@ -4,7 +4,7 @@
   "dependencies": {
     "bcryptjs": "^2.3.0",
     "body-parser": "~1.4.2",
-    "bower":"*",
+    "bower": "*",
     "connect-busboy": "0.0.2",
     "cookie-parser": "^1.4.3",
     "crypto-js": "^3.1.8",
@@ -23,7 +23,8 @@
     "passport-http": "*",
     "passport-jwt": "*",
     "passport-local": "*",
-    "passport-twitter": "^1.0.4"
+    "passport-twitter": "^1.0.4",
+    "shortid": "^2.2.8"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
