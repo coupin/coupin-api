@@ -16,6 +16,7 @@
     "jsonwebtoken": "*",
     "method-override": "~2.0.2",
     "mongoose": "~4.9.2",
+    "mongoose-seed": "^0.3.2",
     "morgan": "^1.8.1",
     "nodemailer": "^4.0.0",
     "passport": "*",
@@ -31,7 +32,7 @@
     "nodemon": "^1.11.0"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node ./app/init.js && nodemon server.js",
     "postinstall": "./node_modules/bower/bin/bower install"
   }
 }

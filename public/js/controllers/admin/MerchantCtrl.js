@@ -23,12 +23,10 @@ angular.module('AdminMerchantCtrl', []).controller('AdminMerchantController', fu
     $scope.createMerchant = function (data) {
         if (data.password === data.password2) {
             $scope.loading = true;
-            console.log(data);
             MerchantService.upload({file: $scope.cropped})
             .then(function (response) {
                 const url = response.data.url;
                 data.merchantInfo.logo = url;
-                console.log(data);
                 MerchantService.adminCreate(data)
                 .then(function (res) {
                     $scope.loading === false;

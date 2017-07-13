@@ -16,7 +16,7 @@ module.exports = function(app) {
     app.use('/admin', adminRouter);
     app.use('/reward', rewardRouter);
     app.use('/customer', userRouter);
-    app.use('/merchant', merchantRouter);
+    app.use('/merchant', isLoggedIn, merchantRouter);
 
     // frontend routers
     
@@ -38,7 +38,7 @@ module.exports = function(app) {
 
     app.get('/logout', function(req, res) {
         req.logout();
-        res.redirect('/admin/login');
+        res.redirect('/admin');
     });
 
     // frontend routers
