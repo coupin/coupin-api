@@ -1,0 +1,33 @@
+<div class="inline-body" ng-init="loadMerchants()">
+    <div class="jumbotron jumbotron-box padding-5-all">
+        <form>
+            <div class="form-group">
+                <input class="form-control" type="text" placeholder="Search..." />
+            </div>
+            <button class="btn btn-default" ng-click="goToNewMerch()"><i class="fa fa-plus"></i> Add Merchant</button>
+        </form>
+    </div>
+    <div class="jumbotron jumbotron-box padding-10-all">
+        <table style="width:100%">
+            <thead>
+                <th>S/N</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Email</th>
+                <th>Status</th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="(index, merchant) in merchants">
+                    <td>{{index + 1}}</td>
+                    <td>{{merchant.merchantInfo.companyName}}</td>
+                    <td>{{merchant.merchantInfo.address + ', ' + merchant.merchantInfo.city}}</td>
+                    <td>{{merchant.email}}</td>
+                    <td>{{merchant.isActive ? 'Visible' : 'Hidden'}}</td>
+                    <td><button class="btn btn-default">Edit</button></td>
+                    <td><button class="btn btn-default" ng-show="merchant.isActive === true">DeActivate</button></td>
+                    <td><button class="btn btn-default" ng-show="merchant.isActive === false">Activate</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -110,13 +110,14 @@ passport.use('jwt-1', new JwtStrategy(jwtOptions, function(jwt_payload, next) {
 }));
 
 passport.use('jwt-2', new JwtStrategy(jwtOptions, function(jwt_payload, done) {
-    console.log(jwt_payload);
     User.findById(jwt_payload.id, function(err, customer) {
-        if (err) throw err;
-        if (!customer) {
+        if (err) {
+            throw err;
+        } else if (!customer) {
             return done(null, false,{message: 'Unknown Customer'});
+        } else {
+            return done(null, customer);
         }
-        return done(null, customer);
     });
 }));
 

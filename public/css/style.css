@@ -1,18 +1,6 @@
 /* Admin Login Box Styling */
-.login-box {
-    border-radius: 20px;
-    height: 400px;
-    margin: auto;
-    margin-top: 5%;
-    min-height: 400px;
-    min-width: 400px;
-    width: 400px;
-    /*Shadow*/
-    box-shadow: 2px 3px 3px gray;
-}
-
 .login-form {
-    margin: 10%;
+    margin: 5%;
 }
 
 .error {
@@ -61,8 +49,51 @@
     width: 100%;
 }
 
+.cropArea {
+    background: #E4E4E4;
+    overflow: hidden;
+    width:100px;
+    height:100px;
+}
+
+.cropArea canvas {
+    margin: 0 !important;
+}
+
+.form-page {
+    display: block;
+    margin: auto;
+    padding: 10px;
+    width: 80%;
+}
+
+.inline-body {
+    display: block;
+    margin: auto;
+    padding: 20px;
+    width: 80%;
+}
+
+.jumbotron-box {
+    border-radius: 10px;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
+}
+
+.padding-5-all {
+    padding: 5px;
+}
+
+.padding-10-all {
+    padding: 10px;
+}
+
 .bottom-space {
     margin-bottom: 50px;
+}
+
+.center-img {
+    display: block;
+    margin: auto;
 }
 
 .custom, .custom:active , .custom:focus {
@@ -120,10 +151,18 @@
     margin-right: 0px !important;
 }
 
-.space-20 {
-    margin-bottom: 5%;
-    margin-left: 20%;
-    margin-top: 5%;
+.navbar-admin {
+    background: #00ace6;
+    border-radius: 0 !important;
+    color: white;
+}
+
+.navbar-admin a {
+    color: white;
+}
+
+.nav-admin > li > a:hover, .nav-admin > li > a:focus { 
+    background: transparent !important;
 }
 
 .no-space-below {
@@ -192,6 +231,19 @@
 }
 
 /* General Styling End */
+
+.loginBox {
+    background: rgba(0, 0, 0, .5);
+    border-radius: 3px;
+    color: white;
+    height: inherit;
+    margin: 5% auto;
+    padding: 1%;
+    width: 50%;
+
+    /*Shadow*/
+    box-shadow: 1px 1px 3px #a0a0a0;
+}
 
 /* Merchant Registration */
 .merchantRegBox {

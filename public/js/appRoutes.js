@@ -10,9 +10,17 @@ angular.module('appRoutes', []).config(['$routeProvider', '$locationProvider', f
             templateUrl: 'views/addAdmin.html',
             controller: 'AdminController'
         })
+        .when('/newMerch', {
+            templateUrl: 'views/newMerch.html',
+            controller: 'AdminMerchantController'
+        })
         .when('/viewAdmin', {
             templateUrl: 'views/viewAdmin.html',
             controller: 'SuperAdminController'
+        })
+        .when('/viewMerch', {
+            templateUrl: 'views/viewMerch.html',
+            controller: 'AdminMerchantController'
         })
         .when('/viewRequests', {
             templateUrl: 'views/viewRequests.html',

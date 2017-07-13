@@ -11,26 +11,18 @@ const auth = require('./../middleware/auth');
 const Merchant = require('../models/users');
 const MerchantCtrl = require('./../controllers/merchant');
 
+router.route('/').get(MerchantCtrl.authRedirect);
+
 // Signing in for a merchant
 router.route('/authenticate')
 .get(auth.authenticate, MerchantCtrl.currentUser)
 .post(passport.verify, MerchantCtrl.authenticate);
-  // Used to validate sessions
-  // .get(passport.verifyJWT, function(req, res){
-  //   res.json({success: true, message: "Merchant token was validated"});
-  // });
 
-router.route('/').get(function (req, res) {
-  if (req.user) {
-    if (req.user.role == 2) {
-      res.sendfile('./public/views/merchant/index.html');
-    } else {
-      res.sendfile('./public/views/merchantReg.html');
-    }
-  } else {
-    res.sendfile('./public/views/merchantReg.html');
-  }
-});
+router.route('/all')
+  .get(MerchantCtrl.getAllMerchants);
+
+router.route('/override')
+  .post(auth.isAdmin, MerchantCtrl.adminCreate);
 
 // For Registration of merchants
 router.route('/register')

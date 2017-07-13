@@ -14,10 +14,10 @@
     <!-- List Of Admins -->
     <div class="row admin-list-view" ng-repeat="(index, admin) in admins">
         <div class="col-md-1 col-xs-1"><h5>{{index + 1}}</h5></div>
-        <div class="col-md-9 col-xs-7"><h5>{{admin.local.email}}</h5></div>
+        <div class="col-md-9 col-xs-7"><h5>{{admin.email}}</h5></div>
         <div class="col-md-1 col-xs-2">
-            <button data-toggle="modal" data-target="#deActivateModal" ng-click="selectAdmin(index)" ng-show="admin.local.isActive" type="button">DeActivate</button>
-            <button data-toggle="modal" data-target="#activateModal" ng-click="selectAdmin(index)" ng-hide="admin.local.isActive" type="button">Activate</button>
+            <button data-toggle="modal" data-target="#deActivateModal" ng-click="selectAdmin(index)" ng-show="admin.isActive" type="button">DeActivate</button>
+            <button data-toggle="modal" data-target="#activateModal" ng-click="selectAdmin(index)" ng-hide="admin.isActive" type="button">Activate</button>
         </div>
         <div class="col-md-1 col-xs-2"><button data-toggle="modal" data-target="#deleteModal" ng-click="selectAdmin(index)" type="button">Delete</button></div>
     </div>
@@ -31,7 +31,7 @@
                     Please Confirm
                 </div>
                 <div class="modal-body">
-                    <h5>Are you sure you want to activate {{currentAdmin.local.email}}?</h5>
+                    <h5>Are you sure you want to activate {{currentAdmin.email}}?</h5>
                     <button class="btn btn-success" ng-click="activate(currentAdmin._id)" data-dismiss="modal">Yes</button>
                     <button class="btn btn-danger" data-dismiss="modal">No</button>
                 </div>
@@ -47,7 +47,7 @@
                     Please Confirm
                 </div>
                 <div class="modal-body">
-                    <h5>Are you sure you want to deactivate {{currentAdmin.local.email}}?</h5>
+                    <h5>Are you sure you want to deactivate {{currentAdmin.email}}?</h5>
                     <button class="btn btn-success" ng-click="deactivate(currentAdmin._id)" data-dismiss="modal">Yes</button>
                     <button class="btn btn-danger" data-dismiss="modal">No</button>
                 </div>
@@ -63,7 +63,7 @@
                     Please Confirm
                 </div>
                 <div class="modal-body">
-                    <h5>Are you sure you want to delete {{currentAdmin.local.email}}?</h5>
+                    <h5>Are you sure you want to delete {{currentAdmin.email}}?</h5>
                     <button class="btn btn-success" data-dismiss="modal" ng-click="delete(currentAdmin._id)">Yes</button>
                     <button class="btn btn-danger" data-dismiss="modal">No</button>
                 </div>

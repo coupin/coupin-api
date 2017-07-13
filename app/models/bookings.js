@@ -14,5 +14,13 @@ let bookingSchema = new schema({
         type: String,
         unique: true,
         required: true
+    },
+    useNow: {
+        type: Boolean,
+        default: true
     }
 });
+
+let Bookings = mongoose.model('Booking', bookingSchema);
+
+module.exports = Bookings;

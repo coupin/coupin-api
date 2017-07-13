@@ -55,6 +55,6 @@ module.exports = function(app) {
         }
 
         // if not redirect to login screen
-        res.redirect('/admin/login');
+        res.redirect('/admin');
     }
 }

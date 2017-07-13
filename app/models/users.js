@@ -100,7 +100,8 @@ var userSchema = new schema({
             type: String
       },
       createdDate: {
-        type: Date
+        type: Date,
+        default: new Date()
       },
       modifiedDate: {
         type: Date

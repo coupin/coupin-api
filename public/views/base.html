@@ -7,7 +7,8 @@
         <!-- CSS -->
         <link rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap.css">
         <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.css">
-        <link rel="stylesheet" href="libs/angular-motion/dist/angular-motion.css"
+        <link rel="stylesheet" href="libs/angular-motion/dist/angular-motion.css"/>
+        <script src="/libs/ng-img-crop/compile/unminified/ng-img-crop.css"></script>
         <!-- Custom CSS -->
         <link rel="stylesheet" href="css/style.css">
 
@@ -15,14 +16,16 @@
         <script src="libs/angular/angular.js"></script>
         <script src="libs/angular-route/angular-route.js"></script>
         <script src="libs/angular-strap/dist/angular-strap.min.js"></script>
-        <script src="/libs/angular-strap/dist/angular-strap.tpl.min.js"></script>
+        <script src="libs/angular-strap/dist/angular-strap.tpl.min.js"></script>
+        <script src="/libs/ng-img-crop/compile/unminified/ng-img-crop.js"></script>
 
         <!-- ANGULAR CUSTOM -->
-        <script src="js/controllers/MainCtrl.js"></script>
         <script src="js/controllers/AdminCtrl.js"></script>
+        <script src="js/controllers/MainCtrl.js"></script>
+        <script src="js/controllers/RequestCtrl.js"></script>
         <script src="js/controllers/SuperAdminCtrl.js"></script>
         <script src="js/controllers/WelcomeCtrl.js"></script>
-        <script src="js/controllers/RequestCtrl.js"></script>
+        <script src="js/controllers/admin/MerchantCtrl.js"></script>
         <script src="js/services/AdminSrv.js"></script>
         <script src="js/services/MerchantSrv.js"></script>
         <script src="js/appRoutes.js"></script>
@@ -31,7 +34,7 @@
     </head>
     <body ng-app="coupinApp" ng-controller="AdminController">
         <!-- Header -->
-        <nav class="navbar navbar-default no-space-below">
+        <nav class="navbar navbar-admin no-space-below">
             <div class="container-fluid">
                 <!-- Mobile Dislpay -->
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#menu-collection" aria-expanded="false">
@@ -45,11 +48,11 @@
 
                 <!-- Nav links -->
                 <div class="collapse navbar-collapse" id="menu-collection">
-                    <ul class="nav navbar-nav">
-                        <li class="active">
+                    <ul class="nav nav-admin navbar-nav">
+                        <li>
                             <a href="/">Home</a>
                         </li>
-                        <li class="dropdown" ng-show="user.local.superAdmin">
+                        <li class="dropdown" ng-show="user.role === 0">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admins <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="/viewAdmin">View Admins</a></li>
@@ -64,7 +67,7 @@
                             </ul>
                         </li>
                     </ul>
-                    <ul class="nav navbar-right">
+                    <ul class="nav nav-admin navbar-right">
                         <li>
                             <a ng-click="logout()">Sign Out</a>
                         </li>
