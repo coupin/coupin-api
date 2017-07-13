@@ -7,16 +7,15 @@ var bcrypt = require('bcryptjs');
 var schema = mongoose.Schema;
 
 var customerRewardSchema = new schema({
-
-      customerId: {
-        type: String
-      },
-      token: {
-        type: String
-      },
-      createdDate: {
-        type: Date
-      }
+  customerId: {
+    type: String
+  },
+  token: {
+    type: String
+  },
+  createdDate: {
+    type: Date
+  }
 });
 // module.exports allows is to pass this to other files when it is called
 var CustomerReward = mongoose.model('CustomerReward', customerRewardSchema);

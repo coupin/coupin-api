@@ -110,5 +110,13 @@ module.exports = {
 
             res.redirect('/homepage');
         });
+    },
+    loginPage: function(req, res) {
+        if (req.user) {
+            res.redirect('/homepage');
+        } else {
+            // load the index page
+            res.sendfile('./public/views/index.html');
+        }
     }
 }

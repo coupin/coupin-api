@@ -1,26 +1,27 @@
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 // server module
-var express = require('express');
+const express = require('express');
 //var session = require('express-session');
-var app = express();
-var methodOverride = require('method-override');
+const app = express();
+const methodOverride = require('method-override');
 
 // Express validatory
-var expressValidator = require('express-validator');
+const expressValidator = require('express-validator');
 // Database module
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 // authentication module
-var passport = require('passport');
+const passport = require('passport');
 // session module
-var session = require('express-session');
-var cookieParser = require('cookie-parser');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 // For logging all request
-var morgan = require('morgan');
+const morgan = require('morgan');
 // For token validation
-var jwt = require('jsonwebtoken');
-var passportJWT = require("passport-jwt");
+const jwt = require('jsonwebtoken');
+const passportJWT = require("passport-jwt");
 const fs = require('fs-extra');
 const busboy = require('connect-busboy');
+const cloudinary = require('cloudinary');
 
 
 var ExtractJwt = passportJWT.ExtractJwt;
@@ -70,15 +71,6 @@ app.use(expressValidator({
 
 // app.use(expressValidator());
 // parse application/vnd.api+json as json
-app.use(bodyParser.json({
-    type: 'application/vnd.api+json'
-}));
-app.use(bodyParser.urlencoded({extended: true}));
-
-// Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
 
 /**
  * override with the X-HTTP-Override header in the request.
@@ -100,25 +92,21 @@ app.use(passport.session());
 // set the static files location /public/img will be /img
 app.use(express.static(__dirname + '/public'));
 
+// Cloudinary config
+cloudinary.config({
+  cloud_name: 'mybookingngtest',
+  api_key: '254821729494622',
+  api_secret: 'F4SmP0wD7kQonfuybQjixWFYzP0'
+});
+
 
 // app.use('/admin', function (req, res) {
 //   res.sendfile('public/views/index.html');
 // });
 
-app.use('/upload', function (req, res) {
-  var fsStream;
-
-  req.pipe(req.busboy);
-  req.busboy.on('file', function (fieldname, file, filename) {
-    console.log('Uploading: ' + filename);
-
-    // Path where image will be stored
-    fsStream = fs.createWriteStream(__dirname + '/public/img/' + filename);
-    file.pipe(fsStream);
-    fsStream.on('close', function () {
-      console.log('Upload complete');
-      res.status(200).send({Success: true});
-    });
+app.post('/upload', function (req, res) {
+  cloudinary.uploader.upload(req.body.file, function (result) {
+    res.status(200).send(result);
   });
 });
 

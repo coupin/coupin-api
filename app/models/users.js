@@ -40,6 +40,9 @@ var userSchema = new schema({
       sex: {
           type: String
       },
+      picture: {
+          type: String
+      },
       city: {
           type: String
       },
@@ -97,7 +100,8 @@ var userSchema = new schema({
             type: String
       },
       createdDate: {
-        type: Date
+        type: Date,
+        default: new Date()
       },
       modifiedDate: {
         type: Date

@@ -1,0 +1,74 @@
+<div class="form-page">
+    <h3 class="text-center">Add New Merchant</h3>
+    <form ng-submit="createMerchant(formData)" ng-submit="createMerchant(formData)">
+        <div>
+            <div>Select an image file: <input type="file" id="fileInput" required/></div>
+            <div class="cropArea">
+                <img-crop data-height="300" data-width="300" data-shape="square" data-step="imageCropStep" image="uncropped" result-image="cropped"></img-crop>
+            </div>
+            <div>Cropped Image:</div>
+            <div><img ng-src="{{cropped}}" /></div>
+        </div>
+        <div class="form-group">
+            <label for="companyName">Business Name:</label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon"><i class="fa fa-building"></i></div>
+                <input type="text" class="form-control" id="companyName" aria-describedby="nameHelp" placeholder="e.g. Chisco's Burgers'" ng-model="formData.merchantInfo.companyName" required>
+            </div>
+            <small id="nameHelp" class="form-text text-muted">The business/brand name that is publicly known to all.</small>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon"><i class="fa fa-at"></i></div>
+                <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@example.com" ng-model="formData.email" required>
+            </div>
+            <small id="emailHelp" class="form-text text-muted">Email used to contact the company.</small>
+        </div>
+        <div class="form-group">
+            <label for="mobileNumber">Mobile Number:</label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon"><i class="fa fa-phone"></i></div>
+                <input type="tel" class="form-control" id="mobileNumber" aria-describedby="mobileNumberHelp" placeholder="e.g. 08056748930" maxlength="11" ng-model="formData.merchantInfo.mobileNumber" required>
+            </div>
+            <small id="mobileNumberHelp" class="form-text text-muted">Mobile Number used to contact the company.</small>
+        </div>
+        <div class="form-group">
+            <label for="descr">Description of Business:</label>
+            <textarea class="form-control" id="descr" maxlength="80" placeholder="My company is into..." ng-model="formData.companyDetails" required></textarea>
+            <small id="descrHelp" class="form-text text-muted">Describe business in 80 words or less</small>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon"><i class="fa fa-key"></i></div>
+                <input type="password" class="form-control" id="password" aria-describedby="passwordHelp" placeholder="Please put in password" ng-model="formData.password" required>
+            </div>
+            <small id="passwordHelp" class="form-text text-muted">This is the password linked with your email for login.</small>
+        </div>
+        <div class="form-group">
+            <label for="password2">Confirm Password:</label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon"><i class="fa fa-key"></i></div>
+                <input type="password" class="form-control" id="password2" aria-describedby="password2lHelp" placeholder="Confirm Password.." ng-model="formData.password2" required>
+            </div>
+            <small id="password2Help" class="form-text text-muted">Please confirm your password.</small>
+        </div>
+        <div class="form-group">
+            <label for="address">Address:</label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon"><i class="fa fa-home"></i></div>
+                <input type="text" class="form-control" id="address" minlength="10" maxlength="40" aria-describedby="addressHelp" placeholder="e.g. 2 bank road, ikoyi" ng-model="formData.merchantInfo.address" required>
+            </div>
+            <small id="addressHelp" class="form-text text-muted">Street address with area</small>
+        </div>
+        <div class="form-group">
+            <label for="city">City:</label>
+            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                <div class="input-group-addon"><i class="fa fa-map-marker"></i></div>
+                <input type="text" class="form-control" id="city" minlength="3" maxlength="15" aria-describedby="cityHelp" placeholder="e.g. Benin" ng-model="formData.merchantInfo.city" required>
+            </div>
+        </div>
+        <button class="btn btn-default" ng-disabled="loading === true">Submit Form <i class="fa fa-circle-o-notch fa-spin" ng-if="loading === true"></i></button>
+    </form>
+</div>

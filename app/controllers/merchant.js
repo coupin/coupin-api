@@ -16,6 +16,41 @@ const jwtOptions = {
 }
 
 module.exports = {
+    adminCreate: function (req, res) {
+        const body = req.body;
+
+        Merchant.findOne({email: body.email}, function (err, merchant) {
+            if (err) {
+                res.status(500).send(err);
+            } else if (merchant) {
+                res.status(409).send({message: 'User already exists'});
+            } else {
+                let merchant = new Merchant({
+                    email: body.email,
+                    picture: body.picture,
+                    passoword: body.password,
+                    merchantInfo: {
+                        companyName: body.companyName,
+                        companyDetails: body.companyDetails,
+                        address: body.address,
+                        city: body.city,
+                        mobileNumber: body.mobileNumber
+                    },
+                    isActive: true,
+                    activated: true,
+                    role: 2
+                });
+
+                Merchant.createCustomer(merchant, function (err) {
+                    if (err) {
+                        res.status(500).send(err);
+                    } else {
+                        res.status(200).send({message: 'User created successfully.'});
+                    }
+                });
+            }
+        });
+    },
     adminReview: function (req, res) {
         const decision = req.body;
         Merchant.findById(req.params.id, function (err, merchant) {
@@ -59,6 +94,17 @@ module.exports = {
                 res.status(200).send({success: true, user: user});
             }
         });
+    },
+    authRedirect: function (req, res) {
+        if (req.user) {
+            if (req.user.role == 2) {
+            res.sendfile('./public/views/merchant/index.html');
+            } else {
+            res.sendfile('./public/views/merchantReg.html');
+            }
+        } else {
+            res.sendfile('./public/views/merchantReg.html');
+        }
     },
     confirm: function (req, res) {
         // get the data from the the
@@ -104,6 +150,15 @@ module.exports = {
     },
     currentUser: function (req, res) {
         res.status(200).send(req.user);
+    },
+    getAllMerchants: function (req, res) {
+        Merchant.find({role: 2}, function (err, merchants) {
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                res.status(200).send(merchants);
+            }
+        });
     },
     register: function (req, res) {
         // Get merchant details

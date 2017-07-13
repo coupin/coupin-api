@@ -13,7 +13,7 @@ const auth = require('./../middleware/auth');
 const AdminCtrl = require('./../controllers/admin');
 
 // Admin api routes
-router.route('/').get(auth.isSuperAdmin, AdminCtrl.getAllAdmins);
+router.route('/all').get(AdminCtrl.getAllAdmins);
 
 // TODO: Create init and remove this
 router.route('/sadmin').post(AdminCtrl.addSuperAdmin).get(function (req, res) {
@@ -27,10 +27,7 @@ router.route('/:id').delete(auth.isSuperAdmin, AdminCtrl.delete);
 
 // frontend routers
 // routes to handle all angular requests
-router.route('/login').get(function(req, res) {
-    // load the index page
-    res.sendfile('./public/views/index.html');
-})
+router.route('/').get(AdminCtrl.loginPage)
 // Log a user in from the form
 .post(passport.verify, AdminCtrl.login);
 

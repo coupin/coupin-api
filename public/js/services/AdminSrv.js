@@ -10,7 +10,7 @@ angular.module('AdminSrv', []).factory('AdminSrv', ['$http', function($http){
         },
         // Call to GET admins
         get : function() {
-            return $http.get('/admin/');
+            return $http.get('/admin/all');
         },
         getAdmin : function(id) {
             return $http.delete('/admin/' + id);

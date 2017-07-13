@@ -25,12 +25,16 @@
         <script src="/js/appRoutes.js"></script>
         <script src="/js/loginapp.js"></script>
     </head>
-    <body ng-app="coupinApp" ng-controller="LoginController">
-        <div class="login-box">
+    <body ng-app="coupinApp" ng-controller="LoginController" class="registration">
+        <div class="row text-center">
+            <h1 class="light"> <b>Admin</b> Login Page</h1>
+            <h4 class="light"> Login in <b>to get to the admin platform</b> </h4>
+        </div>
+        <div class="loginBox">
             <div class="login-form">
                 <!-- Dynamic Angular Content -->
-                <form>
-                    <img class="space-20" src="/img/logo.png"/>
+                <form ng-submit="check()">
+                    <!--<img class="center-img" src="/img/logo.png"/>-->
                     <div class="error" ng-show="showError">
                         <h5>{{ loginError }}</h5>
                     </div>
@@ -44,7 +48,7 @@
                         <input type="password" name="password" class="form-control" id="password" aria-describedby="passwordHelper" placeholder="Enter Password" ng-model="formData.password" required/>
                         <small id="passwordHelper" class="form-text text-muted">Do not share this with anyone.</small>
                     </div>
-                    <button class="btn custom" id="submit" ng-click="check()"> Sign In </button><br/><br/>
+                    <button class="btn btn-default" id="submit"> Sign In </button><br/><br/>
                     <i ng-show="loading[0]" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
                 </form>
             </div>

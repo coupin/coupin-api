@@ -23,6 +23,7 @@ module.exports = {
                                 email: user.email,
                                 mobile: user.merchantInfo.mobileNumber,
                                 details: user.merchantInfo.companyDetails,
+                                picture: user.picture || null,
                                 address: user.merchantInfo.address + ', ' + user.merchantInfo.city + ', ' + user.merchantInfo.state,
                                 location: user.merchantInfo.location,
                                 rewards: rewards
