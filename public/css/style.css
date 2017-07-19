@@ -56,9 +56,9 @@
     height:100px;
 }
 
-.cropArea canvas {
+/* .cropArea canvas {
     margin: 0 !important;
-}
+} */
 
 .form-page {
     display: block;

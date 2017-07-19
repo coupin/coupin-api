@@ -112,12 +112,11 @@ app.post('/upload', function (req, res) {
 
 // configure our routes
 require('./app/routes')(app);
-// app.use('/login', );
-
-//start app
 
 //start on localhost 3030
-app.listen(port);
+app.listen(port).on('error', function (err) {
+  console.log(err);
+});
 
 // confirmation
 console.log('Too Cool for port ' + port);

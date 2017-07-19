@@ -14,10 +14,12 @@ var schema = mongoose.Schema;
 var userSchema = new schema({
 
       name: {
-          type: String
+          type: String,
+          lowercase: true
       },
       email: {
         type: String,
+        lowercase: true,
         required: true,
         unique: true
       },
@@ -47,7 +49,8 @@ var userSchema = new schema({
           type: String
       },
       state: {
-          type: String
+          type: String,
+          lowercase: true
       },
       role: {
           type: Number,
@@ -55,10 +58,12 @@ var userSchema = new schema({
       },
       merchantInfo: {
           companyName: {
-              type: String
+              type: String,
+              lowercase: true
           },
           companyDetails: {
-              type: String
+              type: String,
+              lowercase: true
           },
           mobileNumber: {
               type: String,
@@ -68,7 +73,8 @@ var userSchema = new schema({
               type: String
           },
           city: {
-              type: String
+              type: String,
+              lowercase: true
           },
           state: {
               type: String
@@ -150,7 +156,7 @@ User.updatePassword = function (user, password, callback) {
 	});
 };
 
-User.isValid = function (plainPassword, hashedPassword, callback) {
+User.isValid = function (plainPassword, hashedPassword) {
     const salt = bcrypt.genSalt(10);
     return bcrypt.compareSync(plainPassword, hashedPassword);
 };

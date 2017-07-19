@@ -27,8 +27,8 @@ module.exports = {
             } else {
                 let merchant = new Merchant({
                     email: body.email,
-                    picture: body.picture,
-                    passoword: body.password,
+                    picture: body.picture || null,
+                    password: body.password || 'merchant',
                     merchantInfo: {
                         companyName: body.companyName,
                         companyDetails: body.companyDetails,
