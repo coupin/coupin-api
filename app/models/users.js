@@ -150,7 +150,7 @@ User.updatePassword = function (user, password, callback) {
 	});
 };
 
-User.isValid = function (plainPassword, hashedPassword, callback) {
+User.isValid = function (plainPassword, hashedPassword) {
     const salt = bcrypt.genSalt(10);
     return bcrypt.compareSync(plainPassword, hashedPassword);
 };
