@@ -34,7 +34,11 @@ module.exports = {
                         companyDetails: body.companyDetails,
                         address: body.address,
                         city: body.city,
-                        mobileNumber: body.mobileNumber
+                        mobileNumber: body.mobileNumber,
+                        location: {
+                            lat: body.latitude || null,
+                            long: body.longitude || null
+                        }
                     },
                     isActive: true,
                     activated: true,

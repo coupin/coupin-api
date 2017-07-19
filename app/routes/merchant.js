@@ -21,9 +21,6 @@ router.route('/authenticate')
 router.route('/all')
   .get(MerchantCtrl.getAllMerchants);
 
-router.route('/override')
-  .post(auth.isAdmin, MerchantCtrl.adminCreate);
-
 // For Registration of merchants
 router.route('/register')
   .post(MerchantCtrl.register)
