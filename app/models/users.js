@@ -43,7 +43,8 @@ var userSchema = new schema({
           type: String
       },
       picture: {
-          type: String
+          type: String,
+          default: null
       },
       city: {
           type: String
@@ -80,11 +81,18 @@ var userSchema = new schema({
               type: String
           },
           location: {
-              lat: Number,
-              long: Number
+              lat: {
+                  type: Number,
+                  default: 0
+                },
+              long: {
+                  type: Number,
+                  default: 0
+                }
           },
           logo: {
-              type: String
+              type: String,
+              default: null
           }
       },
       isActive: {

@@ -1,5 +1,5 @@
 // Get passport
-var passport = require('passport');
+const passport = require('./middleware/passport');
 
 // Routes
 const apiRouter = require('./routes/api/apiRoutes');
@@ -17,7 +17,7 @@ module.exports = function(app) {
     app.use('/admin', adminRouter);
     app.use('/reward', rewardRouter);
     app.use('/customer', userRouter);
-    app.use('/merchant', isLoggedIn, merchantRouter);
+    app.use('/merchant', merchantRouter);
     app.use('/override', overrideRouter);
 
     // frontend routers

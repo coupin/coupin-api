@@ -155,6 +155,14 @@ module.exports = {
     currentUser: function (req, res) {
         res.status(200).send(req.user);
     },
+    deleteOne: function(req, res) {
+        Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
+            if(err)
+            throw err;
+
+            res.send({message: 'Merchant Deleted'});
+        });
+    },
     getAllMerchants: function (req, res) {
         Merchant.find({role: 2}, function (err, merchants) {
             if (err) {
@@ -163,6 +171,31 @@ module.exports = {
                 res.status(200).send(merchants);
             }
         });
+    },
+    getConfirmationPage: function(req, res) {
+        // load the merchant registration page
+        Merchant.findById(req.params.id, function(err, merchant){
+            if(err)
+            res.sendfile('./public/views/error.html');
+
+            if('activated' in merchant && merchant.activated) {
+            res.sendfile('./public/views/merchantReg.html');
+            } else {
+            res.sendfile('./public/views/merchantCon.html');
+            }
+        });
+    },
+    getOne: function(req, res) {
+        Merchant.findById(req.params.id, function(err, merchant) {
+            if (err)
+            throw(err);
+
+            res.json(merchant);
+        })
+    },
+    getRegPage: function(req, res) {
+        // load the merchant registration page
+        res.sendfile('./public/views/merchantReg.html');
     },
     register: function (req, res) {
         // Get merchant details
@@ -205,6 +238,26 @@ module.exports = {
                 };
             });
         }
+    },
+    search: function (req, res) {
+        const query = req.params.query;
+
+        Merchant.find({
+            'merchantInfo.companyName': 
+            {
+                '$regex' : query, 
+                '$options': 'i'
+            }, 
+            role: 2
+            }, function (err, merchants) {
+            if (err) {
+            res.status(500).send(error);
+            } else if (merchants.length === 0) {
+            res.status(404).send({message: 'No Merchants under that name was found'});
+            } else {
+            res.status(200).send(merchants);
+            }
+        });
     },
     update: function (req, res) {
         Merchant.findById(req.params.id, function(err, merchant) {

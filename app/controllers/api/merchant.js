@@ -3,6 +3,15 @@ const Users = require('./../../models/users');
 const Rewards = require('./../../models/reward');
 
 module.exports = {
+    deleteOne: function (req, res) {
+        Users.findByIdAndRemove(req.params.id, function(err, merchant) {
+            if(err) {
+                res.status(500).send(err);
+            } else {
+                res.status(200).send({message: 'Merchant Deleted'});
+            }
+        })
+    },
     markerInfo: function (req, res) {
         Users.find({role: 2}, function (err, users) {
             if (err) {
@@ -36,6 +45,27 @@ module.exports = {
                         }
                     });
                 });
+            }
+        });
+    },
+    search: function (req, res) {
+        const query = req.params.query;
+
+        let search = Users.find({
+            'merchantInfo.companyName': 
+            {
+                '$regex' : query, 
+                '$options': 'i'
+            }, 
+            role: 2
+            });
+        
+        search.select('merchantInfo');
+        search.exec(function (err, merchants) {
+            if (err) {
+            res.status(500).send(err);
+            } else {
+            res.status(200).send(merchants);
             }
         });
     }
