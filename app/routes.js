@@ -1,13 +1,14 @@
 // Get passport
-var passport = require('passport');
+const passport = require('./middleware/passport');
 
 // Routes
 const apiRouter = require('./routes/api/apiRoutes');
 const adminRouter = require('./routes/admin');
 const authRouter = require('./routes/auth');
 const merchantRouter = require('./routes/merchant');
-const userRouter = require('./routes/customer');
+const overrideRouter = require('./routes/override');
 const rewardRouter = require('./routes/reward');
+const userRouter = require('./routes/customer');
 
 module.exports = function(app) {
     // server routes
@@ -16,7 +17,8 @@ module.exports = function(app) {
     app.use('/admin', adminRouter);
     app.use('/reward', rewardRouter);
     app.use('/customer', userRouter);
-    app.use('/merchant', isLoggedIn, merchantRouter);
+    app.use('/merchant', merchantRouter);
+    app.use('/override', overrideRouter);
 
     // frontend routers
     

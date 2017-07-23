@@ -14,10 +14,12 @@ var schema = mongoose.Schema;
 var userSchema = new schema({
 
       name: {
-          type: String
+          type: String,
+          lowercase: true
       },
       email: {
         type: String,
+        lowercase: true,
         required: true,
         unique: true
       },
@@ -41,13 +43,15 @@ var userSchema = new schema({
           type: String
       },
       picture: {
-          type: String
+          type: String,
+          default: null
       },
       city: {
           type: String
       },
       state: {
-          type: String
+          type: String,
+          lowercase: true
       },
       role: {
           type: Number,
@@ -55,10 +59,12 @@ var userSchema = new schema({
       },
       merchantInfo: {
           companyName: {
-              type: String
+              type: String,
+              lowercase: true
           },
           companyDetails: {
-              type: String
+              type: String,
+              lowercase: true
           },
           mobileNumber: {
               type: String,
@@ -68,17 +74,25 @@ var userSchema = new schema({
               type: String
           },
           city: {
-              type: String
+              type: String,
+              lowercase: true
           },
           state: {
               type: String
           },
           location: {
-              lat: Number,
-              long: Number
+              lat: {
+                  type: Number,
+                  default: 0
+                },
+              long: {
+                  type: Number,
+                  default: 0
+                }
           },
           logo: {
-              type: String
+              type: String,
+              default: null
           }
       },
       isActive: {
