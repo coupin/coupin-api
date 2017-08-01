@@ -11,10 +11,6 @@
     "angular-motion": "^0.4.4",
     "jQuery": "latest",
     "ng-file-upload": "^12.2.13",
-<<<<<<< HEAD
-    "ng-img-crop":"latest"
-=======
     "ng-img-crop": "ngImgCrop#^0.3.2"
->>>>>>> d9fb615bb2859d18bbcca1ee172e1e624e30e5c3
   }
 }
