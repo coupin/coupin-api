@@ -1,10 +1,11 @@
+//@ts-check
 const rewardCtrl = require('../../controllers/api/reward');
 const passport = require('../../middleware/passport');
 
 const rewardRoutes = function (router) {
-    router.route('/reward/code')
+    router.route('/reward/coupin')
         .get(passport.verifyJWT1, rewardCtrl.getAll)
-        .post(passport.verifyJWT1, rewardCtrl.getCode);
+        .post(passport.verifyJWT1, rewardCtrl.coupin);
 
     router.route('/reward/me/later')
         .get(passport.verifyJWT1, rewardCtrl.getRewardsForLater);

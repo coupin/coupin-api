@@ -1,3 +1,4 @@
+//@ts-check
 const mongoose = require('mongoose');
 const schema = mongoose.Schema;
 
@@ -6,10 +7,15 @@ let bookingSchema = new schema({
         type: String,
         required: true
     },
-    rewardId: {
+    merchantId: {
         type: String,
         required: true
     },
+    rewardId: [{
+        type: String,
+        required: true,
+        ref: 'Reward'
+    }],
     shortCode: {
         type: String,
         unique: true,

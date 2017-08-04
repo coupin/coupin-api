@@ -1,3 +1,5 @@
+//@ts-check
+const _ = require('lodash');
 const shortCode = require('shortid');
 const Booking = require('../../models/bookings');
 const Merchant = require('../../models/users');
@@ -15,7 +17,6 @@ module.exports = {
     },
 
     getRewardsForLater: function (req, res) {
-        console.log(req.user._id);
         Booking.find({userId: req.user._id, useNow: false}, function (err, bookings) {
             if (err) {
                 res.status(500).send(err);
@@ -121,19 +122,30 @@ module.exports = {
         })
     },
 
-    getCode: function (req, res) {
-        let valid = false;
-        let code = shortCode.generate();
+    coupin: function (req, res) {
+        let merchantId = req.body.merchantId;
 
-        Booking.findOne({shortCode: code}, function (err, booking) {
+        Booking.findOne({merchantId: merchantId}, function (err, booking) {
             if (err) {
                 console.log(err);
                 res.status(500).send(err);
-            } else if (!booking) {
+            } if (booking) {
+                booking.rewardId = _.union(booking.rewardId, req.body.rewardId);
+
+                booking.save(function (err) {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send(err);
+                    } else {
+                        res.status(200).send(booking);
+                    }
+                });
+            } else {
                 const booking = new Booking({
                     userId: req.user._id,
+                    merchantId: merchantId,
                     rewardId: req.body.rewardId,
-                    shortCode: code
+                    shortCode: shortCode.generate()
                 });
 
                 booking.save(function (err) {
@@ -141,7 +153,7 @@ module.exports = {
                         console.log(err);
                         res.status(500).send(err);
                     } else {
-                        res.status(200).send({'code': code});
+                        res.status(201).send(booking);
                     }
                 });
             }
