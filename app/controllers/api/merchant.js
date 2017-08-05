@@ -33,7 +33,7 @@ module.exports = {
                                 mobile: user.merchantInfo.mobileNumber,
                                 details: user.merchantInfo.companyDetails,
                                 picture: user.picture || null,
-                                address: user.merchantInfo.address + ', ' + user.merchantInfo.city + ', ' + user.merchantInfo.state,
+                                address: user.merchantInfo.address + ', ' + user.merchantInfo.city,
                                 location: user.merchantInfo.location,
                                 rewards: rewards
                             }

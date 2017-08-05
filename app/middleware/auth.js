@@ -8,8 +8,6 @@ module.exports = {
         }
     },
     isAdmin: function (req, res, next) {
-        console.log('confusion');
-        console.log(req.user);
         if (req.user) {
             if(req.user.role <= 1) {
                 next();
