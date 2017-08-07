@@ -49,6 +49,18 @@
     width: 100%;
 }
 
+.btn-big {
+    background: white;
+    color: deepskyblue;
+    font-size: 2em;
+    height: 100px;
+    width: 80%;
+}
+
+.center-buttons {
+    padding: 100px;
+}
+
 .cropArea {
     background: #E4E4E4;
     overflow: hidden;

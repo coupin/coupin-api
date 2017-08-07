@@ -21,6 +21,9 @@ module.exports = function(app) {
     app.use('/override', overrideRouter);
 
     // frontend routers
+    app.get('/', function(req, res) {
+        res.sendfile('./public/views/welcome.html');
+    });
     
     // Sign Up Routes
     app.get('/signup', function(req, res) {
