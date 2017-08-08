@@ -28,6 +28,9 @@ angular.module('MerchantSrv', []).factory('MerchantService', function($http) {
         login : function(details) {
             return $http.post('/merchant/authenticate', details);
         },
+        logOut : function() {
+            return $http.get('/logout/' + 0);
+        },
         retrieve : function(id) {
             return $http.get('/merchant/' + id);
         },

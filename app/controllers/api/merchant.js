@@ -13,16 +13,48 @@ module.exports = {
         })
     },
     markerInfo: function (req, res) {
-        Users.find({role: 2}, function (err, users) {
+        const limit = req.query.limit ||  6;
+        const skip = req.query.skip ||  0;
+        let longitude = req.query.longitude;
+        let latitude = req.query.latitude;
+
+
+        if (typeof longitude !== Number) {
+            longitude = parseFloat(longitude);
+        }
+
+        if (typeof latitude !== Number) {
+            latitude = parseFloat(latitude);
+        }
+        
+        // Kilometers
+        let maxDistance = req.query.distance || 20000;
+        let coords = [longitude, latitude];
+
+        // Convert to radians.radisu of the earth is approxs 6371 kilometers
+        maxDistance /= 6371;
+
+        Users.find({
+            'role' : 2,
+            'merchantInfo.location' : {
+                $near: coords,
+                $maxDistance: maxDistance
+            }
+        })
+        .limit(limit)
+        .skip(skip)
+        .exec(function (err, users) {
             if (err) {
+                console.log(err);
                 res.status(500).send(err);
+            } else if (users.length === 0) {
+                res.status(404).send({ message: 'Sorry there is no reward around you '});
             } else {
                 var counter = 0;
-                var max = users.length;
+                var max = users.length - 1;
                 var markerInfo = [];
                 users.forEach(function (user) {
                     Rewards.find({merchantID: user._id}, function (error, rewards) {
-                        counter++;
                         if (error) {
                             res.status(500).send(error);
                         } else if (rewards.length > 0) {
@@ -34,14 +66,20 @@ module.exports = {
                                 details: user.merchantInfo.companyDetails,
                                 picture: user.picture || null,
                                 address: user.merchantInfo.address + ', ' + user.merchantInfo.city,
-                                location: user.merchantInfo.location,
+                                location: {
+                                    long: user.merchantInfo.location[0] || null,
+                                    lat: user.merchantInfo.location[1] || null
+                                },
                                 rewards: rewards
                             }
                             
                             markerInfo.push(info);
                         }
+
                         if (counter === max) {
                             res.status(200).send(markerInfo);
+                        } else {
+                            counter++;
                         }
                     });
                 });

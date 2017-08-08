@@ -6,11 +6,15 @@ angular.module('AdminMerchantCtrl', []).controller('AdminMerchantController', fu
     $scope.cropped = '';
     $scope.uncropped = '';
 
-    $scope.goToNewMerch = function () {
+    $scope.goToNewMerch = function() {
         $location.url('/newMerch');
     };
 
-    $scope.loadMerchants = function () {
+    $scope.logOut = function() {
+        MerchantService.logOut();
+    };
+
+    $scope.loadMerchants = function() {
         MerchantService.getAllMerchants()
         .then(function (res) {
             $scope.merchants = res.data;

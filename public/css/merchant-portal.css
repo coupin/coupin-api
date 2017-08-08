@@ -145,6 +145,7 @@ fieldset[disabled] .btn-outline-primary.focus {
 
 .nav-merch, .nav-merch:focus {
     color: black !important;
+    cursor: pointer;
     outline: none;
     text-transform: capitalize;
 }

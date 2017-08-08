@@ -41,9 +41,13 @@ module.exports = function(app) {
     //     res.sendfile('./public/views/merchantReg.html');
     // });
 
-    app.get('/logout', function(req, res) {
+    app.get('/logout/:opt', function(req, res) {
         req.logout();
-        res.redirect('/admin');
+        if (req.params.opt === 0) {
+            res.redirect('/admin');
+        } else {
+            res.redirect('/merchant');
+        }
     });
 
     // frontend routers

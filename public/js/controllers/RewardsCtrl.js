@@ -6,6 +6,7 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
     var selectAll = false;
     var weekDays = false;
     var weekEnds = false;
+    $scope.update = false;
 
     if (id) {
         $scope.categories = {};

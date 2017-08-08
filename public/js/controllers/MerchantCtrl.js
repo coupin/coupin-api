@@ -53,15 +53,18 @@ angular.module('MerchantCtrl', []).controller('MerchantController', function ($s
         $location.url('/profile');
     };
 
+    $scope.logOut = function() {
+        MerchantService.logOut();
+    };
 
     $scope.update = function () {
         if (validateUser($scope.user)) {
             $scope.updating = true;
             if ('lat' in $scope.position && 'long' in $scope.position) {
-                $scope.user.merchantInfo.location = {
-                    lat: $scope.position.lat,
-                    long: $scope.position.long
-                };
+                $scope.user.merchantInfo.location = [
+                    $scope.position.long,
+                    $scope.position.lat
+                ];
             }
 
             MerchantService.update($scope.user._id, $scope.user).then(function (response) {

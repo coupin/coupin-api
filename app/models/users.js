@@ -81,14 +81,9 @@ var userSchema = new schema({
               type: String
           },
           location: {
-              lat: {
-                  type: Number,
-                  default: 0
-                },
-              long: {
-                  type: Number,
-                  default: 0
-                }
+              // Longitude must always come first
+              type: [Number],
+              index: '2d'
           },
           logo: {
               type: String,
@@ -122,6 +117,8 @@ var userSchema = new schema({
       }
 
 });
+
+userSchema.index({'merchantInfo.location': '2dsphere'});
 
 // module.exports allows is to pass this to other files when it is called
 const User = mongoose.model('User', userSchema);

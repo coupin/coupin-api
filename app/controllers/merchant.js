@@ -35,10 +35,7 @@ module.exports = {
                         address: body.address,
                         city: body.city,
                         mobileNumber: body.mobileNumber,
-                        location: {
-                            lat: body.latitude || null,
-                            long: body.longitude || null
-                        }
+                        location: [body.longitude, body.latitude]
                     },
                     isActive: true,
                     activated: true,
@@ -204,9 +201,6 @@ module.exports = {
         const mobileNumber = req.body.mobileNumber;
         const companyDetails = req.body.companyDetails;
 
-
-
-
         // Form Validator
         req.checkBody('companyName','Company Name field is required').notEmpty();
         req.checkBody('email','Email field is required').isEmail();
@@ -261,7 +255,6 @@ module.exports = {
     },
     update: function (req, res) {
         Merchant.findById(req.params.id, function(err, merchant) {
-            console.log(req.body);
             if (err) {
                 res.status(500).send(err);
             } else if (!merchant) {
