@@ -49,6 +49,10 @@ angular.module('MerchantCtrl', []).controller('MerchantController', function ($s
         });
     };
 
+    $scope.goToProfile = function() {
+        $location.url('/profile');
+    };
+
 
     $scope.update = function () {
         if (validateUser($scope.user)) {

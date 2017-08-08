@@ -1,6 +1,6 @@
 angular.module('merchappRoutes', []).config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     $routeProvider
-    .when('/merchant/home', {
+    .when('/merchant', {
         templateUrl: '/views/merchant/home.html',
         controller: 'RewardsController'
     })
