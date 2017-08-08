@@ -11,7 +11,11 @@ angular.module('AdminMerchantCtrl', []).controller('AdminMerchantController', fu
     };
 
     $scope.logOut = function() {
-        MerchantService.logOut();
+        MerchantService.logOut().then(function(response){
+            $location.url('/merchant');
+        }).catch(function(error) {
+            console.log(error);
+        });
     };
 
     $scope.loadMerchants = function() {
