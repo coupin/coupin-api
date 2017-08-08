@@ -32,8 +32,8 @@
                         <td class="icon" ng-click="loadReward(discount._id)">{{ discount.description }}</td>
                         <td>{{ discount.isActive ? 'Visible' : 'Hidden' }}</td>
                         <td><i ng-class="discount.isActive ? 'fa fa-eye icon' : 'fa fa-eye-slash icon'" data-toggle="tooltip" data-placement="top" title="Hide/Show" ng-click="changeStatus(index, discount.isActive, 0)"></i></td>
-                        <td><i class="fa fa-pencil icon" data-toggle="tooltip" data-placement="top" title="Edit" ng-click="editReward(index)"></i></td>
-                        <td><i class="fa fa-trash icon" data-toggle="tooltip" data-placement="top" title="Delete" ng-click="deleteReward()"></i></td>
+                        <td><i class="fa fa-pencil icon" data-toggle="tooltip" data-placement="top" title="Edit" ng-click="editReward(discount._id)"></i></td>
+                        <td><i class="fa fa-trash icon" data-toggle="tooltip" data-placement="top" title="Delete" ng-click="deleteReward(discount._id)"></i></td>
                     </tr>
                 </tbody>
             </table>

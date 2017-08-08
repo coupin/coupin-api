@@ -12,6 +12,7 @@ const rewardRoutes = function (router) {
 
     router.route('/reward/me/now')
         .get(passport.verifyJWT1, rewardCtrl.getRewardsForNow);
+
 };
 
 module.exports = rewardRoutes;

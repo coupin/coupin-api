@@ -22,7 +22,7 @@ angular.module('merchappRoutes', []).config(['$routeProvider', '$locationProvide
     });
 
     $locationProvider.html5Mode({
-        enabled: true,
+        enabled: false,
         requireBase: false
     });
 }]);

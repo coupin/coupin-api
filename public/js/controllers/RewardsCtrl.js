@@ -1,20 +1,43 @@
 angular.module('RewardsCtrl', []).controller('RewardsController', function ($scope, $alert, $location, RewardsService) {
-    $scope.loading = false;
-    $scope.newReward = {
-        applicableDays: [],
-        categories: [],
-        multiple: {}
-    };
-    $scope.activeRewards = [];
-    $scope.inactiveRewards = [];
-    $scope.daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const id = $location.search().id;
+    const errTitle = 'Error!';
+    const errMsg = 'Something went wrong on our end. Please try again.';
 
     var selectAll = false;
     var weekDays = false;
     var weekEnds = false;
 
-    const errTitle = 'Error!';
-    const errMsg = 'Something went wrong on our end. Please try again.';
+    if (id) {
+        $scope.categories = {};
+        $scope.update = true;
+        RewardsService.getReward(id).then(function(result) {
+            $scope.newReward = result.data;
+            $scope.newReward.endDate = new Date($scope.newReward.endDate);
+            $scope.newReward.startDate = new Date($scope.newReward.startDate);
+            $scope.newReward.applicableDays.forEach(function(x) {
+                $('#'+x).css('background', '#2e6da4');
+                $('#'+x).css('color', '#fff');
+            });
+            $scope.newReward.categories.forEach(function(category) {
+                $scope.categories[category] = true;
+            });
+        }).catch(function(error) {
+            console.log(error);
+            showError(errTitle, errMsg);
+        });
+    } else {
+        $scope.newReward = {
+            applicableDays: [],
+            categories: [],
+            multiple: {}
+        };
+    }
+
+    $scope.loading = false;
+
+    $scope.activeRewards = [];
+    $scope.inactiveRewards = [];
+    $scope.daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     $scope.addCat = function (category) {
         if ($scope.newReward.categories.indexOf(category) == -1) {
@@ -24,10 +47,24 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
         }
     };
 
-    $scope.addReward = function () {
+    $scope.addReward = function() {
         $location.url('/merchant/rewards');
     };
-    $scope.changeStatus = function (index, isActive, tab) {
+
+    $scope.editReward = function(id) {
+        $location.url('/merchant/rewards?id=' + id);
+    };
+
+    $scope.deleteReward = function(id) {
+        RewardsService.delete(id).then(function(response) {
+            $location.url('/merchant');
+        }).catch(function(error) {
+            console.log(error);
+            showError(errTitle, error.data.message);
+        });
+    };
+
+    $scope.changeStatus = function(index, isActive, tab) {
         var reward = {};
         if (tab === 0) {
             reward = $scope.rewards[index];
@@ -88,19 +125,7 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
                 }
             }
         }
-    };
-
-    // Check the day of the week
-    $scope.day = function (x) {
-        if ($scope.newReward.applicableDays.indexOf(x) == -1) {
-            $scope.newReward.applicableDays.push(x);
-            $('#'+x).css('background', '#2e6da4');
-            $('#'+x).css('color', '#fff');
-        } else {
-            $scope.newReward.applicableDays.splice($scope.newReward.applicableDays.indexOf(x), 1);
-            $('#'+x).css('background', '#fff');
-            $('#'+x).css('color', '#2e6da4');
-        }
+        console.log($scope.newReward.applicableDays);
     };
 
     // Check weekdays
@@ -151,6 +176,19 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
         }
     };
 
+    // Check the day of the week
+    $scope.day = function (x) {
+        if ($scope.newReward.applicableDays.indexOf(x) == -1) {
+            $scope.newReward.applicableDays.push(x);
+            $('#'+x).css('background', '#2e6da4');
+            $('#'+x).css('color', '#fff');
+        } else {
+            $scope.newReward.applicableDays.splice($scope.newReward.applicableDays.indexOf(x), 1);
+            $('#'+x).css('background', '#fff');
+            $('#'+x).css('color', '#2e6da4');
+        }
+    };
+
     /**
      * Submit form for a new Reward
      */
@@ -173,6 +211,14 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
         }).catch(function (err) {
             showError(errTitle, errMsg);
         })
+    };
+
+    $scope.updateReward = function (reward) {
+        RewardsService.update(reward._id, reward).then(function(response) {
+            console.log(response);
+        }).catch(function(error) {
+            console.log(error);
+        });
     };
 
     /**
@@ -215,7 +261,6 @@ angular.module('RewardsCtrl', []).controller('RewardsController', function ($sco
                 showError(errTitle, result.data.message);
             }
         }).catch(function (err) {
-            console.log(err);
             showError(errTitle, errMsg);
         });
     }

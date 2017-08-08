@@ -3,24 +3,47 @@
         <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span> Submiting</span>
     </div>
     <div class="text-center">
-        <h2>Discount Creation</h2>
+        <h2>Reward Creation</h2>
     </div>
     <form>
         <div class="form-group">
-            <label for="name">Discount Name: </label>
+            <label for="name">Reward Name: </label><span>*</span>
             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                 <div class="input-group-addon icons-input"><i class="fa fa-tags"></i></div>
                 <input type="name" class="form-control" id="name" aria-describedby="nameHelp" placeholder="e.g. Family Meal" ng-model="newReward.name"/>
             </div>
-            <small id="categoryHelp" class="form-text text-muted">The name of the discount.</small>
+            <small id="categoryHelp" class="form-text text-muted">The name of the reward.</small>
         </div>
         <div class="form-group">
-            <label for="description">Discount Description: </label>
-                <textarea type="text" class="form-control" id="description" aria-describedby="descriptionHelp" placeholder="Description.." ng-model="newReward.description" required></textarea>
+            <label for="description">Reward Description: </label>
+            <textarea type="text" class="form-control" id="description" aria-describedby="descriptionHelp" placeholder="Description.." ng-model="newReward.description" required></textarea>
             <small id="descriptionlHelp" class="form-text text-muted">Description of the reward</small>
         </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="oldPrice">Old Price: </label>
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon icons-input"><i class="fa fa-tags"></i></div>
+                        <input type="oldPrice" class="form-control" id="oldPrice" placeholder="0" ng-model="newReward.price.old"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="newPrice">New Price: </label>
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon icons-input"><i class="fa fa-tags"></i></div>
+                        <input type="newPrice" class="form-control" id="newPrice" placeholder="0" ng-model="newReward.price.new"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row text-center">
+            <h3>Your Reward Discount is {{ ((newReward.price.old - newReward.price.new)/newReward.price.old) * 100 | number : 2 }}% Off</h3>
+        </div>
         <div class="form-group">
-            <label>Discount Categories: </label><br/>
+            <label>Reward Categories: </label><br/>
             <input type="checkbox" name="category" id="entertainment" ng-checked="categories.entertainment" ng-click="addCat('entertainment')"> <label for="entertainment">Entertainment </label>
             <input type="checkbox" name="category" id="foodndrinks" ng-checked="categories.foodndrinks" ng-click="addCat('foodndrinks')"> <label for="foodndrinks">Food and Drink </label>
             <input type="checkbox" name="category" id="gadgets" ng-checked="categories.gadgets" ng-click="addCat('gadgets')"> <label for="gadgets">Gadgets </label>
@@ -32,16 +55,16 @@
             <small id="categoryHelp" class="form-text text-muted">Please tick categories that best describe your business.</small>
         </div>
         <div class="form-group">
-            <label for="customerUse">Can this discount be used multiple times: </label><br/>
+            <label for="customerUse">Can this reward be used multiple times: </label><br/>
             <label><input type="radio" name="multiple" id="multiple" ng-model="newReward.multiple.status" ng-value="true"/> Yes </label>
             <label><input type="radio" name="multiple" id="multiple" ng-model="newReward.multiple.status" ng-value="false"> No </label><br/>
             <small id="endHelp" class="form-text text-muted">How many times a user can use reward.</small>
         </div>
-        <div class="form-group" ng-if="newReward.multiple.status == true">
+        <!-- <div class="form-group" ng-if="newReward.multiple.status == true">
             <label for="start">How many times: </label><br/>
             <input class="form-control" id="capacity" type="number" ng-model="newReward.multiple.capacity"/>
             <small id="startHelp" class="form-text text-muted">Put in 0 for countless times.</small>
-        </div>
+        </div> -->
         <div class="form-group">
             <label for="start">Start Date: </label><br/>
             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
@@ -73,13 +96,14 @@
             <small id="appDaysHelp" class="form-text text-muted">Pick the days of the week that apply to you.</small>
         </div>
         <div class="form-group">
-            <label for="end">Discount Picture: </label><br/>
+            <label for="end">Reward Picture: </label><br/>
             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                 <div class="input-group-addon icons-input"><i class="fa fa-file"></i></div>
                 <input class="form-control" id="end" type="file"/>
             </div>
-            <small id="endHelp" class="form-text text-muted">Sample Picture of Discount.</small>
+            <small id="endHelp" class="form-text text-muted">Sample Picture of Reward.</small>
         </div>
-        <Button class="btn btn-primary btn-full" ng-click="createReward(newReward)">Create Reward</Button>
+        <Button class="btn btn-primary btn-full" ng-click="createReward(newReward)" ng-hide="update">Create Reward</Button>
+        <Button class="btn btn-primary btn-full" ng-click="updateReward(newReward)" ng-show="update">Update Reward</Button>
     </form>
 </div>

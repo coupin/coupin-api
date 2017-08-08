@@ -42,6 +42,14 @@ var rewardSchema = new schema({
     },
     capacity: Number
   },
+  price: {
+    old: {
+      type: Number
+    },
+    new: {
+      type: Number
+    }
+  },
   applicableDays: [{
     type: Number,
     required: true
