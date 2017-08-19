@@ -13,10 +13,10 @@ module.exports = {
         })
     },
     markerInfo: function (req, res) {
-        const limit = req.query.limit ||  6;
-        const skip = req.query.skip ||  0;
-        let longitude = req.query.longitude;
-        let latitude = req.query.latitude;
+        const limit = req.query.limit || req.params.limit ||  6;
+        const skip = req.query.page || req.params.page ||  0;
+        let longitude = req.query.longitude || req.params.longitude;
+        let latitude = req.query.latitude || req.params.latitude;
 
 
         if (typeof longitude !== Number) {
@@ -42,7 +42,7 @@ module.exports = {
             }
         })
         .limit(limit)
-        .skip(skip)
+        .skip(skip * 5)
         .exec(function (err, users) {
             if (err) {
                 console.log(err);
