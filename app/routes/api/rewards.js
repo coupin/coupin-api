@@ -1,6 +1,7 @@
 //@ts-check
 const rewardCtrl = require('../../controllers/api/reward');
 const passport = require('../../middleware/passport');
+const validation = require('../../middleware/validation');
 
 const rewardRoutes = function (router) {
     router.route('/reward/coupin')

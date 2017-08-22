@@ -77,7 +77,7 @@ module.exports = {
                 res.json({
                     success: true,
                     message: 'Customer created!',
-                    token: token });
+                    token: 'JWT ' + token });
                 });
             });
         }

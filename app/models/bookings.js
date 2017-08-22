@@ -9,7 +9,8 @@ let bookingSchema = new schema({
     },
     merchantId: {
         type: String,
-        required: true
+        required: true,
+        ref: 'User'
     },
     rewardId: [{
         type: String,
