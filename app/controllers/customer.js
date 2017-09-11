@@ -34,7 +34,7 @@ module.exports = {
         // Get information on customer
         var name = req.body.name;
         var email = req.body.email;
-        var network =  req.body.network;
+        // var network =  req.body.network;
         var password = req.body.password;
         var password2 = req.body.password2;
 
@@ -42,7 +42,7 @@ module.exports = {
         // Form Validator
         req.checkBody('name','Name field is required').notEmpty();
         req.checkBody('email','Email field is required').isEmail();
-        req.checkBody('network','Network is required').notEmpty();
+        // req.checkBody('network','Network is required').notEmpty();
         req.checkBody('password','Password field is required').notEmpty();
         req.checkBody('password2','Passwords do not match').equals(req.body.password);
 
@@ -56,7 +56,7 @@ module.exports = {
             var customer = new Customer({
             name: name,
             email: email,
-            network: network,
+            // network: network,
             password: password,
             createdDate: Date.now()
             });
