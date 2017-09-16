@@ -57,6 +57,10 @@ var userSchema = new schema({
           type: Number,
           default: 3
       },
+      interests: [{
+        type: String,
+        enum: ['entertainment', 'foodNDrink', 'gadgets', 'healthNBeauty', 'shopping', 'tickets', 'travel']
+      }],
       merchantInfo: {
           companyName: {
               type: String,
