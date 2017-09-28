@@ -1,6 +1,8 @@
 angular.module('LoginCtrl', []).controller('LoginController', function($scope, $http, $location, $window, $alert, AdminLoginSrv, MerchantService) {
     // scope variable to hold form data
     $scope.formData = {};
+
+    alert(navigator.userAgent);
     
     // to show error and loading
     $scope.showError = false;

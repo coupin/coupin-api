@@ -31,7 +31,8 @@ var userSchema = new schema({
           index: true
       },
       network: {
-          type: String
+          type: String,
+          enum: ['Etisalat', 'MTN', 'Airtel', 'Glo']
       },
       password: {
           type: String
@@ -40,7 +41,9 @@ var userSchema = new schema({
         typo: Date
       },
       sex: {
-          type: String
+          type: String,
+          default: 'male',
+          enum: ['male', 'female']
       },
       picture: {
           type: String,
@@ -60,6 +63,10 @@ var userSchema = new schema({
       interests: [{
         type: String,
         enum: ['entertainment', 'foodNDrink', 'gadgets', 'healthNBeauty', 'shopping', 'tickets', 'travel']
+      }],
+      favourites: [{
+          type: String,
+          ref: 'User'
       }],
       merchantInfo: {
           companyName: {

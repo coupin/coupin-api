@@ -9,10 +9,14 @@ const rewardRoutes = function (router) {
         .post(passport.verifyJWT1, rewardCtrl.coupin);
 
     router.route('/reward/me/later')
-        .get(passport.verifyJWT1, rewardCtrl.getRewardsForLater);
+        .get(passport.verifyJWT1, rewardCtrl.getRewardsForLater)
+        .post(passport.verifyJWT1, rewardCtrl.save);
 
     router.route('/reward/me/now')
         .get(passport.verifyJWT1, rewardCtrl.getRewardsForNow);
+
+    router.route('/reward/temp')
+        .get(rewardCtrl.testdelete);
 
 };
 

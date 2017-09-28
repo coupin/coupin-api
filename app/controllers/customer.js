@@ -27,7 +27,8 @@ module.exports = {
 
         res.json({
         success: true,
-        token: 'JWT ' + token
+        token: 'JWT ' + token,
+        user: req.user
         });
     },
     register : function(req, res) {
@@ -65,19 +66,21 @@ module.exports = {
                 if(err)
                     throw err;
 
-                    var cust = Customer.findOne({
-                    'email': email
-                    }, function(err, customer) {
+                var cust = Customer.findOne({
+                'email': email
+                }, function(err, customer) {
                     if (err)
                         throw err;
 
-                var payload = {id: cust.id, name: cust.name, email: cust.email};
-                var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                    var payload = {id: cust.id, name: cust.name, email: cust.email};
+                    var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
-                res.json({
-                    success: true,
-                    message: 'Customer created!',
-                    token: 'JWT ' + token });
+                    res.json({
+                        success: true,
+                        message: 'Customer created!',
+                        token: 'JWT ' + token,
+                        user: req.user
+                    });
                 });
             });
         }
