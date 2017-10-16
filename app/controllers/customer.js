@@ -11,7 +11,7 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 
 const jwtOptions = {
-    jwtFromRequest : ExtractJwt.fromAuthHeader(),
+    jwtFromRequest : ExtractJwt.fromAuthHeaderWithScheme('jwt'),
     secretOrKey : 'coupinappcustomer'
 }
 

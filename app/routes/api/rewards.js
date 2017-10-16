@@ -15,6 +15,9 @@ const rewardRoutes = function (router) {
     router.route('/reward/me/now')
         .get(passport.verifyJWT1, rewardCtrl.getRewardsForNow);
 
+        router.route('/reward/me/use')
+        .get(passport.verifyJWT1, rewardCtrl.useSavedCoupin);
+
     router.route('/reward/temp')
         .get(rewardCtrl.testdelete);
 

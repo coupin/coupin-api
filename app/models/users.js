@@ -99,7 +99,11 @@ var userSchema = new schema({
           logo: {
               type: String,
               default: null
-          }
+          },
+          rewards: [{
+            type: String,
+            ref: 'Reward'
+          }]
       },
       isActive: {
           type: Boolean,

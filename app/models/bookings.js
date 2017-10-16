@@ -19,7 +19,8 @@ let bookingSchema = new schema({
     }],
     shortCode: {
         type: String,
-        unique: true
+        unique: true,
+        sparse: true
     },
     useNow: {
         type: Boolean,

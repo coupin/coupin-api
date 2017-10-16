@@ -35,6 +35,7 @@ module.exports = {
     },
 
     getRewardsForNow: function (req, res) {
+        console.log(req.body);
         let query = Booking.find({});
         query.where('userId', req.user._id);
         query.where('useNow', true);
@@ -42,6 +43,8 @@ module.exports = {
         query.populate('merchantId', 'merchantInfo _id');
         query.limit(10);
         query.exec(function (err, bookings) {
+            console.log(err);
+            console.log(bookings);
             if (err) {
                 res.status(500).send(err);
             } else if (bookings.length === 0) {
@@ -56,6 +59,30 @@ module.exports = {
     testdelete: function (req, res) {
         Booking.remove({}, (err, bookings) => {
             res.status(200).send({ message: 'Removed' });
+        });
+    },
+
+    useSavedCoupin: function (req, res) {
+        const id = req.body.id || req.query.id;
+        Booking.findById(id, function (err, booking) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else if (!booking) {
+                res.status(404).send({ message: 'No such booking exists' });
+            } else {
+                booking.shortCode = shortCode.generate();
+                booking.useNow = true;
+
+                booking.save(function(err, booking) {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send(err);
+                    } else {
+                        res.status(200).send(booking);
+                    }
+                });
+            }
         });
     },
 
@@ -105,7 +132,12 @@ module.exports = {
         let rewardId = rewardString.split(" ");
         rewardId = _.without(rewardId, "");
 
-        Booking.findOne({rewardId: rewardId}, function (err, booking) {
+        Booking.findOne({ $and: 
+            [{ 
+                rewardId: rewardId,
+                userId: req.user._id
+            }]
+        }, function (err, booking) {
             if (err) {
                 console.log(err);
                 res.status(500).send(err);

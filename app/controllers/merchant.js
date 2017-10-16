@@ -1,19 +1,8 @@
-const jwt = require('jsonwebtoken');
-const passportJWT = require('passport-jwt');
-
 const Merchant = require('../models/users');
 const emailer = require('../../config/email');
 
 // Coupin App Messages
 const messages = require('../../config/messages');
-
-const ExtractJwt = passportJWT.ExtractJwt;
-const JwtStrategy = passportJWT.Strategy;
-
-const jwtOptions = {
-    jwtFromRequest : ExtractJwt.fromAuthHeader(),
-    secretOrKey : 'coupinappmerchant'
-}
 
 module.exports = {
     adminCreate: function (req, res) {

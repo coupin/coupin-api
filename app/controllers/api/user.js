@@ -1,5 +1,6 @@
 const _ = require('lodash');
 
+const Reward = require('../../models/reward');
 const User = require('../../models/users');
 
 module.exports = {
@@ -61,14 +62,25 @@ module.exports = {
    * Retrieve users favourites
    */
   retrieveFavourites : function (req, res ) {
-    User.populate(req.user, {
-      populate: 'favourites',
-      path: 'User'
-    }, function (err, user) {
+    let user = req.user;
+    User.populate(user, {
+      path: 'favourites',
+      model: 'User',
+      populate: {
+        path: 'merchantInfo.rewards',
+        model: 'Reward'
+      }
+    }, function (err, userPop) {
       if (err) {
         res.status(500).send(err);
       } else {
-        res.status(200).send(user.favourites);
+        for (let i = 0; i < userPop.favourites.length; i++) {
+          Reward.find({ merchantID: userPop.favourites[i]._id }, (err, rewards) => {
+            userPop.favourites
+          });
+        }
+        
+        res.status(200).send(userPop.favourites);
       }
     });
   },
