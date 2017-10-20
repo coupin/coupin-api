@@ -75,7 +75,7 @@ module.exports = {
         res.status(500).send(err);
       } else {
         for (let i = 0; i < userPop.favourites.length; i++) {
-          Reward.find({ merchantID: userPop.favourites[i]._id }, (err, rewards) => {
+          Reward.findById({ merchantID: userPop.favourites[i]._id }, (err, rewards) => {
             userPop.favourites
           });
         }

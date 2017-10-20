@@ -62,7 +62,7 @@ var userSchema = new schema({
       },
       interests: [{
         type: String,
-        enum: ['entertainment', 'foodNDrink', 'gadgets', 'healthNBeauty', 'shopping', 'tickets', 'travel']
+        enum: ['entertainment', 'foodndrink', 'gadgets', 'healthnbeauty', 'shopping', 'tickets', 'travel']
       }],
       favourites: [{
           type: String,
@@ -96,6 +96,10 @@ var userSchema = new schema({
               type: [Number],
               index: '2d'
           },
+          categories: [{
+            type: String,
+            enum: ['entertainment', 'foodndrinks', 'gadgets', 'healthnbeauty', 'shopping', 'tickets', 'travel']
+          }],
           logo: {
               type: String,
               default: null
@@ -131,6 +135,14 @@ var userSchema = new schema({
         type: Date
       }
 
+});
+
+userSchema.pre('save', function(next) {
+    if (this.categories.length === 0) {
+        this.categories.push('foodndrinks')
+    }
+
+    next();
 });
 
 userSchema.index({'merchantInfo.location': '2dsphere'});

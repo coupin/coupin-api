@@ -225,20 +225,30 @@ module.exports = {
     search: function (req, res) {
         const query = req.params.query;
 
-        Merchant.find({
+        Merchant.find({ $or: [{
             'merchantInfo.companyName': 
-            {
-                '$regex' : query, 
-                '$options': 'i'
-            }, 
+                {
+                    '$regex' : query, 
+                    '$options': 'i'
+                }
+            }, {
+                'merchantInfo.categories': {
+                    '$regex' : query, 
+                    '$options': 'i'
+                }
+            }],
             role: 2
-            }, function (err, merchants) {
+        })
+        .populate({
+            path: 'merchantInfo.rewards',
+            model: 'Reward'
+        }).exec(function (err, merchants) {
             if (err) {
             res.status(500).send(error);
             } else if (merchants.length === 0) {
             res.status(404).send({message: 'No Merchants under that name was found'});
             } else {
-            res.status(200).send(merchants);
+                res.status(200).send(merchants);
             }
         });
     },

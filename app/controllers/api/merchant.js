@@ -89,17 +89,28 @@ module.exports = {
     search: function (req, res) {
         const query = req.params.query;
 
-        let search = Users.find({
-            'merchantInfo.companyName': 
+        Users.find({ $or: [
             {
-                '$regex' : query, 
-                '$options': 'i'
-            }, 
+            'merchantInfo.companyName': 
+                {
+                    '$regex' : query, 
+                    '$options': 'i'
+                }
+            }, {
+                'merchantInfo.categories': {
+                    '$regex' : query, 
+                    '$options': 'i'
+                }
+            }],
+            "merchantInfo.rewards.0" : { "$exists" : true },
             role: 2
-            });
-        
-        search.select('merchantInfo');
-        search.exec(function (err, merchants) {
+        })
+        .populate({
+            path: 'merchantInfo.rewards',
+            model: 'Reward'
+        })
+        .exec(function (err, merchants) {
+            console.log(merchants);
             if (err) {
             res.status(500).send(err);
             } else {
