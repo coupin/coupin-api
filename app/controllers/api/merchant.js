@@ -39,7 +39,8 @@ module.exports = {
             'merchantInfo.location' : {
                 $near: coords,
                 $maxDistance: maxDistance
-            }
+            },
+            "merchantInfo.rewards.0" : { "$exists" : true },
         })
         .limit(limit)
         .skip(skip * 5)
@@ -88,6 +89,19 @@ module.exports = {
     },
     search: function (req, res) {
         const query = req.params.query;
+        let longitude = req.query.long || req.params.long;
+        let latitude = req.query.lat || req.params.lat;
+        let maxDistance = req.query.distance || 50000;
+
+        if (typeof longitude !== Number) {
+            longitude = parseFloat(longitude);
+        }
+
+        if (typeof latitude !== Number) {
+            latitude = parseFloat(latitude);
+        }
+
+        const coords = [longitude, latitude];
 
         Users.find({ $or: [
             {
@@ -102,6 +116,10 @@ module.exports = {
                     '$options': 'i'
                 }
             }],
+            'merchantInfo.location' : {
+                $near: coords,
+                $maxDistance: maxDistance
+            },
             "merchantInfo.rewards.0" : { "$exists" : true },
             role: 2
         })
@@ -110,8 +128,8 @@ module.exports = {
             model: 'Reward'
         })
         .exec(function (err, merchants) {
-            console.log(merchants);
             if (err) {
+                console.log(err);
             res.status(500).send(err);
             } else {
             res.status(200).send(merchants);
