@@ -35,7 +35,6 @@ module.exports = {
     },
 
     getRewardsForNow: function (req, res) {
-        console.log(req.body);
         let query = Booking.find({});
         query.where('userId', req.user._id);
         query.where('useNow', true);
@@ -43,9 +42,8 @@ module.exports = {
         query.populate('merchantId', 'merchantInfo _id');
         query.limit(10);
         query.exec(function (err, bookings) {
-            console.log(err);
-            console.log(bookings);
             if (err) {
+                console.log(err);
                 res.status(500).send(err);
             } else if (bookings.length === 0) {
                 res.status(404).send({message: 'No active bookings.'});

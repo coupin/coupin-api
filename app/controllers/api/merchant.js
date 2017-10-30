@@ -13,7 +13,7 @@ module.exports = {
         })
     },
     markerInfo: function (req, res) {
-        const limit = req.query.limit || req.params.limit ||  6;
+        const limit = req.query.limit || req.params.limit ||  5;
         const skip = req.query.page || req.params.page ||  0;
         let longitude = req.query.longitude || req.params.longitude;
         let latitude = req.query.latitude || req.params.latitude;
@@ -87,6 +87,10 @@ module.exports = {
             }
         });
     },
+
+    /**
+     * Handles the search
+     */
     search: function (req, res) {
         const query = req.params.query;
         let longitude = req.query.long || req.params.long;
@@ -111,15 +115,30 @@ module.exports = {
                     '$options': 'i'
                 }
             }, {
+                'merchantInfo.companyDetails': {
+                    '$regex' : query, 
+                    '$options': 'i'
+                }
+            }, {
                 'merchantInfo.categories': {
                     '$regex' : query, 
                     '$options': 'i'
                 }
+            }, {
+                'merchantInfo.address': {
+                    '$regex' : query, 
+                    '$options': 'i'
+                }
+            }, {
+                'merchantInfo.city': {
+                    '$regex' : query, 
+                    '$options': 'i'
+                }
             }],
-            'merchantInfo.location' : {
-                $near: coords,
-                $maxDistance: maxDistance
-            },
+            // 'merchantInfo.location' : {
+            //     $near: coords,
+            //     $maxDistance: maxDistance
+            // },
             "merchantInfo.rewards.0" : { "$exists" : true },
             role: 2
         })

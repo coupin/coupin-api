@@ -15,6 +15,7 @@ module.exports = {
     req.user.favourites.push(req.body.merchantId);
     req.user.save(function(err) {
       if (err) {
+        console.log(err);
         res.status(500).send(err);
       } else {
         res.status(200).send({ 
@@ -24,6 +25,7 @@ module.exports = {
       }
     });
   },
+  
   /**
    * Create user interests
    */
@@ -39,6 +41,7 @@ module.exports = {
       }
     });
   },
+
   /**
    * Remove favourites
    */
@@ -58,6 +61,7 @@ module.exports = {
       });
     }
   },
+
   /**
    * Retrieve users favourites
    */
@@ -84,12 +88,14 @@ module.exports = {
       }
     });
   },
+
   /**
    * Retrieve user details
    */
   retrieveUser : function (req, res) {
     res.status(200).send({user: req.user});
   },
+
   /**
    * Update user interests
    */
