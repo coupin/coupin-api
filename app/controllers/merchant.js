@@ -5,6 +5,9 @@ const emailer = require('../../config/email');
 const messages = require('../../config/messages');
 
 module.exports = {
+    /**
+     * Handles creation of merchants
+     */
     adminCreate: function (req, res) {
         const body = req.body;
 
@@ -41,6 +44,10 @@ module.exports = {
             }
         });
     },
+
+    /**
+     * Changeg the status of the merchants
+     */
     adminReview: function (req, res) {
         const decision = req.body;
         Merchant.findById(req.params.id, function (err, merchant) {
@@ -76,6 +83,10 @@ module.exports = {
             }
         });
     },
+
+    /**
+     * Login Merchants
+     */
     authenticate: function (req, res) {
         req.logIn(req.user, function (err, user) {
             if (err) {
@@ -85,6 +96,10 @@ module.exports = {
             }
         });
     },
+
+    /**
+     * Reditect on access attempt
+     */
     authRedirect: function (req, res) {
         if (req.user) {
             if (req.user.role == 2) {
@@ -96,6 +111,10 @@ module.exports = {
             res.sendfile('./public/views/merchantReg.html');
         }
     },
+
+    /**
+     * Handles merchant confirmation
+     */
     confirm: function (req, res) {
         // get the data from the the
         const address = req.body.address;
@@ -138,6 +157,10 @@ module.exports = {
             });
         }
     },
+
+    /**
+     * Get current user
+     */
     currentUser: function (req, res) {
         res.status(200).send(req.user);
     },

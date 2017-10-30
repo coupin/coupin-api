@@ -1,6 +1,8 @@
 // Modules
 var express = require('express');
 var router = express.Router();
+var moment = require('moment');
+
 var passport = require('./../middleware/passport');
 
 // Models
@@ -22,8 +24,6 @@ router.route('/sadmin').post(AdminCtrl.addSuperAdmin).get(function (req, res) {
     });
 });
 
-// To Delete an Admin 
-router.route('/:id').delete(auth.isSuperAdmin, AdminCtrl.delete);
 
 // frontend routers
 // routes to handle all angular requests
@@ -43,6 +43,11 @@ router.route('/getCurrentUser').get(function(req, res){
     res.send(req.user);
 });
 
+router.route('/hotlist')
+.get(AdminCtrl.retrieveHotList)
+.post(AdminCtrl.setHotList);
+
+// To Delete an Admin 
+router.route('/:id').delete(auth.isSuperAdmin, AdminCtrl.delete);
 
 module.exports = router;
-

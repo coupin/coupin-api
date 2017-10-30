@@ -1,8 +1,6 @@
 angular.module('LoginCtrl', []).controller('LoginController', function($scope, $http, $location, $window, $alert, AdminLoginSrv, MerchantService) {
     // scope variable to hold form data
     $scope.formData = {};
-
-    alert(navigator.userAgent);
     
     // to show error and loading
     $scope.showError = false;
@@ -65,6 +63,7 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
             // check if the login details are correct, if so log in and redirect else show error
             AdminLoginSrv.check($scope.formData)
             .then(function(data){
+                console.log(data);
                 $window.location.href = '/homepage';
             }, function(err) {
                 $scope.loading[0] = false;

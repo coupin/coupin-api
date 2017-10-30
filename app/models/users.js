@@ -107,7 +107,15 @@ var userSchema = new schema({
           rewards: [{
             type: String,
             ref: 'Reward'
-          }]
+          }],
+          hot: {
+              status: {
+                  type: Boolean,
+                  default: false
+              },
+              starts: Date,
+              expires: Date
+          }
       },
       isActive: {
           type: Boolean,
@@ -138,7 +146,7 @@ var userSchema = new schema({
 });
 
 userSchema.pre('save', function(next) {
-    if (this.categories.length === 0) {
+    if ( this.categories && this.categories.length === 0) {
         this.categories.push('foodndrinks')
     }
 

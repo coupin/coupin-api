@@ -1,6 +1,9 @@
 const User = require('./../models/users');
 
 module.exports = {
+    /**
+     * Activate merchant
+     */
     activate : function(req, res) {
         User.findById(req.params.id, function(err, user) {
             if(err) 
@@ -19,6 +22,10 @@ module.exports = {
             }
         });
     },
+
+    /**
+     * Add admin
+     */
     addAdmin : function(req, res, next) {
         // Form Validator
         req.checkBody('email', 'Email cannot be empty').notEmpty();
@@ -46,6 +53,10 @@ module.exports = {
             })(req, res, next);
         }
     },
+
+    /**
+     * Add super admin
+     */
     addSuperAdmin : function(req, res) {
         var user = new User();
         user.email = req.body.email;
@@ -61,6 +72,7 @@ module.exports = {
         });
 
     },
+
     deactivate : function(req, res) {
         User.findById(req.params.id, function(err, user) {
             if(err) 
@@ -103,6 +115,10 @@ module.exports = {
             res.json(user);
         });
     },
+
+    /**
+     * Admin Login
+     */
     login : function (req, res) {
         req.logIn(req.user, function (err, user) {
             if(err)
@@ -111,6 +127,10 @@ module.exports = {
             res.redirect('/homepage');
         });
     },
+
+    /**
+     * Retrieve admin access page
+     */
     loginPage: function(req, res) {
         if (req.user) {
             res.redirect('/homepage');
@@ -118,5 +138,56 @@ module.exports = {
             // load the index page
             res.sendfile('./public/views/index.html');
         }
+    },
+
+    retrieveHotList: function(req, res) {
+        const limit = req.body.limit || 5;
+
+        User.find({
+            'merchantInfo.hot.status': true
+        })
+        .sort({ 'merchantInfo.hot.starts': 'desc' })
+        .limit(limit)
+        .exec(function(err, users) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else {
+                res.status(200).send(users);
+            }
+        });
+    },
+
+    /**
+     * Set hot list. Add and Remove from the list
+     */
+    setHotList: function(req, res) {
+        const body = req.body;
+        const id = req.params.id || req.body.id;
+
+        User.findById(id, function(err, user) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else if (!user) {
+                res.status(404).send({ message: 'User does not exist.' });
+            } else {
+                user.merchantInfo.hot.status = body.status;
+
+                if (body.status) {
+                    user.merchantInfo.hot.starts = new Date(body.starts);
+                    user.merchantInfo.hot.expires = new Date(body.expires);
+                }
+
+                user.save(function(err) {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send(err);
+                    } else {
+                        res.status(200).send({message: 'Done' });
+                    }
+                });
+            }
+        });
     }
 }

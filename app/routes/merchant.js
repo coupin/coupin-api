@@ -20,7 +20,7 @@ router.route('/all')
 // Signing in for a merchant
 router.route('/authenticate')
   .get(auth.authenticate, MerchantCtrl.currentUser)
-  .post(passport.verify, MerchantCtrl.authenticate);
+  .post(passport.verify, MerchantCtrl.authenticate, MerchantCtrl.authRedirect);
 
 router.route('/:id')
   .put(auth.isMerchant, MerchantCtrl.update);

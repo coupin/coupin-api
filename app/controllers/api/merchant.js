@@ -12,6 +12,10 @@ module.exports = {
             }
         })
     },
+    
+    /**
+     * Handles info gotten for the mobile markers
+     */
     markerInfo: function (req, res) {
         const limit = req.query.limit || req.params.limit ||  5;
         const skip = req.query.page || req.params.page ||  0;
@@ -89,6 +93,28 @@ module.exports = {
     },
 
     /**
+     * Get the hot list
+     */
+    retrieveHotList: function(req, res) {
+        const limit = req.body.limit || 3;
+
+        Users.find({
+            'merchantInfo.hot.status': true
+        })
+        .populate('merchantInfo.rewards')
+        .sort({ 'merchantInfo.hot.starts': 'desc' })
+        .limit(limit)
+        .exec(function(err, users) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else {
+                res.status(200).send(users);
+            }
+        });
+    },
+
+    /**
      * Handles the search
      */
     search: function (req, res) {
@@ -97,15 +123,16 @@ module.exports = {
         let latitude = req.query.lat || req.params.lat;
         let maxDistance = req.query.distance || 50000;
 
-        if (typeof longitude !== Number) {
-            longitude = parseFloat(longitude);
-        }
+        //TODO: Finally Decide whether to make location a factor
+        // if (typeof longitude !== Number) {
+        //     longitude = parseFloat(longitude);
+        // }
 
-        if (typeof latitude !== Number) {
-            latitude = parseFloat(latitude);
-        }
+        // if (typeof latitude !== Number) {
+        //     latitude = parseFloat(latitude);
+        // }
 
-        const coords = [longitude, latitude];
+        // const coords = [longitude, latitude];
 
         Users.find({ $or: [
             {
