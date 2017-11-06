@@ -328,5 +328,22 @@ module.exports = {
                 });
             }
         });
+    },
+    populate: function(req, res) {
+        Merchant.find({'merchantInfo.categories' : {
+            $in: ['foodndrinks']
+        }}, function(err, users) {
+            // for(var t = 0; t < users.length; t++) {
+            //     if (t%2 === 0) {
+            //         users[t].merchantInfo['categories'] = ['foodndrinks', 'shopping', 'gadgets'];
+            //         users[t].save();
+            //     } else {
+            //         users[t].merchantInfo['categories'] = ['foodndrinks', 'entertainment', 'travel', 'tickets'];
+            //         users[t].save();
+            //     }
+            // }
+
+            res.status(200).send(users);
+        });
     }
 }

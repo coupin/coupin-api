@@ -11,7 +11,8 @@ const auth = require('./../middleware/auth');
 const Merchant = require('../models/users');
 const MerchantCtrl = require('./../controllers/merchant');
 
-router.route('/').get(MerchantCtrl.authRedirect);
+router.route('/').get(MerchantCtrl.authRedirect)
+.post(MerchantCtrl.populate);
 
 // Get all merchants
 router.route('/all')

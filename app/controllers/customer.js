@@ -51,7 +51,7 @@ module.exports = {
         var errors = req.validationErrors();
 
         if(errors){
-            res.json({success: false, message: errors[0].msg });
+            res.status(400).send({success: false, message: errors[0].msg });
         } else{
             // Create new user
             var customer = new Customer({
@@ -62,26 +62,21 @@ module.exports = {
             createdDate: Date.now()
             });
 
-            Customer.createCustomer(customer, function(err, newCustomer) {
+            Customer.createCustomer(customer, function(err, customer) {
                 if(err)
-                    throw err;
-
-                var cust = Customer.findOne({
-                'email': email
-                }, function(err, customer) {
-                    if (err)
-                        throw err;
-
-                    var payload = {id: cust.id, name: cust.name, email: cust.email};
+                {
+                    res.status(409).send({message: 'User already exists.'});
+                } else {
+                    var payload = {id: customer.id, name: customer.name, email: customer.email};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
                     res.json({
                         success: true,
                         message: 'Customer created!',
                         token: 'JWT ' + token,
-                        user: req.user
+                        user: customer
                     });
-                });
+                }
             });
         }
     },

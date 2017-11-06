@@ -101,8 +101,12 @@ var userSchema = new schema({
             enum: ['entertainment', 'foodndrinks', 'gadgets', 'healthnbeauty', 'shopping', 'tickets', 'travel']
           }],
           logo: {
-              type: String,
-              default: null
+            type: String,
+            default: null
+          },
+          banner: {
+            type: String,
+            default: null
           },
           rewards: [{
             type: String,

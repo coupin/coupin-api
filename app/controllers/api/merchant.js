@@ -17,10 +17,11 @@ module.exports = {
      * Handles info gotten for the mobile markers
      */
     markerInfo: function (req, res) {
-        const limit = req.query.limit || req.params.limit ||  5;
-        const skip = req.query.page || req.params.page ||  0;
-        let longitude = req.query.longitude || req.params.longitude;
-        let latitude = req.query.latitude || req.params.latitude;
+        const categories = JSON.parse(req.body.categories) || [];
+        const limit = req.query.limit || req.body.limit || req.params.limit ||  4;
+        const skip = req.query.page || req.body.page || req.params.page ||  0;
+        let longitude = req.query.longitude || req.body.longitude || req.params.longitude;
+        let latitude = req.query.latitude || req.body.latitude || req.params.latitude;
 
 
         if (typeof longitude !== Number) {
@@ -32,20 +33,29 @@ module.exports = {
         }
         
         // Kilometers
-        let maxDistance = req.query.distance || 20000;
+        let maxDistance = req.body.distance || req.query.distance || req.params.distance || 3;
+        maxDistance *= 1000;
         let coords = [longitude, latitude];
 
         // Convert to radians.radisu of the earth is approxs 6371 kilometers
         maxDistance /= 6371;
 
-        Users.find({
+        var query = {
             'role' : 2,
             'merchantInfo.location' : {
                 $near: coords,
                 $maxDistance: maxDistance
             },
-            "merchantInfo.rewards.0" : { "$exists" : true },
-        })
+            "merchantInfo.rewards.0" : { "$exists" : true }
+        };
+
+        if (categories.length > 0) {
+            query['merchantInfo.categories'] = {
+                $in: categories
+            }
+        }
+
+        Users.find(query)
         .limit(limit)
         .skip(skip * 5)
         .exec(function (err, users) {
@@ -118,10 +128,12 @@ module.exports = {
      * Handles the search
      */
     search: function (req, res) {
-        const query = req.params.query;
-        let longitude = req.query.long || req.params.long;
-        let latitude = req.query.lat || req.params.lat;
-        let maxDistance = req.query.distance || 50000;
+        let query = req.params.query || req.body.query || req.params.query;
+        query = query.split(' ');
+        let longitude = req.body.long || req.query.long || req.params.long;
+        let latitude = req.body.lat || req.query.lat || req.params.lat;
+        let maxDistance = req.body.distance || req.query.distance || 50000;
+        console.log(query);
 
         //TODO: Finally Decide whether to make location a factor
         // if (typeof longitude !== Number) {
@@ -136,30 +148,24 @@ module.exports = {
 
         Users.find({ $or: [
             {
-            'merchantInfo.companyName': 
-                {
-                    '$regex' : query, 
-                    '$options': 'i'
+                'merchantInfo.companyName': { 
+                    '$in' : [new RegExp(query, 'ig')]
                 }
             }, {
                 'merchantInfo.companyDetails': {
-                    '$regex' : query, 
-                    '$options': 'i'
+                    '$in' : [new RegExp(query, 'i')]
                 }
             }, {
                 'merchantInfo.categories': {
-                    '$regex' : query, 
-                    '$options': 'i'
+                    '$in' : [new RegExp(query, 'i')]
                 }
             }, {
                 'merchantInfo.address': {
-                    '$regex' : query, 
-                    '$options': 'i'
+                    '$in' : [new RegExp(query, 'i')]
                 }
             }, {
                 'merchantInfo.city': {
-                    '$regex' : query, 
-                    '$options': 'i'
+                    '$in' : [new RegExp(query, 'i')]
                 }
             }],
             // 'merchantInfo.location' : {
@@ -176,9 +182,9 @@ module.exports = {
         .exec(function (err, merchants) {
             if (err) {
                 console.log(err);
-            res.status(500).send(err);
+                res.status(500).send(err);
             } else {
-            res.status(200).send(merchants);
+                res.status(200).send(merchants);
             }
         });
     }
