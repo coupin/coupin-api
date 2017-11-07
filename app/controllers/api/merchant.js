@@ -134,6 +134,7 @@ module.exports = {
         }
 
         const categories = JSON.parse(req.body.categories) || [];
+        let limit = req.body.limit || req.query.limit || req.params.limit || 10;
 
         let longitude = req.body.long || req.query.long || req.params.long;
         let latitude = req.body.lat || req.query.lat || req.params.lat;
@@ -193,6 +194,7 @@ module.exports = {
             path: 'merchantInfo.rewards',
             model: 'Reward'
         })
+        .limit(limit)
         .exec(function (err, merchants) {
             if (err) {
                 console.log(err);
