@@ -128,12 +128,54 @@ module.exports = {
      * Handles the search
      */
     search: function (req, res) {
-        let query = req.params.query || req.body.query || req.params.query;
-        query = query.split(' ');
+        let query = req.params.query || req.body.query || req.params.query || [' '];
+        if (!Array.isArray(query)) {
+            query = query.split(' ');
+        }
+
+        const categories = JSON.parse(req.body.categories) || [];
+
         let longitude = req.body.long || req.query.long || req.params.long;
         let latitude = req.body.lat || req.query.lat || req.params.lat;
         let maxDistance = req.body.distance || req.query.distance || 50000;
-        console.log(query);
+        
+        if (Array.isArray(query)) {
+            for (var x = 0; x < query.length; x++) {
+                query[x] = new RegExp(query[x], 'i');
+            }
+        }
+
+        let fullQuery = { $or: [
+            {
+                'merchantInfo.companyName': { 
+                    '$in' : query
+                }
+            }, {
+                'merchantInfo.companyDetails': {
+                    '$in' : query
+                }
+            }, {
+                'merchantInfo.address': {
+                    '$in' : query
+                }
+            }, {
+                'merchantInfo.city': {
+                    '$in' : query
+                }
+            }],
+            // 'merchantInfo.location' : {
+            //     $near: coords,
+            //     $maxDistance: maxDistance
+            // },
+            "merchantInfo.rewards.0" : { "$exists" : true },
+            role: 2
+        };
+
+        if (categories.length > 0) {
+            fullQuery['merchantInfo.categories'] = {
+                $in: categories
+            }
+        }
 
         //TODO: Finally Decide whether to make location a factor
         // if (typeof longitude !== Number) {
@@ -146,35 +188,7 @@ module.exports = {
 
         // const coords = [longitude, latitude];
 
-        Users.find({ $or: [
-            {
-                'merchantInfo.companyName': { 
-                    '$in' : [new RegExp(query, 'ig')]
-                }
-            }, {
-                'merchantInfo.companyDetails': {
-                    '$in' : [new RegExp(query, 'i')]
-                }
-            }, {
-                'merchantInfo.categories': {
-                    '$in' : [new RegExp(query, 'i')]
-                }
-            }, {
-                'merchantInfo.address': {
-                    '$in' : [new RegExp(query, 'i')]
-                }
-            }, {
-                'merchantInfo.city': {
-                    '$in' : [new RegExp(query, 'i')]
-                }
-            }],
-            // 'merchantInfo.location' : {
-            //     $near: coords,
-            //     $maxDistance: maxDistance
-            // },
-            "merchantInfo.rewards.0" : { "$exists" : true },
-            role: 2
-        })
+        Users.find(fullQuery)
         .populate({
             path: 'merchantInfo.rewards',
             model: 'Reward'
