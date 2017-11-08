@@ -42,12 +42,15 @@ module.exports = {
 
         var query = {
             'role' : 2,
-            'merchantInfo.location' : {
-                $near: coords,
-                $maxDistance: maxDistance
-            },
             "merchantInfo.rewards.0" : { "$exists" : true }
         };
+
+        if (longitude !== NaN || latitude !== NaN) {
+            query['merchantInfo.location'] = {
+                $near: coords,
+                $maxDistance: maxDistance
+            }
+        }
 
         if (categories.length > 0) {
             query['merchantInfo.categories'] = {
