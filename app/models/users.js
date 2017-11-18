@@ -119,6 +119,16 @@ var userSchema = new schema({
               },
               starts: Date,
               expires: Date
+          },
+          rating: {
+              value: {
+                default: 0,
+                type: Number
+              },
+              raters: {
+                default: 0,
+                type: Number
+              }
           }
       },
       isActive: {

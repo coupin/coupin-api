@@ -20,7 +20,7 @@ module.exports = {
         let query = Booking.find({});
         query.where('userId', req.user._id);
         query.where('useNow', false);
-        query.populate('rewardId', 'name description endDate price')
+        query.populate('rewardId')
         query.populate('merchantId', 'merchantInfo _id');
         query.limit(10);
         query.exec(function (err, bookings) {
@@ -38,7 +38,7 @@ module.exports = {
         let query = Booking.find({});
         query.where('userId', req.user._id);
         query.where('useNow', true);
-        query.populate('rewardId', 'name description endDate price')
+        query.populate('rewardId')
         query.populate('merchantId', 'merchantInfo _id');
         query.limit(10);
         query.exec(function (err, bookings) {

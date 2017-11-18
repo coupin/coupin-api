@@ -100,18 +100,17 @@ module.exports = {
    * Update user interests
    */
   updateInterests : function (req, res) {
-    req.body.interests = req.user.interests = JSON.parse(req.body.interests);
+    req.user.interests = JSON.parse(req.body.interests);
     if (!req.user.interests) {
       req.user.interests = [];
     }
 
-    req.user.interests = _.union(req.user.interests, req.body.interests);
     req.user.save(function (err) {
       if (err) {
         console.log(err);
         res.status(500).send(err);
       } else {
-        res.status(200).send({ message: 'Interests Updated' });
+        res.status(200).send(req.user);
       }
     });
   }
