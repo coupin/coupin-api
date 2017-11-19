@@ -1,6 +1,9 @@
 {
   "name": "coupin-app",
   "main": "server.js",
+  "engines": {
+    "node": "8.4.0"
+  },
   "dependencies": {
     "bcryptjs": "^2.3.0",
     "body-parser": "~1.4.2",
