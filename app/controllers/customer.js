@@ -114,10 +114,11 @@ module.exports = {
 
             // save the customer updateCustomer
             customer.save(function(err) {
-            if (err)
-                throw err;
-
-            res.json({success: true,  message: 'Customer updated!' });
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                res.json({success: true,  message: 'Customer updated!' });
+            }
             });
 
         });
