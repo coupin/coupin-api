@@ -12,151 +12,155 @@ var schema = mongoose.Schema;
  */
 
 var userSchema = new schema({
-
-      name: {
-          type: String,
-          lowercase: true
-      },
-      email: {
+    googleId: {
+        type: String
+    },
+    facebookId: {
+        type: String
+    },
+    name: {
+        type: String,
+        lowercase: true
+    },
+    email: {
         type: String,
         lowercase: true,
         required: true,
         unique: true
-      },
-      address: {
-          type: String
-      },
-      mobileNumber: {
-          type: String,
-          index: true
-      },
-      network: {
-          type: String,
-          enum: ['Etisalat', 'MTN', 'Airtel', 'Glo']
-      },
-      password: {
-          type: String
-      },
-      dateOfBirth: {
-        typo: Date
-      },
-      sex: {
-          type: String,
-          default: 'male',
-          enum: ['male', 'female']
-      },
-      picture: {
-          type: String,
-          default: null
-      },
-      city: {
-          type: String
-      },
-      state: {
-          type: String,
-          lowercase: true
-      },
-      role: {
-          type: Number,
-          default: 3
-      },
-      interests: [{
+    },
+    address: {
+        type: String
+    },
+    mobileNumber: {
+        type: String,
+        index: true
+    },
+    network: {
+        type: String,
+        enum: ['Etisalat', 'MTN', 'Airtel', 'Glo']
+    },
+    password: {
+        type: String
+    },
+    dateOfBirth: {
+        type: Date
+    },
+    sex: {
+        type: String,
+        default: 'male',
+        enum: ['male', 'female']
+    },
+    picture: {
+        type: String,
+        default: null
+    },
+    city: {
+        type: String
+    },
+    state: {
+        type: String,
+        lowercase: true
+    },
+    role: {
+        type: Number,
+        default: 3
+    },
+    interests: [{
         type: String,
         enum: ['entertainment', 'foodndrink', 'gadgets', 'healthnbeauty', 'shopping', 'tickets', 'travel']
-      }],
-      favourites: [{
-          type: String,
-          ref: 'User'
-      }],
-      merchantInfo: {
-          companyName: {
-              type: String,
-              lowercase: true
-          },
-          companyDetails: {
-              type: String,
-              lowercase: true
-          },
-          mobileNumber: {
-              type: String,
-              index: true
-          },
-          address: {
-              type: String
-          },
-          city: {
-              type: String,
-              lowercase: true
-          },
-          state: {
-              type: String
-          },
-          location: {
-              // Longitude must always come first
-              type: [Number],
-              index: '2d'
-          },
-          categories: [{
+    }],
+    favourites: [{
+        type: String,
+        ref: 'User'
+    }],
+    merchantInfo: {
+        companyName: {
+            type: String,
+            lowercase: true
+        },
+        companyDetails: {
+            type: String,
+            lowercase: true
+        },
+        mobileNumber: {
+            type: String,
+            index: true
+        },
+        address: {
+            type: String
+        },
+        city: {
+            type: String,
+            lowercase: true
+        },
+        state: {
+            type: String
+        },
+        location: {
+            // Longitude must always come first
+            type: [Number],
+            index: '2d'
+        },
+        categories: [{
             type: String,
             enum: ['entertainment', 'foodndrinks', 'gadgets', 'healthnbeauty', 'shopping', 'tickets', 'travel']
-          }],
-          logo: {
+        }],
+        logo: {
             type: String,
             default: null
-          },
-          banner: {
+        },
+        banner: {
             type: String,
             default: null
-          },
-          rewards: [{
+        },
+        rewards: [{
             type: String,
             ref: 'Reward'
-          }],
-          hot: {
-              status: {
-                  type: Boolean,
-                  default: false
-              },
-              starts: Date,
-              expires: Date
-          },
-          rating: {
-              value: {
+        }],
+        hot: {
+            status: {
+                type: Boolean,
+                default: false
+            },
+            starts: Date,
+            expires: Date
+        },
+        rating: {
+            value: {
                 default: 0,
                 type: Number
-              },
-              raters: {
+            },
+            raters: {
                 default: 0,
                 type: Number
-              }
-          }
-      },
-      isActive: {
-          type: Boolean,
-          default: true
-      },
-      activated: {
-            type: Boolean,
-            default: false
-      },
-      isPending: {
-            type: Boolean,
-            default: false
-      },
-      rejected: {
-          type: Boolean
-      },
-      reason: {
-            type: String
-      },
-      createdDate: {
+            }
+        }
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    activated: {
+        type: Boolean,
+        default: false
+    },
+    isPending: {
+        type: Boolean,
+        default: false
+    },
+    rejected: {
+        type: Boolean
+    },
+    reason: {
+        type: String
+    },
+    createdDate: {
         type: Date,
         default: new Date()
-      },
-      modifiedDate: {
+    },
+    modifiedDate: {
         type: Date
-      }
-
+    }
 });
 
 userSchema.pre('save', function(next) {

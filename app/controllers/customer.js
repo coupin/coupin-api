@@ -38,14 +38,19 @@ module.exports = {
         // var network =  req.body.network;
         var password = req.body.password;
         var password2 = req.body.password2;
+        var picture = req.body.pictureUrl;
+        var googleId = req.body.googleId;
+        var facebookId = req.body.facebookId;
 
 
         // Form Validator
         req.checkBody('name','Name field is required').notEmpty();
         req.checkBody('email','Email field is required').isEmail();
         // req.checkBody('network','Network is required').notEmpty();
-        req.checkBody('password','Password field is required').notEmpty();
-        req.checkBody('password2','Passwords do not match').equals(req.body.password);
+        if (!googleId && !facebookId) {
+            req.checkBody('password','Password field is required').notEmpty();
+            req.checkBody('password2','Passwords do not match').equals(req.body.password);
+        }
 
         // Check Errors
         var errors = req.validationErrors();
@@ -58,12 +63,27 @@ module.exports = {
             name: name,
             email: email,
             // network: network,
-            password: password,
             createdDate: Date.now()
             });
 
+            if (password) {
+                customer['password'] = password;
+            }
+
+            if (facebookId) {
+                customer['facebookId'] = facebookId;
+            }
+
+            if (googleId) {
+                customer['googleId'] = googleId;
+            }
+
+            if (picture) {
+                customer['picture'] = picture;
+            }
+
             Customer.createCustomer(customer, function(err, customer) {
-                if(err)
+                if (err)
                 {
                     res.status(409).send({message: 'User already exists.'});
                 } else {

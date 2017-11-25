@@ -27,6 +27,32 @@ passport.deserializeUser(function(id, done){
 });
 
 // Local sign-in
+passport.use('social-login', new LocalStrategy({
+    usernameField : 'email',
+    passwordField: 'password',
+    passReqToCallback : true
+},
+function(req, email, password, done){
+    // Check to see if user exists
+    User.findOne({ 'email' : email, $or: [{ 'googleId': password} , {'facebookId': password }]}, function(err, user) {
+        if(err) 
+            return done(err);
+
+        //If no user is found return the signupMessage
+        if(!user) 
+            return done(null, false, {success : false, message: "No such user exists"});
+        
+        // if everything is okay
+        if(user.role === 0 || user.isActive) {
+            return done(null, user);
+        }
+
+        return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
+        
+    });
+}))
+
+// Local sign-in
 passport.use('local-login', new LocalStrategy({
     usernameField : 'email',
     passwordField: 'password',
@@ -124,6 +150,7 @@ passport.use('jwt-2', new JwtStrategy(jwtOptions, function(jwt_payload, done) {
 
 
 exports.verify = passport.authenticate('local-login');
+exports.verifySocial = passport.authenticate('social-login');
 exports.verifyJWT = passport.authenticate('jwt-1',{session: false});
 exports.verifyJWT1 = passport.authenticate('jwt-2', {session : false});
 
