@@ -12,6 +12,10 @@ router.route('/authenticate')
 // To authenticate token
 .get(passport.verifyJWT1);
 
+// Social Authentication
+router.route('/authenticate/social')
+  .post(passport.verifySocial, CustomerCtrl.login);
+
 
 router.route('/register')
 // register new user
