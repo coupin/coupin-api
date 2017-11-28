@@ -105,6 +105,33 @@ module.exports = {
         });
     },
 
+    // TODO: Send Back most recent based on users categories
+    mostRecent: function(req, res) {
+        const limit = req.query.limit || req.body.limit || req.params.limit ||  10;
+        const skip = req.query.page || req.body.page || req.params.page ||  0;
+        const categories = req.user.interests;
+
+        Users.find({
+            'merchantInfo.categories': {
+                $in: categories
+            }
+        })
+        .sort({createdDate: 'desc'})
+        .limit(limit)
+        .populate({
+            path: 'merchantInfo.rewards',
+            model: 'Reward'
+        })
+        .exec(function(err, merchants) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else {
+                res.status(200).send(merchants);
+            }
+        });
+    },
+
     /**
      * Get the hot list
      */

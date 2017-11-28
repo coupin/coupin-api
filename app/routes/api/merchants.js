@@ -1,4 +1,5 @@
 const merchantCtrl = require('./../../controllers/api/merchant');
+var passport = require('./../../middleware/passport');
 
 const merchantRoutes = function (router) {
     router.route('/merchant')
@@ -6,6 +7,9 @@ const merchantRoutes = function (router) {
 
     router.route('/merchant/hot')
         .get(merchantCtrl.retrieveHotList);
+
+    router.route('/merchant/recent')
+        .post(passport.verifyJWT1, merchantCtrl.mostRecent);
     
     router.route('/merchant/search')
         .post(merchantCtrl.search); 
