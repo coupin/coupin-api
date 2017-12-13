@@ -45,7 +45,7 @@ module.exports = {
             "merchantInfo.rewards.0" : { "$exists" : true }
         };
 
-        if (longitude !== NaN || latitude !== NaN) {
+        if (longitude && latitude && longitude !== NaN && latitude !== NaN) {
             query['merchantInfo.location'] = {
                 $near: coords,
                 $maxDistance: maxDistance
@@ -57,6 +57,8 @@ module.exports = {
                 $in: categories
             }
         }
+
+        console.log(query);
 
         Users.find(query)
         .limit(limit)
