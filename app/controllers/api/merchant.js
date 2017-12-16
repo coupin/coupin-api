@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 // models
 const Users = require('./../../models/users');
 const Rewards = require('./../../models/reward');
@@ -45,7 +47,7 @@ module.exports = {
             "merchantInfo.rewards.0" : { "$exists" : true }
         };
 
-        if (longitude !== NaN || latitude !== NaN) {
+        if (longitude && latitude && longitude !== NaN && latitude !== NaN) {
             query['merchantInfo.location'] = {
                 $near: coords,
                 $maxDistance: maxDistance
@@ -57,6 +59,8 @@ module.exports = {
                 $in: categories
             }
         }
+
+        console.log(query);
 
         Users.find(query)
         .limit(limit)
@@ -129,6 +133,21 @@ module.exports = {
             } else {
                 res.status(200).send(merchants);
             }
+        });
+    },
+
+    notificationUpdates: function(req, res) {
+        const temp = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
+
+        const lastChecked = moment(temp);
+        
+
+        Rewards.find({
+           createdDate:  {
+               $gte: lastChecked.toString()
+           }
+        }).select('name').exec(function(err, rewards) {
+            res.send({total: rewards.length});
         });
     },
 
