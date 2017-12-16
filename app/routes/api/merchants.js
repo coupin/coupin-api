@@ -8,6 +8,9 @@ const merchantRoutes = function (router) {
     router.route('/merchant/hot')
         .get(merchantCtrl.retrieveHotList);
 
+    router.route('/merchant/new')
+        .post(passport.verifyJWT1, merchantCtrl.notificationUpdates);
+
     router.route('/merchant/recent')
         .post(passport.verifyJWT1, merchantCtrl.mostRecent);
     

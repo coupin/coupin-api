@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 // models
 const Users = require('./../../models/users');
 const Rewards = require('./../../models/reward');
@@ -131,6 +133,21 @@ module.exports = {
             } else {
                 res.status(200).send(merchants);
             }
+        });
+    },
+
+    notificationUpdates: function(req, res) {
+        const temp = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
+
+        const lastChecked = moment(temp);
+        
+
+        Rewards.find({
+           createdDate:  {
+               $gte: lastChecked.toString()
+           }
+        }).select('name').exec(function(err, rewards) {
+            res.send({total: rewards.length});
         });
     },
 
