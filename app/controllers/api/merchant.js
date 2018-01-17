@@ -25,6 +25,13 @@ module.exports = {
         let longitude = req.query.longitude || req.body.longitude || req.params.longitude;
         let latitude = req.query.latitude || req.body.latitude || req.params.latitude;
 
+        if (typeof limit !== Number) {
+            limit = parstInt(limit);
+        }
+
+        if (typeof skip !== Number) {
+            limit = parstInt(skip);
+        }
 
         if (typeof longitude !== Number) {
             longitude = parseFloat(longitude);

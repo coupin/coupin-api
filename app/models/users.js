@@ -47,7 +47,6 @@ var userSchema = new schema({
     },
     sex: {
         type: String,
-        default: 'male',
         enum: ['male', 'female']
     },
     picture: {
