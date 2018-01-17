@@ -26,11 +26,11 @@ module.exports = {
         let latitude = req.query.latitude || req.body.latitude || req.params.latitude;
 
         if (typeof limit !== Number) {
-            limit = parstInt(limit);
+            limit = parseInt(limit);
         }
 
         if (typeof skip !== Number) {
-            limit = parstInt(skip);
+            limit = parseInt(skip);
         }
 
         if (typeof longitude !== Number) {
