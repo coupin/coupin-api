@@ -20,8 +20,8 @@ module.exports = {
      */
     markerInfo: function (req, res) {
         const categories = JSON.parse(req.body.categories) || [];
-        const limit = req.query.limit || req.body.limit || req.params.limit ||  4;
-        const skip = req.query.page || req.body.page || req.params.page ||  0;
+        let limit = req.query.limit || req.body.limit || req.params.limit ||  4;
+        let skip = req.query.page || req.body.page || req.params.page ||  0;
         let longitude = req.query.longitude || req.body.longitude || req.params.longitude;
         let latitude = req.query.latitude || req.body.latitude || req.params.latitude;
 
