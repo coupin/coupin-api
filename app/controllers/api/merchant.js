@@ -30,7 +30,7 @@ module.exports = {
         }
 
         if (typeof skip !== Number) {
-            limit = parseInt(skip);
+            skip = parseInt(skip);
         }
 
         if (typeof longitude !== Number) {
@@ -40,6 +40,8 @@ module.exports = {
         if (typeof latitude !== Number) {
             latitude = parseFloat(latitude);
         }
+
+        console.log(limit);
         
         // Kilometers
         let maxDistance = req.body.distance || req.query.distance || req.params.distance || 3;
@@ -67,12 +69,11 @@ module.exports = {
             }
         }
 
-        console.log(query);
-
         Users.find(query)
         .limit(limit)
         .skip(skip * 5)
         .exec(function (err, users) {
+            console.log(users.length);
             if (err) {
                 console.log(err);
                 res.status(500).send(err);
