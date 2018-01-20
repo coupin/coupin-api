@@ -113,5 +113,35 @@ module.exports = {
         res.status(200).send(req.user);
       }
     });
+  },
+
+  updateUser : function (req, res) {
+    const id = req.params.id || req.query.id || req.body.id;
+    const body = req.body;
+
+    User.findById(id, function (err, user) {
+      if (err) {
+        console.log(err);
+        res.status(500).send(err);
+      } else if (!user) {
+        res.status(404).send({ message: 'User does not exist.' });
+      } else {
+        ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'picture'].forEach(
+          function (value) {
+            if (body[value]) {
+              user[value] = body[value];
+            }
+          });
+
+        user.save(function(err) {
+          if (err) {
+            console.log(err);
+            res.status(500).send(err);
+          } else {
+            res.status(200).send(user);
+          }
+        });
+      }
+    });
   }
 };
