@@ -5,6 +5,9 @@ const userRoute = function (router) {
   router.route('/user')
     .get(passport.verifyJWT1, userCtrl.retrieveUser);
 
+  router.route('/user/:id')
+    .put(passport.verifyJWT1, userCtrl.updateUser);
+
   router.route('/user/category')
     .post(passport.verifyJWT1, userCtrl.createInterests)
     .put(passport.verifyJWT1, userCtrl.updateInterests);
