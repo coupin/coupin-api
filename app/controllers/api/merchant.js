@@ -40,8 +40,6 @@ module.exports = {
         if (typeof latitude !== Number) {
             latitude = parseFloat(latitude);
         }
-        
-        console.log(skip);
 
         // Kilometers
         let maxDistance = req.body.distance || req.query.distance || req.params.distance || 3;
