@@ -45,6 +45,10 @@ var userSchema = new schema({
     dateOfBirth: {
         type: Date
     },
+    ageRange: {
+        type: String,
+        enum: ['under 15', '15-25', '25-35', '35-45', 'above 45']
+    },
     sex: {
         type: String,
         enum: ['male', 'female']
