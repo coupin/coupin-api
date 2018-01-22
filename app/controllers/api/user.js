@@ -115,6 +115,9 @@ module.exports = {
     });
   },
 
+  /**
+   * Update users
+   */
   updateUser : function (req, res) {
     const id = req.params.id || req.query.id || req.body.id;
     const body = req.body;
@@ -126,12 +129,14 @@ module.exports = {
       } else if (!user) {
         res.status(404).send({ message: 'User does not exist.' });
       } else {
-        ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'picture'].forEach(
+        ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'picture', 'ageRange'].forEach(
           function (value) {
             if (body[value]) {
               user[value] = body[value];
             }
           });
+
+          user.modifiedDate = new Date();
 
         user.save(function(err) {
           if (err) {
