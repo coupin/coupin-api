@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const env = require('./env');
 
 module.exports = {
     sendEmail: function(to, subject, message, callback){
@@ -7,7 +6,7 @@ module.exports = {
             service: 'gmail',
             auth: {
                 user: 'abiso.lawal@gmail.com',
-                pass: env.password
+                pass: process.env.PASSWORD
             }
         });
 

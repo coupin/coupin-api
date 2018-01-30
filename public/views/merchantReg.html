@@ -15,17 +15,19 @@
         <!-- JS -->
         <script src="/libs/angular/angular.js"></script>
         <script src="/libs/angular-route/angular-route.js"></script>
+        <script src="/libs/angular-cookies/angular-cookies.min.js"></script>
         <script src="/libs/angular-strap/dist/angular-strap.min.js"></script>
         <script src="/libs/angular-strap/dist/angular-strap.tpl.min.js"></script>
 
         <!-- ANGULAR CUSTOM -->
-        <script src="/js/controllers/LoginCtrl.js"></script>
+        <script src="/js/shared/controllers/AuthCtrl.js"></script>
         <script src="/js/services/LoginSrv.js"></script>
         <script src="/js/services/MerchantSrv.js"></script>
-        <script src="/js/appRoutes.js"></script>
-        <script src="/js/loginapp.js"></script>
+        <script src="/js/shared/services/AuthSrv.js"></script>
+        <script src="/js/shared/services/CookieSrv.js"></script>
+        <script src="/js/authapp.js"></script>
     </head>
-    <body ng-app="coupinApp" ng-controller="LoginController" class="registration">
+    <body ng-app="authapp" ng-controller="AuthController" class="registration">
         <div class="row text-center">
             <h1 class="light"> <b>Merchant</b> Login and Registration Form </h1>
             <h4 class="light"> One thing you should know, is that <b>we are glad to have you on the team</b> </h4>
@@ -56,7 +58,7 @@
                     <small class="form-text text-muted light" style="margin-left:20px;">Forgot your password? Click <b>here</b></small>
                 </div>
             </div>
-            <div class="vertical-divider"><span>or</span></div>
+            <div class="vertical-divider hidden-sm hidden-xs"><span>or</span></div>
             <div class="col-md-7 col-xs-12">
                 <h3 class="light bottom-space"><b>Sign up</b> with us to start now...</h3>
                 <div class="merchantRegBox">

@@ -11,17 +11,17 @@ const auth = require('./../middleware/auth');
 const Merchant = require('../models/users');
 const MerchantCtrl = require('./../controllers/merchant');
 
-router.route('/').get(MerchantCtrl.authRedirect)
-.post(MerchantCtrl.populate);
+router.route('/')
+  .post(MerchantCtrl.populate);
 
 // Get all merchants
 router.route('/all')
   .get(MerchantCtrl.getAllMerchants);
 
-// Signing in for a merchant
-router.route('/authenticate')
-  .get(auth.authenticate, MerchantCtrl.currentUser)
-  .post(passport.verify, MerchantCtrl.authenticate, MerchantCtrl.authRedirect);
+// For Registration of merchants
+router.route('/register')
+  .post(MerchantCtrl.register)
+  .get(MerchantCtrl.getRegPage);
 
 router.route('/:id')
   .put(auth.isMerchant, MerchantCtrl.update);
@@ -39,12 +39,7 @@ router.route('/:id/one')
   .get(MerchantCtrl.getOne)
   .delete(MerchantCtrl.deleteOne);
 
-router.route('merchant/:query/search')
+router.route('/:query/search')
   .get(MerchantCtrl.search); 
-
-// For Registration of merchants
-router.route('/register')
-  .post(MerchantCtrl.register)
-  .get(MerchantCtrl.getRegPage);
 
 module.exports = router;

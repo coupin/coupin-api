@@ -1,4 +1,14 @@
-angular.module('LoginCtrl', []).controller('LoginController', function($scope, $http, $location, $window, $alert, AdminLoginSrv, MerchantService) {
+angular.module('AuthCtrl', []).controller('AuthController', function(
+    $scope,
+    $http,
+    $location,
+    $window,
+    $alert,
+    AdminLoginSrv,
+    MerchantService,
+    AuthService,
+    CookieService
+) {
     // scope variable to hold form data
     $scope.formData = {};
     
@@ -128,9 +138,10 @@ angular.module('LoginCtrl', []).controller('LoginController', function($scope, $
             password : $scope.formData.loginPassword
         };
 
-        MerchantService.login(details).then(function(response) {
+        AuthService.signupM(details).then(function(response) {
+            CookieService.setToken(response.data.token);
             if(response.status === 200) {
-                $window.location.href = "/merchant";
+                $window.location.href = "/auth";
             }
         }).catch(function(err) {
             $scope.loading[1] = false;

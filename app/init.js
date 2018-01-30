@@ -1,17 +1,20 @@
+const dotenv = require('dotenv');
 const seeder = require('mongoose-seed');
-const Users = require('./models/users');
 
-// Configuration
-var db = require('../config/db');
-var config = require('../config/env');
+const Users = require('./models/users');
+// var db = process.env.MONGO_URL;
+var db = process.env.LOCAL_URL;
+
+dotenv.config();
 
 // const data = require('./seeds/data.json');
 
-seeder.connect(db.url, function () {
+seeder.connect(db, function () {
     // seeder.populateModels(data, function () {
         Users.findOne({email: 'admin@coupin.com'}, function (err, admin) {
             if (err) {
                 console.log(err);
+                process.exit(0);
             } else if (!admin) {
                 let admin = new Users();
                 admin.email = 'admin@coupin.com';
@@ -21,6 +24,7 @@ seeder.connect(db.url, function () {
                 Users.createCustomer(admin, function (err) {
                     if (err) {
                         console.log(err);
+                        process.exit(0);
                     }
 
                     process.exit(0);

@@ -12,7 +12,7 @@ const userRouter = require('./routes/customer');
 
 module.exports = function(app) {
     // server routes
-    app.use('/api', apiRouter);
+    app.use('/api/v1', apiRouter);
     app.use('/auth', authRouter);
     app.use('/admin', adminRouter);
     app.use('/reward', rewardRouter);

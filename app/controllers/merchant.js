@@ -1,5 +1,5 @@
-const Merchant = require('../models/users');
 const emailer = require('../../config/email');
+const Merchant = require('../models/users');
 
 // Coupin App Messages
 const messages = require('../../config/messages');
@@ -85,34 +85,6 @@ module.exports = {
     },
 
     /**
-     * Login Merchants
-     */
-    authenticate: function (req, res) {
-        req.logIn(req.user, function (err, user) {
-            if (err) {
-                res.status(500).send(err);
-            } else {
-                res.status(200).send({success: true, user: user});
-            }
-        });
-    },
-
-    /**
-     * Reditect on access attempt
-     */
-    authRedirect: function (req, res) {
-        if (req.user) {
-            if (req.user.role == 2) {
-            res.sendfile('./public/views/merchant/index.html');
-            } else {
-            res.sendfile('./public/views/merchantReg.html');
-            }
-        } else {
-            res.sendfile('./public/views/merchantReg.html');
-        }
-    },
-
-    /**
      * Handles merchant confirmation
      */
     confirm: function (req, res) {
@@ -164,6 +136,10 @@ module.exports = {
     currentUser: function (req, res) {
         res.status(200).send(req.user);
     },
+
+    /**
+     * Delete one merchant
+     */
     deleteOne: function(req, res) {
         Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
             if(err)
@@ -172,6 +148,10 @@ module.exports = {
             res.send({message: 'Merchant Deleted'});
         });
     },
+
+    /**
+     * Get all merchants
+     */
     getAllMerchants: function (req, res) {
         Merchant.find({role: 2}, function (err, merchants) {
             if (err) {
@@ -181,6 +161,10 @@ module.exports = {
             }
         });
     },
+
+    /**
+     * Get merchant confirmation page
+     */
     getConfirmationPage: function(req, res) {
         // load the merchant registration page
         Merchant.findById(req.params.id, function(err, merchant){
@@ -194,6 +178,10 @@ module.exports = {
             }
         });
     },
+
+    /**
+     * Get one merchant
+     */
     getOne: function(req, res) {
         Merchant.findById(req.params.id, function(err, merchant) {
             if (err)
@@ -202,6 +190,7 @@ module.exports = {
             res.json(merchant);
         })
     },
+
     getRegPage: function(req, res) {
         // load the merchant registration page
         res.sendfile('./public/views/merchantReg.html');

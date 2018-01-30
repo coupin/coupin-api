@@ -1,8 +1,8 @@
 const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
 // server module
 const express = require('express');
 //var session = require('express-session');
-const app = express();
 const methodOverride = require('method-override');
 
 // Express validatory
@@ -17,11 +17,12 @@ const cookieParser = require('cookie-parser');
 // For logging all request
 const morgan = require('morgan');
 // For token validation
-const jwt = require('jsonwebtoken');
 const passportJWT = require("passport-jwt");
 const fs = require('fs-extra');
 const busboy = require('connect-busboy');
 const cloudinary = require('cloudinary');
+
+const app = express();
 
 
 var ExtractJwt = passportJWT.ExtractJwt;
@@ -30,15 +31,14 @@ var JwtStrategy = passportJWT.Strategy;
 var port = process.env.PORT || 5030;
 var LocalStrategy = require('passport-local').Strategy;
 
-// Configuration
-var db = require('./config/db');
-var config = require('./config/env');
+dotenv.config();
 
 // set our port
 var port = process.env.PORT || 5030;
 
 // connect to db
-mongoose.connect(db.url);
+// mongoose.connect(process.env.MONGO_URL);
+mongoose.connect(process.env.LOCAL_URL);
 
 /**
  * get all data of the body parameters
@@ -69,9 +69,6 @@ app.use(expressValidator({
   }
 }));
 
-// app.use(expressValidator());
-// parse application/vnd.api+json as json
-
 /**
  * override with the X-HTTP-Override header in the request.
  * Simulate DEvarE and PUT
@@ -82,7 +79,7 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(expressValidator());
 
 // required for passport to handle sessions
-app.use(session({secret: config.secret}));
+app.use(session({secret: process.env.SECRET}));
 
 // Initialize passport and it's sessions
 app.use(passport.initialize());
