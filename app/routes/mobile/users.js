@@ -1,5 +1,5 @@
 const passport = require('./../../middleware/passport');
-const userCtrl = require('./../../controllers/api/user');
+const userCtrl = require('./../../controllers/mobile/user');
 
 const userRoute = function (router) {
   router.route('/user')

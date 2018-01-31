@@ -119,4 +119,4 @@ app.listen(port).on('error', function (err) {
 console.log('Too Cool for port ' + port);
 
 // expose app
-exports = module.exports = app;
+module.exports = app;

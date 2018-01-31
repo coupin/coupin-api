@@ -3,6 +3,7 @@
         <meta lang="en"/>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, intial-scale=1"/>
+        <base href="/home"/>
 
         <title>CoupinApp: Merchant Home </title>
         <!-- CSS -->
@@ -24,19 +25,21 @@
         <script src="/libs/ng-file-upload/ng-file-upload.min.js"></script>
 
         <!-- ANGULAR CUSTOM -->
-        <script src="/js/controllers/MerchantCtrl.js"></script>
-        <script src="/js/controllers/RewardsCtrl.js"></script>
-        <script src="/js/services/MerchantSrv.js"></script>
-        <script src="/js/services/RewardsSrv.js"></script>
+        <script src="/js/merchantapp/controllers/HomeCtrl.js"></script>
+        <script src="/js/merchantapp/controllers/BaseMCtrl.js"></script>
+        <script src="/js/merchantapp/controllers/RewardsCtrl.js"></script>
         <script src="/js/shared/services/AuthSrv.js"></script>
-        <script src="/js/adminMerchantApp.js"></script>
-        <script src="/js/merchappRoutes.js"></script>
+        <script src="/js/shared/services/CookieSrv.js"></script>
+        <script src="/js/services/MerchantSrv.js"></script>
+        <script src="/js/merchantapp/services/RewardsSrv.js"></script>
+        <script src="/js/merchantapp/merchantApp.js"></script>
+        <script src="/js/merchantapp/merchappRoutes.js"></script>
     </head>
-    <body ng-app="coupinApp" ng-controller="MerchantController">
+    <body ng-app="coupinApp" ng-controller="BaseMController">
         <!-- Side Navbar -->
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-3 col-lg-2">
+                <div class="col-sm-2 col-lg-1">
                     <nav class="navbar navbar-default navbar-fixed-side">
                         <div class="container">
                             <div class="navbar-header">
@@ -50,21 +53,18 @@
                             </div>
                             <div class="collapse navbar-collapse" id="merchant-menu">
                                 <ul class="nav navbar-nav">
-                                    <li><a class="nav-merch" href="" ng-disabled="true"><h3>{{user.merchantInfo.companyName}}</h3></a></li>
-                                    <li><a class="nav-merch" href="/merchant">Rewards</a></li>
-                                    <li><a class="nav-merch" ng-click="goToProfile()">Merchant Profile</a></li>
+                                    <li><a class="nav-merch text-center" href="" ng-disabled="true"><b>{{user.merchantInfo.companyName}}</b></a></li>
+                                    <li><a class="nav-merch text-center" href="home">Rewards</a></li>
+                                    <li><a class="nav-merch text-center" ng-click="goToProfile()">Profile</a></li>
                                 </ul>
                                 <ul class="nav navbar-nav navbar-right">
-                                    <li><a class="nav-merch" href="">Work</a></li>
-                                    <li><a class="nav-merch" href="">Tomorrow</a></li>
-                                    <li><a class="nav-merch" href="">Morning</a></li>
-                                    <li><a class="nav-merch" ng-click="logOut()">Sign Out</a></li>
+                                    <li><a class="nav-merch text-center" ng-click="logOut()">Sign Out</a></li>
                                 </ul>
                             </div>
                         </div>
                     </nav>
                 </div>
-                <div class="col-sm-9 col-lg-10 merchant-space">
+                <div class="col-sm-10 col-lg-11 merchant-space">
                     <!-- Dynamic Angular Content -->
                     <div ng-view></div>
                 </div>

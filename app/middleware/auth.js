@@ -1,11 +1,18 @@
+var jwt = require('jsonwebtoken');
+
 module.exports = {
     authenticate: function (req, res, next) {
-        if(req.user) {
-            next();
-        } else {
-            res.status(401).send({message: 'Unauthorized Access, there is noone logged in on this device'});
-            // res.sendfile('./public/views/merchantReg.html');
-        }
+        var token = req.headers['x-access-token'] || req.headers['Authorization'];
+        jwt.verify(token, process.env.SECRET, function(err, decoded) {
+            if (err) {
+                res.status(500).send(err);
+            } else if (!decoded) {
+                res.status(401).send('Unauthorized Access. Must be signed in.')
+            } else {
+                req.user = decoded;
+                next();
+            }
+        });
     },
     isAdmin: function (req, res, next) {
         if (req.user) {
@@ -19,6 +26,7 @@ module.exports = {
         }
     },
     isMerchant: function (req, res, next) {
+        console.log('Is Merchant');
         if (req.user) {
             if(req.user.role <= 2) {
                 next();

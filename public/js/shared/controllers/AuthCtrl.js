@@ -140,6 +140,7 @@ angular.module('AuthCtrl', []).controller('AuthController', function(
 
         AuthService.signupM(details).then(function(response) {
             CookieService.setToken(response.data.token);
+            CookieService.setUser(response.data.user);
             if(response.status === 200) {
                 $window.location.href = "/auth";
             }

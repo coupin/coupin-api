@@ -1,19 +1,21 @@
-angular.module('MerchantCtrl', []).controller('MerchantController', function ($scope, $alert, $location, MerchantService) {
+angular.module('BaseMCtrl', []).controller('BaseMController', function (
+    $scope,
+    $alert,
+    $location,
+    CookieService,
+    MerchantService,
+) {
     $scope.states = ['lagos'];
     $scope.position = {};
     $scope.loadingPosition = false;
     $scope.updating = false;
 
-    MerchantService.getCurrentUser().then(function (result) {
-        if (result.status === 200) {
-            $scope.user = result.data;
-            $scope.position = $scope.user.merchantInfo.location;
-        } else {
-            $location.url('/merchant');
-        }
-    }).catch(function (err) {
-        console.log(err);
-    });
+    if (CookieService.isLoggedIn()) {
+        $scope.user = CookieService.getUser();
+        $scope.position = $scope.user.merchantInfo.location;
+    } else {
+        $location.url('/merchant');
+    }
 
     $scope.changePassword = function (password, confirm) {
         if (password.match(confirm)) {

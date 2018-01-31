@@ -172,9 +172,9 @@ module.exports = {
             res.sendfile('./public/views/error.html');
 
             if('activated' in merchant && merchant.activated) {
-            res.sendfile('./public/views/merchantReg.html');
+            res.sendfile('./public/shared/views/merchantReg.html');
             } else {
-            res.sendfile('./public/views/merchantCon.html');
+            res.sendfile('./public/shared/views/merchantCon.html');
             }
         });
     },
@@ -193,7 +193,7 @@ module.exports = {
 
     getRegPage: function(req, res) {
         // load the merchant registration page
-        res.sendfile('./public/views/merchantReg.html');
+        res.sendfile('./public/shared/views/merchantReg.html');
     },
     register: function (req, res) {
         // Get merchant details

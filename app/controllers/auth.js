@@ -57,10 +57,10 @@ module.exports = {
             if (req.user.role == 2) {
             res.sendfile('./public/views/merchant/index.html');
             } else {
-            res.sendfile('./public/views/merchantReg.html');
+            res.sendfile('./public/views/shared/merchantReg.html');
             }
         } else {
-            res.sendfile('./public/views/merchantReg.html');
+            res.sendfile('./public/views/shared/merchantReg.html');
         }
     },
 }

@@ -1,5 +1,5 @@
 //@ts-check
-const rewardCtrl = require('../../controllers/api/reward');
+const rewardCtrl = require('../../controllers/mobile/reward');
 const passport = require('../../middleware/passport');
 const validation = require('../../middleware/validation');
 

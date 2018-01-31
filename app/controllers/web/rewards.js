@@ -1,5 +1,6 @@
-//@ts-check
-const Reward = require('./../models/reward');
+'use strict';
+
+const Reward = require('./../../models/reward');
 
 module.exports = {
     activate: function (req, res) {
@@ -111,6 +112,58 @@ module.exports = {
                 res.status(500).send(err);
             } else {
                 res.status(200).send(reward);
+            }
+        });
+    },
+    /**
+     * Read rewards belonging to particular merchant
+     * params(*) req
+     */
+    readM: function(req, res) {
+        var id = req.params.id || req.user.id;
+        var query = req.params.query || req.query.query;
+        var page = req.params.page || req.query.page || 1;
+        page -= 1;
+
+        var opt = {};
+        
+        if (id) {
+            opt['merchantID'] = id;
+        }
+
+        if (query) {
+            opt['$and'] = [
+                { 
+                    $or: [{
+                        name: {
+                            $regex: query,
+                            $options: 'i'
+                        }
+                    }]
+                },
+                { 
+                    $or: [{
+                        description: {
+                            $regex: query,
+                            $options: 'i'
+                        }
+                    }]
+                }
+            ];
+        };
+
+        console.log(opt);
+        console.log(page);
+
+        Reward.find(opt)
+        .limit(10)
+        .skip(10 * page)
+        .exec(function(err, rewards) {
+            if (err) {
+            console.log(err);
+            res.status(500).send(err);
+            } else {
+            res.status(200).json(rewards);
             }
         });
     },

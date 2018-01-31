@@ -2,10 +2,11 @@ const dotenv = require('dotenv');
 const seeder = require('mongoose-seed');
 
 const Users = require('./models/users');
-// var db = process.env.MONGO_URL;
-var db = process.env.LOCAL_URL;
 
 dotenv.config();
+
+// var db = process.env.MONGO_URL;
+var db = process.env.LOCAL_URL;
 
 // const data = require('./seeds/data.json');
 

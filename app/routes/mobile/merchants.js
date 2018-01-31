@@ -1,4 +1,4 @@
-const merchantCtrl = require('./../../controllers/api/merchant');
+const merchantCtrl = require('./../../controllers/mobile/merchant');
 var passport = require('./../../middleware/passport');
 
 const merchantRoutes = function (router) {

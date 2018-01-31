@@ -1,8 +1,8 @@
 angular.module('merchappRoutes', []).config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     $routeProvider
-    .when('/merchant', {
+    .when('/home', {
         templateUrl: '/views/merchant/home.html',
-        controller: 'RewardsController'
+        controller: 'HomeController'
     })
     .when('/merchant/rewards', {
         templateUrl: '/views/merchant/rewards.html',
@@ -10,7 +10,7 @@ angular.module('merchappRoutes', []).config(['$routeProvider', '$locationProvide
     })
     .when('/profile', {
         templateUrl: '/views/merchant/profile.html',
-        controller: 'MerchantController'
+        controller: 'BaseMController'
     })
     .when('/reward', {
         templateUrl: '/views/merchant/view.html',
@@ -18,7 +18,7 @@ angular.module('merchappRoutes', []).config(['$routeProvider', '$locationProvide
     })
     .otherwise({
         templateUrl: '/views/merchant/home.html',
-        controller: 'RewardsController'
+        controller: 'HomeController'
     });
 
     $locationProvider.html5Mode({

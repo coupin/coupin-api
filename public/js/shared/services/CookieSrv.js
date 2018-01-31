@@ -3,6 +3,10 @@ angular.module('CookieSrv', []).factory('CookieService', [
     $cookies
   ) {
     return {
+      clearAll: function() {
+        this.clearToken();
+        this.clearUser();
+      },
       clearToken: function() {
         $cookies.remove('ctk');
       },
@@ -13,7 +17,7 @@ angular.module('CookieSrv', []).factory('CookieService', [
         return $cookies.get('ctk');
       },
       getUser: function() {
-        return $cookies.get('user');
+        return $cookies.getObject('user');
       },
       isLoggedIn: function() {
         return angular.isDefined($cookies.get('ctk'));
@@ -22,7 +26,7 @@ angular.module('CookieSrv', []).factory('CookieService', [
         $cookies.put('ctk', token);
       },
       setUser: function(user) {
-        $cookies.put('user', user);
+        $cookies.putObject('user', user);
       }
     };
   }]);

@@ -2,12 +2,12 @@
 const passport = require('./middleware/passport');
 
 // Routes
-const apiRouter = require('./routes/api/apiRoutes');
+const apiRouter = require('./routes/mobile/apiRoutes');
 const adminRouter = require('./routes/admin');
 const authRouter = require('./routes/auth');
 const merchantRouter = require('./routes/merchant');
 const overrideRouter = require('./routes/override');
-const rewardRouter = require('./routes/reward');
+const rewardRouter = require('./routes/web/rewards');
 const userRouter = require('./routes/customer');
 
 module.exports = function(app) {
@@ -31,14 +31,14 @@ module.exports = function(app) {
         res.sendfile('./public/views/signup.html', {message: req.flash('SignUpMessage')});
     });
     
-    app.get('/homepage', isLoggedIn, function(req, res) {
+    app.get('/homepage', function(req, res) {
         // load the home page
         res.sendfile('./public/views/base.html');
     });
 
     // app.get('/merchant/login', function(req, res) {
     //     //load the merchant login page
-    //     res.sendfile('./public/views/merchantReg.html');
+    //     res.sendfile('./public/shared/views/merchantReg.html');
     // });
 
     app.get('/logout/:opt', function(req, res) {

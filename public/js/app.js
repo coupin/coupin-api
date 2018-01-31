@@ -1,1 +1,19 @@
-angular.module('coupinApp', ['ngRoute', 'ngCookies', 'ngImgCrop', 'mgcrea.ngStrap', 'appRoutes', 'MainCtrl', 'AdminCtrl', 'SuperAdminCtrl', 'RequestCtrl', 'WelcomeCtrl', 'AdminSrv', 'AuthSrv', 'MerchantSrv', 'AdminMerchantCtrl', 'AuthCtrl']);
+angular.module('coupinApp', [
+  'ngRoute',
+  'ngCookies',
+  'ngImgCrop',
+  'mgcrea.ngStrap',
+  'appRoutes',
+  'MainCtrl',
+  'AdminCtrl',
+  'SuperAdminCtrl',
+  'RequestCtrl',
+  'WelcomeCtrl',
+  'AdminSrv',
+  'AuthSrv',
+  'RewardsSrv',
+  'CookieSrv',
+  'MerchantSrv',
+  'AdminMerchantCtrl',
+  'AuthCtrl'
+]);
