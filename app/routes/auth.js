@@ -1,23 +1,26 @@
-const express = require('express');
-const expressValidator = require('express-validator');
-const router = express.Router();
 const passport = require('./../middleware/passport');
 
 // Middleware
 const auth = require('./../middleware/auth');
-
 //Controller
 const authCtrl = require('./../controllers/auth');
 
-router.route('/')
-    .get(authCtrl.authRedirect);
-
-router.route('/password')
+module.exports = function(router) {
+  router.route('/auth/password')
     .post(auth.authenticate, authCtrl.changePassword);
 
+  router.route('/auth/register/c')
+    // register new user
+    .post(authCtrl.registerCustomer);
 
-// Signing in for a merchant
-router.route('/signin/m')
-  .post(passport.verify, authCtrl.signinMerchant);
+  router.route('/auth/signin/c')
+    .post(passport.verify, authCtrl.signinCustomer);
 
-module.exports = router;
+  // Social Authentication
+  router.route('/auth/signin/c/social')
+    .post(passport.verifySocial, authCtrl.signinCustomer);
+
+  // Signing in for a merchant
+  router.route('/auth/signin/m')
+    .post(passport.verify, authCtrl.signinMerchant);
+};

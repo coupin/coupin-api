@@ -1,3 +1,4 @@
+const dotenv = require('dotenv');
 const nodemailer = require('nodemailer');
 
 module.exports = {

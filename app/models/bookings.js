@@ -5,7 +5,8 @@ const schema = mongoose.Schema;
 let bookingSchema = new schema({
     userId: {
         type: String,
-        required: true
+        required: true,
+        ref: 'User'
     },
     merchantId: {
         type: String,
@@ -22,7 +23,15 @@ let bookingSchema = new schema({
         unique: true,
         sparse: true
     },
+    used: [{
+        type: Number,
+        default: null
+    }],
     useNow: {
+        type: Boolean,
+        default: true
+    },
+    isActive: {
         type: Boolean,
         default: true
     }

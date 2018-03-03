@@ -17,19 +17,14 @@ const cookieParser = require('cookie-parser');
 // For logging all request
 const morgan = require('morgan');
 // For token validation
-const passportJWT = require("passport-jwt");
 const fs = require('fs-extra');
 const busboy = require('connect-busboy');
 const cloudinary = require('cloudinary');
+const cors = require('cors');
+
+const myRoutes = require('./app/routes');
 
 const app = express();
-
-
-var ExtractJwt = passportJWT.ExtractJwt;
-var JwtStrategy = passportJWT.Strategy;
-
-var port = process.env.PORT || 5030;
-var LocalStrategy = require('passport-local').Strategy;
 
 dotenv.config();
 
@@ -37,19 +32,17 @@ dotenv.config();
 var port = process.env.PORT || 5030;
 
 // connect to db
-// mongoose.connect(process.env.MONGO_URL);
-mongoose.connect(process.env.LOCAL_URL);
+mongoose.connect(process.env.MONGO_URL);
+// mongoose.connect(process.env.LOCAL_URL);
 
 /**
  * get all data of the body parameters
  * parse application/json
  */
-app.use(busboy());
 app.use(bodyParser.json());
-app.use(cookieParser());
-app.use(morgan('dev'));
-// Allow data in url encoded format
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
+app.use(morgan('dev'));
 
 // Validator
 app.use(expressValidator({
@@ -86,12 +79,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-// set the static files location /public/img will be /img
-app.use(express.static(__dirname + '/public'));
-
 // Cloudinary config
 cloudinary.config({
-  cloud_name: 'mybookingngtest',
+  cloud_name: 'saintlawal',
   api_key: '254821729494622',
   api_secret: 'F4SmP0wD7kQonfuybQjixWFYzP0'
 });
@@ -101,14 +91,15 @@ cloudinary.config({
 //   res.sendfile('public/views/index.html');
 // });
 
-app.post('/upload', function (req, res) {
-  cloudinary.uploader.upload(req.body.file, function (result) {
-    res.status(200).send(result);
-  });
-});
+// app.post('/upload', function (req, res) {
+//   console.log(req.body);
+//   cloudinary.uploader.upload(req.body.file, function (result) {
+//     res.status(200).send(result);
+//   });
+// });
 
 // configure our routes
-require('./app/routes')(app);
+app.use('/api/v1', myRoutes);
 
 //start on localhost 3030
 app.listen(port).on('error', function (err) {

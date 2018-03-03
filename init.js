@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 const seeder = require('mongoose-seed');
 
-const Users = require('./models/users');
+const Users = require('./app/models/users');
 
 dotenv.config();
 

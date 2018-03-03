@@ -25,6 +25,92 @@ module.exports = {
         }
     },
 
+    registerCustomer : function(req, res) {
+        // Get information on customer
+        var name = req.body.name;
+        var email = req.body.email;
+        // var network =  req.body.network;
+        var password = req.body.password;
+        var password2 = req.body.password2;
+        var picture = req.body.pictureUrl;
+        var googleId = req.body.googleId;
+        var facebookId = req.body.facebookId;
+
+
+        // Form Validator
+        req.checkBody('name','Name field is required').notEmpty();
+        req.checkBody('email','Email field is required').isEmail();
+        // req.checkBody('network','Network is required').notEmpty();
+        if (!googleId && !facebookId) {
+            req.checkBody('password','Password field is required').notEmpty();
+            req.checkBody('password2','Passwords do not match').equals(req.body.password);
+        }
+
+        // Check Errors
+        var errors = req.validationErrors();
+
+        if(errors){
+            res.status(400).send({success: false, message: errors[0].msg });
+        } else{
+            // Create new user
+            var customer = new Customer({
+            name: name,
+            email: email,
+            // network: network,
+            createdDate: Date.now()
+            });
+
+            if (password) {
+                customer['password'] = password;
+            }
+
+            if (facebookId) {
+                customer['facebookId'] = facebookId;
+            }
+
+            if (googleId) {
+                customer['googleId'] = googleId;
+            }
+
+            if (picture) {
+                customer['picture'] = picture;
+            }
+
+            Customer.createCustomer(customer, function(err, customer) {
+                if (err)
+                {
+                    res.status(409).send({message: 'User already exists.'});
+                } else {
+                    var payload = {id: customer.id, name: customer.name, email: customer.email};
+                    var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+                    res.json({
+                        success: true,
+                        message: 'Customer created!',
+                        token: 'JWT ' + token,
+                        user: customer
+                    });
+                }
+            });
+        }
+    },
+
+    signinCustomer : function (req, res) {
+        var customer = req.user;
+        var payload = {id: customer.id, name: customer.name, email: customer.email, mobileNumber: customer.mobileNumber};
+        var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+        //var token = jwt.sign(customer, secretKey, {
+        //  expiresInMinutes: 1440
+        //});
+
+        res.json({
+        success: true,
+        token: 'JWT ' + token,
+        user: req.user
+        });
+    },
+
     /**
      * Login Merchants
      */
@@ -45,22 +131,7 @@ module.exports = {
             merchantInfo: req.user.merchantInfo,
             picture: req.user.picture
         };
-
+        
         res.status(200).send({success: true, token, user});
-    },
-
-    /**
-     * Reditect on access attempt
-     */
-    authRedirect: function (req, res) {
-        if (req.user) {
-            if (req.user.role == 2) {
-            res.sendfile('./public/views/merchant/index.html');
-            } else {
-            res.sendfile('./public/views/shared/merchantReg.html');
-            }
-        } else {
-            res.sendfile('./public/views/shared/merchantReg.html');
-        }
-    },
+    }
 }

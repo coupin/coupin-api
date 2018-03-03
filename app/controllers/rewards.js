@@ -1,6 +1,10 @@
 'use strict';
+const _ = require('lodash');
+const shortCode = require('shortid32');
 
-const Reward = require('./../../models/reward');
+const Booking = require('../models/bookings');
+const Merchant = require('../models/users');
+const Reward = require('./../models/reward');
 
 module.exports = {
     activate: function (req, res) {
@@ -106,6 +110,15 @@ module.exports = {
             res.status(200).send(rewards);
         });
     },
+    getBookings: function (req, res) {
+        Booking.find({}, function (err, bookings) {
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                res.status(200).send(bookings);
+            }
+        });
+    },
     getOne: function(req, res) {
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
@@ -113,6 +126,57 @@ module.exports = {
             } else {
                 res.status(200).send(reward);
             }
+        });
+    },
+    save: function (req, res) {
+        let rewardString = req.body.rewardId.replace(/[^a-z0-9]+/g," ");
+        let rewardId = rewardString.split(" ");
+        rewardId = _.without(rewardId, "");
+
+        Booking.findOne({ $and: 
+            [{ 
+                rewardId: rewardId,
+                userId: req.user._id
+            }]
+        }, function (err, booking) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } if (booking) {
+                res.status(409).send({ message: 'Coupin already exists.' });
+            } else {
+                const booking = new Booking({
+                    userId: req.user._id,
+                    merchantId: req.body.merchantId,
+                    rewardId: rewardId,
+                    useNow: false
+                });
+
+                booking.save(function (err) {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send(err);
+                    } else {
+                        Booking
+                        .populate(booking, { 
+                            path: 'rewardId'
+                        }, function (err, booking) {
+                            if (err) {
+                                console.log(err);
+                                res.status(500).send(err);
+                            } else {
+                                res.status(201).send(booking);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    },
+    // TODO: Remove
+    testdelete: function (req, res) {
+        Booking.remove({}, (err, bookings) => {
+            res.status(200).send({ message: 'Removed' });
         });
     },
     /**
@@ -151,9 +215,6 @@ module.exports = {
                 }
             ];
         };
-
-        console.log(opt);
-        console.log(page);
 
         Reward.find(opt)
         .limit(10)

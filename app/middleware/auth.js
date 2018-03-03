@@ -1,7 +1,7 @@
 var jwt = require('jsonwebtoken');
 
 module.exports = {
-    authenticate: function (req, res, next) {
+    authenticate: function(req, res, next) {
         var token = req.headers['x-access-token'] || req.headers['Authorization'];
         jwt.verify(token, process.env.SECRET, function(err, decoded) {
             if (err) {
@@ -14,7 +14,7 @@ module.exports = {
             }
         });
     },
-    isAdmin: function (req, res, next) {
+    isAdmin: function(req, res, next) {
         if (req.user) {
             if(req.user.role <= 1) {
                 next();
@@ -25,8 +25,18 @@ module.exports = {
             res.status(400).send({success: false, message: "Unauthurized User"});
         }
     },
-    isMerchant: function (req, res, next) {
-        console.log('Is Merchant');
+    isCustomer: function(req, res, next) {
+        if (req.user) {
+            if(req.user.role <= 1 || req.user.role == 3) {
+                next();
+            } else {
+                res.status(400).send({success: false, message: "Unauthurized User"});
+            }
+        } else {
+            res.status(400).send({success: false, message: "Unauthurized User"});
+        }
+    },
+    isMerchant: function(req, res, next) {
         if (req.user) {
             if(req.user.role <= 2) {
                 next();
@@ -37,7 +47,7 @@ module.exports = {
             res.status(400).send({success: false, message: "Unauthurized User"});
         }
     },
-    isSuperAdmin: function (req, res, next) {
+    isSuperAdmin: function(req, res, next) {
         if (req.user) {
             if(req.user.role == 0) {
                 next();

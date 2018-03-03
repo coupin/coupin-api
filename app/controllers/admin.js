@@ -91,6 +91,7 @@ module.exports = {
             }
         });
     },
+
     delete : function(req, res) {
         User.findById(req.params.id, function(err, user) {
             if(err)
@@ -110,6 +111,7 @@ module.exports = {
             }
         });
     },
+    
     getAllAdmins : function (req, res) {
         User.find({}, function(err, user) {
             res.json(user);

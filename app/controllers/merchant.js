@@ -131,13 +131,6 @@ module.exports = {
     },
 
     /**
-     * Get current user
-     */
-    currentUser: function (req, res) {
-        res.status(200).send(req.user);
-    },
-
-    /**
      * Delete one merchant
      */
     deleteOne: function(req, res) {
@@ -195,6 +188,171 @@ module.exports = {
         // load the merchant registration page
         res.sendfile('./public/shared/views/merchantReg.html');
     },
+
+     /**
+     * Handles info gotten for the mobile markers
+     */
+    markerInfo: function (req, res) {
+        const categories = JSON.parse(req.body.categories) || [];
+        let limit = req.query.limit || req.body.limit || req.params.limit ||  4;
+        let skip = req.query.page || req.body.page || req.params.page ||  0;
+        let longitude = req.query.longitude || req.body.longitude || req.params.longitude;
+        let latitude = req.query.latitude || req.body.latitude || req.params.latitude;
+
+        if (typeof limit !== Number) {
+            limit = parseInt(limit);
+        }
+
+        if (typeof skip !== Number) {
+            skip = parseInt(skip);
+        }
+
+        if (typeof longitude !== Number) {
+            longitude = parseFloat(longitude);
+        }
+
+        if (typeof latitude !== Number) {
+            latitude = parseFloat(latitude);
+        }
+
+        // Kilometers
+        let maxDistance = req.body.distance || req.query.distance || req.params.distance || 3;
+        maxDistance *= 1000;
+        let coords = [longitude, latitude];
+
+        // Convert to radians.radisu of the earth is approxs 6371 kilometers
+        maxDistance /= 6371;
+
+        var query = {
+            'role' : 2,
+            "merchantInfo.rewards.0" : { "$exists" : true }
+        };
+
+        if (longitude && latitude && longitude !== NaN && latitude !== NaN) {
+            query['merchantInfo.location'] = {
+                $near: coords,
+                $maxDistance: maxDistance
+            }
+        }
+
+        if (categories.length > 0) {
+            query['merchantInfo.categories'] = {
+                $in: categories
+            }
+        }
+
+        Users.find(query)
+        .limit(limit)
+        .skip(skip * 5)
+        .exec(function (err, users) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else if (users.length === 0) {
+                res.status(404).send({ message: 'Sorry there is no reward around you '});
+            } else {
+                var counter = 0;
+                var max = users.length - 1;
+                var markerInfo = [];
+                users.forEach(function (user) {
+                    Rewards.find({merchantID: user._id}, function (error, rewards) {
+                        if (error) {
+                            res.status(500).send(error);
+                        } else if (rewards.length > 0) {
+                            const info = {
+                                _id: user._id,
+                                name: user.merchantInfo.companyName,
+                                email: user.email,
+                                mobile: user.merchantInfo.mobileNumber,
+                                details: user.merchantInfo.companyDetails,
+                                picture: user.picture || null,
+                                address: user.merchantInfo.address + ', ' + user.merchantInfo.city,
+                                location: {
+                                    long: user.merchantInfo.location[0] || null,
+                                    lat: user.merchantInfo.location[1] || null
+                                },
+                                rewards: rewards
+                            }
+                            
+                            markerInfo.push(info);
+                        }
+
+                        if (counter === max) {
+                            res.status(200).send(markerInfo);
+                        } else {
+                            counter++;
+                        }
+                    });
+                });
+            }
+        });
+    },
+
+
+    // TODO: Send Back most recent based on users categories
+    mostRecent: function(req, res) {
+        const limit = req.query.limit || req.body.limit || req.params.limit ||  10;
+        const skip = req.query.page || req.body.page || req.params.page ||  0;
+        const categories = req.user.interests;
+
+        Users.find({
+            'merchantInfo.categories': {
+                $in: categories
+            }
+        })
+        .sort({createdDate: 'desc'})
+        .limit(limit)
+        .populate({
+            path: 'merchantInfo.rewards',
+            model: 'Reward'
+        })
+        .exec(function(err, merchants) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else {
+                res.status(200).send(merchants);
+            }
+        });
+    },
+
+    notificationUpdates: function(req, res) {
+        const temp = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
+
+        const lastChecked = moment(temp);
+        
+
+        Rewards.find({
+           createdDate:  {
+               $gte: lastChecked.toString()
+           }
+        }).select('name').exec(function(err, rewards) {
+            res.send({total: rewards.length});
+        });
+    },
+
+    /**
+     * Get the hot list
+     */
+    retrieveHotList: function(req, res) {
+        const limit = req.body.limit || 3;
+
+        Users.find({
+            'merchantInfo.hot.status': true
+        })
+        .populate('merchantInfo.rewards')
+        .sort({ 'merchantInfo.hot.starts': 'desc' })
+        .limit(limit)
+        .exec(function(err, users) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else {
+                res.status(200).send(users);
+            }
+        });
+    },
+
     register: function (req, res) {
         // Get merchant details
         const companyName = req.body.companyName;
@@ -234,75 +392,107 @@ module.exports = {
             });
         }
     },
-    search: function (req, res) {
-        const query = req.params.query;
 
-        Merchant.find({ $or: [{
-            'merchantInfo.companyName': 
-                {
-                    '$regex' : query, 
-                    '$options': 'i'
+    search: function (req, res) {
+        let query = req.params.query || req.body.query || req.params.query || [' '];
+        if (!Array.isArray(query)) {
+            query = query.split(' ');
+        }
+
+        const categories = JSON.parse(req.body.categories) || [];
+        let limit = req.body.limit || req.query.limit || req.params.limit || 10;
+
+        let longitude = req.body.long || req.query.long || req.params.long;
+        let latitude = req.body.lat || req.query.lat || req.params.lat;
+        let maxDistance = req.body.distance || req.query.distance || 50000;
+        
+        if (Array.isArray(query)) {
+            for (var x = 0; x < query.length; x++) {
+                query[x] = new RegExp(query[x], 'i');
+            }
+        }
+
+        let fullQuery = { $or: [
+            {
+                'merchantInfo.companyName': { 
+                    '$in' : query
                 }
             }, {
-                'merchantInfo.categories': {
-                    '$regex' : query, 
-                    '$options': 'i'
+                'merchantInfo.companyDetails': {
+                    '$in' : query
+                }
+            }, {
+                'merchantInfo.address': {
+                    '$in' : query
+                }
+            }, {
+                'merchantInfo.city': {
+                    '$in' : query
                 }
             }],
+            // 'merchantInfo.location' : {
+            //     $near: coords,
+            //     $maxDistance: maxDistance
+            // },
+            "merchantInfo.rewards.0" : { "$exists" : true },
             role: 2
-        })
+        };
+
+        if (categories.length > 0) {
+            fullQuery['merchantInfo.categories'] = {
+                $in: categories
+            }
+        }
+
+        //TODO: Finally Decide whether to make location a factor
+        // if (typeof longitude !== Number) {
+        //     longitude = parseFloat(longitude);
+        // }
+
+        // if (typeof latitude !== Number) {
+        //     latitude = parseFloat(latitude);
+        // }
+
+        // const coords = [longitude, latitude];
+
+        Users.find(fullQuery)
         .populate({
             path: 'merchantInfo.rewards',
             model: 'Reward'
-        }).exec(function (err, merchants) {
+        })
+        .limit(limit)
+        .exec(function (err, merchants) {
             if (err) {
-            res.status(500).send(error);
+                console.log(err);
+                res.status(500).send(err);
             } else if (merchants.length === 0) {
-            res.status(404).send({message: 'No Merchants under that name was found'});
+                res.status(404).send({message: 'No Merchants under that name was found'});
             } else {
                 res.status(200).send(merchants);
             }
         });
     },
+
     update: function (req, res) {
+        const body = req.body;
+
         Merchant.findById(req.params.id, function(err, merchant) {
             if (err) {
+                console.log(err);
                 res.status(500).send(err);
             } else if (!merchant) {
                 res.status(404).send({message: 'No such user exists'});
             } else {
-                if (req.body.email) {
-                    merchant.email = req.body.email;
+                if (body.email) {
+                    merchant.email = body.email;
                 }
 
-                if ('mobileNumber' in req.body.merchantInfo) {
-                    merchant.merchantInfo.mobileNumber = req.body.merchantInfo.mobileNumber;
-                }
-
-                if ('companyName' in req.body.merchantInfo) {
-                    merchant.merchantInfo.companyName = req.body.merchantInfo.companyName;
-                }
-
-                if (req.body.merchantInfo.companyDetails) {
-                    merchant.merchantInfo.companyDetails = req.body.merchantInfo.companyDetails;
-                }
-
-                if (req.body.merchantInfo.address) {
-                    merchant.merchantInfo.address =  req.body.merchantInfo.address;
-                }
-
-                if (req.body.merchantInfo.city) {
-                    merchant.merchantInfo.city = req.body.merchantInfo.city;
-                }
-
-                if (req.body.merchantInfo.state) {
-                    merchant.merchantInfo.state =  req.body.merchantInfo.state;
-                }
-
-                if (req.body.merchantInfo.location) {
-                    merchant.merchantInfo.location = req.body.merchantInfo.location;
-                }
-
+                ['companyName', 'companyDetails', 'mobileNumber', 'address', 'city', 'state', 'location', 'categories', 'logo', 'banner'].forEach(key => {
+                    if (body.merchantInfo[key]) {
+                        merchant.merchantInfo[key] = body.merchantInfo[key];
+                    }
+                });
+                
                 merchant.modifiedDate = Date.now();
 
                 // save the customer updateCustomer
@@ -311,13 +501,19 @@ module.exports = {
                         console.log(err);
                         res.status(500).send(err);
                     } else {
-                        res.status(200).send({ message: 'Merchant updated!' });
+                        res.status(200).send({
+                            id: merchant._id,
+                            email: merchant.email,
+                            merchantInfo: merchant.merchantInfo,
+                            picture: merchant.picture
+                        });
                     }
 
                 });
             }
         });
     },
+
     populate: function(req, res) {
         Merchant.find({'merchantInfo.categories' : {
             $in: ['foodndrinks']
