@@ -43,20 +43,19 @@ module.exports = {
         } else{
             Reward.findOne({ name: req.body.name }, function (err, reward) {
                 if (err) {
-                    console.log(err);
                     res.status(500).send(err);
+                    throw new Error(err);
                 } else if (reward) {
                     res.status(409).send({message: 'There is already a reward with that name'});
                 } else {
                     // Get information of reward
                     var newReward = {
                     name : req.body.name,
-                    merchantID : req.user._id || req.body.merchantID,
+                    merchantID : req.user.id || req.body.merchantID,
                     description :  req.body.description,
                     categories : req.body.categories,
                     startDate : req.body.startDate,
                     endDate : req.body.endDate,
-                    picture : req.body.picture || 'default.png',
                     multiple :  req.body.multiple,
                     applicableDays : req.body.applicableDays,
                     price: req.body.price,
@@ -70,8 +69,9 @@ module.exports = {
                     reward.save(function (err) {
                         if(err) {
                             res.status(500).send(err);
+                            throw new Error(err);
                         } else {
-                            res.status(200).json({message: 'Reward created!' });
+                            res.status(200).send(reward);
                         }
                     });
                 }
@@ -240,7 +240,7 @@ module.exports = {
                 reward.categories = req.body.categories || reward.categories;
                 reward.startDate = req.body.startDate || reward.startDate;
                 reward.endDate = req.body.endDate || reward.endDate;
-                reward.picture = req.body.picture || reward.picture;
+                reward.pictures = req.body.pictures || reward.pictures;
                 reward.multiple =  req.body.multiple || reward.multiple;
                 reward.applicableDays = req.body.applicableDays || reward.applicableDays;
                 reward.price = req.body.price || reward.price;

@@ -11,8 +11,6 @@ const expressValidator = require('express-validator');
 const mongoose = require('mongoose');
 // authentication module
 const passport = require('passport');
-// session module
-const session = require('express-session');
 const cookieParser = require('cookie-parser');
 // For logging all request
 const morgan = require('morgan');
@@ -21,6 +19,10 @@ const fs = require('fs-extra');
 const busboy = require('connect-busboy');
 const cloudinary = require('cloudinary');
 const cors = require('cors');
+// Raven for logging
+const Raven = require('raven');
+
+Raven.config('https://d9b81d80ee834f1b9e2169e2152f3f95:73ba5ba410494467aaa97b5932f4fad2@sentry.io/301229').install();
 
 const myRoutes = require('./app/routes');
 
@@ -39,6 +41,8 @@ mongoose.connect(process.env.MONGO_URL);
  * get all data of the body parameters
  * parse application/json
  */
+app.use(Raven.requestHandler());
+app.use(Raven.errorHandler());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -71,9 +75,6 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 // Add express validator
 app.use(expressValidator());
 
-// required for passport to handle sessions
-app.use(session({secret: process.env.SECRET}));
-
 // Initialize passport and it's sessions
 app.use(passport.initialize());
 app.use(passport.session());
@@ -85,18 +86,6 @@ cloudinary.config({
   api_key: '254821729494622',
   api_secret: 'F4SmP0wD7kQonfuybQjixWFYzP0'
 });
-
-
-// app.use('/admin', function (req, res) {
-//   res.sendfile('public/views/index.html');
-// });
-
-// app.post('/upload', function (req, res) {
-//   console.log(req.body);
-//   cloudinary.uploader.upload(req.body.file, function (result) {
-//     res.status(200).send(result);
-//   });
-// });
 
 // configure our routes
 app.use('/api/v1', myRoutes);
