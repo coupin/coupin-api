@@ -2,13 +2,13 @@ const jwt = require('jsonwebtoken');
 const passportJWT = require('passport-jwt');
 
 const Customer = require('../models/users');
+const Reward = require('../models/reward');
 const emailer = require('../../config/email');
 
 // Coupin App Messages
 const messages = require('../../config/messages');
 
 const ExtractJwt = passportJWT.ExtractJwt;
-const JwtStrategy = passportJWT.Strategy;
 
 const jwtOptions = {
     jwtFromRequest : ExtractJwt.fromAuthHeaderWithScheme('jwt'),
@@ -16,131 +16,140 @@ const jwtOptions = {
 }
 
 module.exports = {
-    login : function (req, res) {
-        var customer = req.user;
-        var payload = {id: customer.id, name: customer.name, email: customer.email, mobileNumber: customer.mobileNumber};
-        var token = jwt.sign(payload, jwtOptions.secretOrKey);
-
-        //var token = jwt.sign(customer, secretKey, {
-        //  expiresInMinutes: 1440
-        //});
-
-        res.json({
-        success: true,
-        token: 'JWT ' + token,
-        user: req.user
-        });
-    },
-    register : function(req, res) {
-        // Get information on customer
-        var name = req.body.name;
-        var email = req.body.email;
-        // var network =  req.body.network;
-        var password = req.body.password;
-        var password2 = req.body.password2;
-        var picture = req.body.pictureUrl;
-        var googleId = req.body.googleId;
-        var facebookId = req.body.facebookId;
-
-
-        // Form Validator
-        req.checkBody('name','Name field is required').notEmpty();
-        req.checkBody('email','Email field is required').isEmail();
-        // req.checkBody('network','Network is required').notEmpty();
-        if (!googleId && !facebookId) {
-            req.checkBody('password','Password field is required').notEmpty();
-            req.checkBody('password2','Passwords do not match').equals(req.body.password);
+    /**
+     * Add merchant to favourites
+     */
+    addToFavourites : function (req, res) {
+        if (!req.user.favourites) {
+        req.user.favourites = [];
         }
 
-        // Check Errors
-        var errors = req.validationErrors();
-
-        if(errors){
-            res.status(400).send({success: false, message: errors[0].msg });
-        } else{
-            // Create new user
-            var customer = new Customer({
-            name: name,
-            email: email,
-            // network: network,
-            createdDate: Date.now()
-            });
-
-            if (password) {
-                customer['password'] = password;
-            }
-
-            if (facebookId) {
-                customer['facebookId'] = facebookId;
-            }
-
-            if (googleId) {
-                customer['googleId'] = googleId;
-            }
-
-            if (picture) {
-                customer['picture'] = picture;
-            }
-
-            Customer.createCustomer(customer, function(err, customer) {
-                if (err)
-                {
-                    res.status(409).send({message: 'User already exists.'});
-                } else {
-                    var payload = {id: customer.id, name: customer.name, email: customer.email};
-                    var token = jwt.sign(payload, jwtOptions.secretOrKey);
-
-                    res.json({
-                        success: true,
-                        message: 'Customer created!',
-                        token: 'JWT ' + token,
-                        user: customer
-                    });
-                }
-            });
-        }
-    },
-    retrieveByNo : function(req, res){
-        Customer.findOne({'info.mobileNumber': req.params.mobileNumber}, function(err, customer){
-            if (err)
-            throw err;
-
-            res.json(customer);
-        });
-    },
-    update : function(req, res) {
-        // use our customer model to find the bear we want
-        Customer.findOne({'info.mobileNumber': req.params.mobileNumber}, function(err, customer) {
-
-            if (err)
-            throw err;
-
-            if (req.body.name)
-            customer.name = req.body.name;
-
-            if (req.body.email)
-            customer.email = req.body.email;
-
-            if (req.body.address)
-            customer.address =  req.body.address;
-
-            if (req.body.state)
-            customer.state =  req.body.state;
-
-            if (req.body.city)
-            customer.city =  req.body.city;
-
-            customer.modifiedDate = Date.now();
-
-            // save the customer updateCustomer
-            customer.save(function(err) {
+        req.user.favourites.push(req.body.merchantId);
+        req.user.save(function(err) {
             if (err) {
                 res.status(500).send(err);
+                throw new Error(err);
             } else {
-                res.json({success: true,  message: 'Customer updated!' });
+                res.status(200).send({ 
+                message: 'Added Successfully',
+                user: req.user
+                });
             }
-            });
-
         });
+    },
+    
+    /**
+     * Create user interests
+     */
+    createInterests : function (req, res) {
+        req.user.interests = JSON.parse(req.body.interests);
+
+        req.user.save(function (err) {
+        if (err) {
+            res.status(500).send(err);
+            throw new Error(err);
+        } else {
+            res.status(200).send({ message: 'Interests Created' });
+        }
+        });
+    },
+    /**
+     * Remove favourites
+     */
+    removeFavourites : function (req, res) {
+        const index = req.user.favourites.indexOf(req.body.merchantId);
+        
+        if (index === -1) {
+        res.status(404).send({ message: 'Favourite does not exist.' });
+        } else {
+        req.user.favourites.splice(index, 1);
+        req.user.save(function (err) {
+            if (err) {
+            res.status(500).send(err);
+            throw new Error(err);
+            } else {
+            res.status(200).send(req.user);
+            }
+        });
+        }
+    },
+    /**
+     * Retrieve users favourites
+     */
+    retrieveFavourites : function (req, res ) {
+        let user = req.user;
+        Customer.populate(user, {
+        path: 'favourites',
+        model: 'User',
+        populate: {
+            path: 'merchantInfo.rewards',
+            model: 'Reward'
+        }
+        }, function (err, userPop) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                for (let i = 0; i < userPop.favourites.length; i++) {
+                Reward.findById({ merchantID: userPop.favourites[i]._id }, (err, rewards) => {
+                    userPop.favourites
+                });
+                }
+                
+                res.status(200).send(userPop.favourites);
+            }
+        });
+    },
+    /**
+     * Update user interests
+     */
+    updateInterests : function (req, res) {
+        req.user.interests = JSON.parse(req.body.interests);
+        if (!req.user.interests) {
+        req.user.interests = [];
+        }
+
+        req.user.save(function (err) {
+        if (err) {
+            res.status(500).send(err);
+            throw new Error(err);
+        } else {
+            res.status(200).send(req.user);
+        }
+        });
+    },
+    /**
+     * Update users
+     */
+    updateUser : function (req, res) {
+      const id = req.params.id || req.query.id || req.body.id;
+      const body = req.body;
+  
+      Customer.findById(id, function (err, user) {
+        if (err) {
+          res.status(500).send(err);
+          throw new Error(err);
+        } else if (!user) {
+          res.status(404).send({ message: 'User does not exist.' });
+        } else {
+          ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'picture', 'ageRange'].forEach(
+            function (value) {
+              if (body[value]) {
+                user[value] = body[value];
+              }
+            });
+  
+            user.modifiedDate = new Date();
+  
+          user.save(function(err) {
+            if (err) {
+              res.status(500).send(err);
+              throw new Error(err);
+            } else {
+              res.status(200).send(user);
+            }
+          });
+        }
+      });
     }
 }

@@ -1,50 +1,75 @@
-const express = require('express');
-const expressValidator = require('express-validator');
-const emailer = require('../../config/email');
-const router = express.Router();
 const passport = require('./../middleware/passport');
 
 // Middleware
 const auth = require('./../middleware/auth');
-
-// models and controllers
-const Merchant = require('../models/users');
+// Controllers
 const MerchantCtrl = require('./../controllers/merchant');
 
-router.route('/').get(MerchantCtrl.authRedirect)
-.post(MerchantCtrl.populate);
+module.exports = function(router) {
+  router.route('/merchant')
+    // .post(MerchantCtrl.populate)
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.read
+    )
+    .post(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      MerchantCtrl.markerInfo
+    );
 
-// Get all merchants
-router.route('/all')
-  .get(MerchantCtrl.getAllMerchants);
+  // For Registration of merchants
+  router.route('/merchant/register')
+    .post(
+      MerchantCtrl.register
+    );
 
-// Signing in for a merchant
-router.route('/authenticate')
-  .get(auth.authenticate, MerchantCtrl.currentUser)
-  .post(passport.verify, MerchantCtrl.authenticate, MerchantCtrl.authRedirect);
+  router.route('/merchant/:id')
+    .delete(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.deleteOne
+    )
+    .put(
+      auth.authenticate,
+      auth.isMerchant,
+      MerchantCtrl.update
+    );
 
-router.route('/:id')
-  .put(auth.isMerchant, MerchantCtrl.update);
+  router.route('/merchant/:id/confirm')
+    .post(
+      MerchantCtrl.confirm
+    )
+    .put(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.adminReview
+    );
 
-// To call the completion
-router.route('/:id/confirm')
-  .get(MerchantCtrl.getConfirmationPage)
-  // Completion of merchant registration
-  .post(MerchantCtrl.confirm)
-  // For when the admin approves
-  .put(MerchantCtrl.adminReview);
+  router.route('/merchant/:query/search')
+    .get(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      MerchantCtrl.search
+    );
 
-// Querying by Id
-router.route('/:id/one')
-  .get(MerchantCtrl.getOne)
-  .delete(MerchantCtrl.deleteOne);
+  router.route('/merchant/hot')
+    .get(
+      MerchantCtrl.retrieveHotList
+    );
 
-router.route('merchant/:query/search')
-  .get(MerchantCtrl.search); 
+  router.route('/merchant/new')
+    .post(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      MerchantCtrl.notificationUpdates
+    );
 
-// For Registration of merchants
-router.route('/register')
-  .post(MerchantCtrl.register)
-  .get(MerchantCtrl.getRegPage);
-
-module.exports = router;
+  router.route('/merchant/recent')
+    .post(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      MerchantCtrl.mostRecent
+    );
+};

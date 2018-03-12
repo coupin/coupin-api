@@ -1,30 +1,45 @@
-var express = require('express');
-var router = express.Router();
 var passport = require('./../middleware/passport');
 
-
 // models
+const auth = require('./../middleware/auth');
 const Customer = require('./../models/users');
 const CustomerCtrl = require('./../controllers/customer');
 
-router.route('/authenticate')
-.post(passport.verify, CustomerCtrl.login)
-// To authenticate token
-.get(passport.verifyJWT1);
+module.exports = function(router) {
+  router.route('/customer/category')
+    .post(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      CustomerCtrl.createInterests
+    )
+    .put(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      CustomerCtrl.updateInterests
+    );
+    
+  router.route('/customer/favourites')
+    .get(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      CustomerCtrl.retrieveFavourites
+    )
+    .put(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      CustomerCtrl.removeFavourites
+    )
+    .post(
+      passport.verifyJWT,
+      auth.isCustomer,
+      CustomerCtrl.addToFavourites
+    );
+      
+  router.route('/customer/:id')
+    .put(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      CustomerCtrl.updateUser
+    );
 
-// Social Authentication
-router.route('/authenticate/social')
-  .post(passport.verifySocial, CustomerCtrl.login);
-
-
-router.route('/register')
-// register new user
-.post(CustomerCtrl.register);
-
-// Get customer by mobile number
-router.route('/:mobileNumber')
-.get(CustomerCtrl.retrieveByNo)
-// Used to edit the customer
-.put(CustomerCtrl.update);
-
-module.exports = router;
+};

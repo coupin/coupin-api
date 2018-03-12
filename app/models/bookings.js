@@ -5,7 +5,8 @@ const schema = mongoose.Schema;
 let bookingSchema = new schema({
     userId: {
         type: String,
-        required: true
+        required: true,
+        ref: 'User'
     },
     merchantId: {
         type: String,
@@ -13,9 +14,16 @@ let bookingSchema = new schema({
         ref: 'User'
     },
     rewardId: [{
-        type: String,
-        required: true,
-        ref: 'Reward'
+        id: {
+            type: String,
+            required: true,
+            ref: 'Reward'
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'used', 'expired'],
+            default: 'pending'
+        }
     }],
     shortCode: {
         type: String,
@@ -23,6 +31,10 @@ let bookingSchema = new schema({
         sparse: true
     },
     useNow: {
+        type: Boolean,
+        default: true
+    },
+    isActive: {
         type: Boolean,
         default: true
     }

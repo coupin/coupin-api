@@ -27,9 +27,14 @@ var rewardSchema = new schema({
     type: Date,
     required: true
   },
-  picture: {
-    type: String
-  },
+  pictures: [{
+    id: {
+      type: String
+    },
+    url: {
+      type: String
+    }
+  }],
   createdDate: {
     type: Date
   },
@@ -69,7 +74,7 @@ Reward.getRewardById = function(id, callback){
 
 
 Reward.getRewardByMerchantId = function(merchantId, callback){
-	var query = {merchantID: merchantId};
+  var query = { merchantID: merchantId };
 	Reward.find(query, callback);
 }
 

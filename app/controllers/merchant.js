@@ -1,5 +1,7 @@
-const Merchant = require('../models/users');
+const moment = require('moment');
+
 const emailer = require('../../config/email');
+const Merchant = require('../models/users');
 
 // Coupin App Messages
 const messages = require('../../config/messages');
@@ -14,6 +16,7 @@ module.exports = {
         Merchant.findOne({email: body.email}, function (err, merchant) {
             if (err) {
                 res.status(500).send(err);
+                throw new Error(err);
             } else if (merchant) {
                 res.status(409).send({message: 'User already exists'});
             } else {
@@ -37,6 +40,7 @@ module.exports = {
                 Merchant.createCustomer(merchant, function (err) {
                     if (err) {
                         res.status(500).send(err);
+                        throw new Error(err);
                     } else {
                         res.status(200).send({message: 'User created successfully.'});
                     }
@@ -49,73 +53,53 @@ module.exports = {
      * Changeg the status of the merchants
      */
     adminReview: function (req, res) {
-        const decision = req.body;
-        Merchant.findById(req.params.id, function (err, merchant) {
-            if (err)
-            throw err;
+        const body = req.body;
+        const id = req.params.id || req.query.id || req.body.id;
 
-            if (Object.keys(decision).length === 0) {
-            // set isPending to true and save
-            if (merchant.isPending) {
-                res.send({success: false, message: 'User is already pending.'});
-            } else {
-                merchant.isPending = true;
-                merchant.save(function (err) {
-                    if (err)
-                        throw err;
+        if (!body.accepted || !body.details) {
+            res.status(400).send({ message: 'Bad body in request.' });
+        }
 
-                    emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id), function(response) {
-                        res.send({success: true, rejected: false, message: 'Merchant Aprroved and email sent to ' + merchant.companyName});
-                    });
-                });
-            }
-
-            } else {
-            // set rejected to true and save the reason
-            merchant.rejected = true;
-            merchant.reason = decision.details;
-            merchant.save(function(err) {
-                if(err)
-                throw err;
-
-                res.send({success: true, rejected: true, message: 'Merchant declined and email sent to ' + merchant.companyName});
-            });
-            }
-        });
-    },
-
-    /**
-     * Login Merchants
-     */
-    authenticate: function (req, res) {
-        req.logIn(req.user, function (err, user) {
+        Merchant.findById(id, function (err, merchant) {
             if (err) {
                 res.status(500).send(err);
+                throw new Error(err);
+            } else if(!merchant) {
+                res.status(404).send({ message: 'Merchant does not exist.' });
             } else {
-                res.status(200).send({success: true, user: user});
+                if (body.accepted) {
+                    merchant.isPending = true;
+                } else {
+                    merchant.rejected = true;
+                    merchant.reason = body.details;
+                }
+
+                merchant.save(function (err) {
+                    if (err) {
+                        res.status(500).send(err);
+                        throw new Error(err);
+                    } else {
+                        if (decision.accepted) {
+                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id), function(response) {
+                                res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
+                            });
+                        } else {
+                            emailer.sendEmail(merchant.email, `${merchant.merchantInfo.companyName} Registration Rejected`, messages.rejected(merchant.reason), function(response) {
+                                res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
+                            });
+                        }
+                    }
+                });
             }
         });
-    },
-
-    /**
-     * Reditect on access attempt
-     */
-    authRedirect: function (req, res) {
-        if (req.user) {
-            if (req.user.role == 2) {
-            res.sendfile('./public/views/merchant/index.html');
-            } else {
-            res.sendfile('./public/views/merchantReg.html');
-            }
-        } else {
-            res.sendfile('./public/views/merchantReg.html');
-        }
     },
 
     /**
      * Handles merchant confirmation
      */
     confirm: function (req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+
         // get the data from the the
         const address = req.body.address;
         const city = req.body.city;
@@ -133,11 +117,13 @@ module.exports = {
         const errors = req.validationErrors();
 
         if (errors) {
-            res.send({success: false, message: errors[0].msg});
+            res.status(400).send({message: errors[0].msg});
         } else {
-            Merchant.findById(req.params.id, function(err, merchant){
-                if (err)
-                throw err;
+            Merchant.findById(id, function(err, merchant){
+                if (err) {
+                    res.status(500).send(err);
+                    throw new Error(err);
+                }
 
                 merchant.merchantInfo.address = address;
                 merchant.password = password;
@@ -150,21 +136,21 @@ module.exports = {
                 Merchant.createCustomer(merchant, function(err) {
                     if (err) {
                         res.status(500).send(err);
+                        throw new Error(err);
                     }
 
-                    res.status(200).send({success: true, message: 'You have been confirmed!'});
+                    res.status(200).send({success: true, message: 'Congratulations! Welcome to the family! Please login to continue.'});
                 });
             });
         }
     },
 
     /**
-     * Get current user
+     * Delete one merchant
      */
-    currentUser: function (req, res) {
-        res.status(200).send(req.user);
-    },
     deleteOne: function(req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+
         Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
             if(err)
             throw err;
@@ -172,40 +158,212 @@ module.exports = {
             res.send({message: 'Merchant Deleted'});
         });
     },
-    getAllMerchants: function (req, res) {
-        Merchant.find({role: 2}, function (err, merchants) {
+
+     /**
+     * Handles info gotten for the mobile markers
+     */
+    markerInfo: function (req, res) {
+        const categories = JSON.parse(req.body.categories) || [];
+        let limit = req.query.limit || req.body.limit || req.params.limit ||  4;
+        let skip = req.query.page || req.body.page || req.params.page ||  0;
+        let longitude = req.query.longitude || req.body.longitude || req.params.longitude;
+        let latitude = req.query.latitude || req.body.latitude || req.params.latitude;
+
+        if (typeof limit !== Number) {
+            limit = parseInt(limit);
+        }
+
+        if (typeof skip !== Number) {
+            skip = parseInt(skip);
+        }
+
+        if (typeof longitude !== Number) {
+            longitude = parseFloat(longitude);
+        }
+
+        if (typeof latitude !== Number) {
+            latitude = parseFloat(latitude);
+        }
+
+        // Kilometers
+        let maxDistance = req.body.distance || req.query.distance || req.params.distance || 3;
+        maxDistance *= 1000;
+        let coords = [longitude, latitude];
+
+        // Convert to radians.radisu of the earth is approxs 6371 kilometers
+        maxDistance /= 6371;
+
+        var query = {
+            'role' : 2,
+            "merchantInfo.rewards.0" : { "$exists" : true }
+        };
+
+        if (longitude && latitude && longitude !== NaN && latitude !== NaN) {
+            query['merchantInfo.location'] = {
+                $near: coords,
+                $maxDistance: maxDistance
+            }
+        }
+
+        if (categories.length > 0) {
+            query['merchantInfo.categories'] = {
+                $in: categories
+            }
+        }
+
+        Users.find(query)
+        .limit(limit)
+        .skip(skip * 5)
+        .exec(function (err, users) {
             if (err) {
                 res.status(500).send(err);
+                throw new Error(err);
+            } else if (users.length === 0) {
+                res.status(404).send({ message: 'Sorry there is no reward around you '});
+            } else {
+                var counter = 0;
+                var max = users.length - 1;
+                var markerInfo = [];
+                users.forEach(function (user) {
+                    Rewards.find({merchantID: user._id}, function (error, rewards) {
+                        if (error) {
+                            res.status(500).send(error);
+                            throw new Error(err);
+                        } else if (rewards.length > 0) {
+                            const info = {
+                                _id: user._id,
+                                name: user.merchantInfo.companyName,
+                                email: user.email,
+                                mobile: user.merchantInfo.mobileNumber,
+                                details: user.merchantInfo.companyDetails,
+                                picture: user.picture || null,
+                                address: user.merchantInfo.address + ', ' + user.merchantInfo.city,
+                                location: {
+                                    long: user.merchantInfo.location[0] || null,
+                                    lat: user.merchantInfo.location[1] || null
+                                },
+                                rewards: rewards
+                            }
+                            
+                            markerInfo.push(info);
+                        }
+
+                        if (counter === max) {
+                            res.status(200).send(markerInfo);
+                        } else {
+                            counter++;
+                        }
+                    });
+                });
+            }
+        });
+    },
+
+
+    // TODO: Send Back most recent based on users categories
+    mostRecent: function(req, res) {
+        const limit = req.query.limit || req.body.limit || req.params.limit ||  10;
+        const skip = req.query.page || req.body.page || req.params.page ||  0;
+        const categories = req.user.interests;
+
+        Users.find({
+            'merchantInfo.categories': {
+                $in: categories
+            }
+        })
+        .sort({lastAdded: 'desc'})
+        .limit(limit)
+        .populate({
+            path: 'merchantInfo.rewards',
+            model: 'Reward'
+        })
+        .exec(function(err, merchants) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
             } else {
                 res.status(200).send(merchants);
             }
         });
     },
-    getConfirmationPage: function(req, res) {
-        // load the merchant registration page
-        Merchant.findById(req.params.id, function(err, merchant){
-            if(err)
-            res.sendfile('./public/views/error.html');
 
-            if('activated' in merchant && merchant.activated) {
-            res.sendfile('./public/views/merchantReg.html');
+    notificationUpdates: function(req, res) {
+        const dateString = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
+        const lastChecked = moment(dateString);
+        
+        if (lastChecked.isValid()) {
+            Rewards.find({
+                createdDate:  {
+                    $gte: lastChecked.toString()
+                }
+            })
+            .select('name')
+            .exec(function(err, rewards) {
+                if (err) {
+                    res.status(500).send(err);
+                    throw new Error(err);
+                }
+                res.send({
+                    total: rewards.length,
+                    rewards: rewards
+                });
+            });
+        } else {
+            res.status(400).send({ message: 'Invalid date' });
+        }
+    },
+
+    /**
+     * Get all merchants
+     */
+    read: function (req, res) {
+        const id = req.query.id || req.body.id;
+        let limit = req.body.limit || req.query.limit || req.params.limit || 10;
+        let page = req.body.page || req.query.page || req.params.page || 0;
+        const query = {
+            role: 2
+        };
+
+        if (id) {
+            query['_id'] = id;
+        }
+
+
+        Merchant.find(query)
+        .limit(limit)
+        .skip(page * limit)
+        .exec(function (err, merchants) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
             } else {
-            res.sendfile('./public/views/merchantCon.html');
+                res.status(200).send(merchants);
             }
         });
     },
-    getOne: function(req, res) {
-        Merchant.findById(req.params.id, function(err, merchant) {
-            if (err)
-            throw(err);
 
-            res.json(merchant);
+    /**
+     * Get the hot list
+     */
+    retrieveHotList: function(req, res) {
+        const limit = req.body.limit || 3;
+
+        Users.find({
+            'merchantInfo.hot.status': true
         })
+        .populate('merchantInfo.rewards')
+        .sort({ 'merchantInfo.hot.starts': 'desc' })
+        .limit(limit)
+        .exec(function(err, users) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send(users);
+            }
+        });
     },
-    getRegPage: function(req, res) {
-        // load the merchant registration page
-        res.sendfile('./public/views/merchantReg.html');
-    },
+
     register: function (req, res) {
         // Get merchant details
         const companyName = req.body.companyName;
@@ -223,127 +381,137 @@ module.exports = {
         const errors = req.validationErrors();
 
         if(errors) {
-            res.send({success: false, message: errors[0].msg });
+            res,status(400).send({message: errors[0].msg });
         } else {
-            var createdDate = Date.now();
-            var merchant = new Merchant();      // create a new instance of the Customer model
-            merchant.merchantInfo.companyName = companyName;
-            merchant.email = email;
-            merchant.merchantInfo.mobileNumber = mobileNumber;
-            merchant.merchantInfo.companyDetails = companyDetails;
-            merchant.createdDate = createdDate;
-            merchant.role = 2;
+            var merchant = new Merchant({
+                email : email,
+                merchantInfo: {
+                    companyName : companyName,
+                    mobileNumber : mobileNumber,
+                    companyDetails : companyDetails
+                },
+                createdDate : Date.now(),
+                role : 2
+            });
 
             merchant.save(function(err) {
             if(err) {
                 res.status(500).send(err);
+                throw new Error(err);
             } else {
                 res.status(200).send({
-                    success: true,
                     message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
                 };
             });
         }
     },
-    search: function (req, res) {
-        const query = req.params.query;
 
-        Merchant.find({ $or: [{
-            'merchantInfo.companyName': 
-                {
-                    '$regex' : query, 
-                    '$options': 'i'
+    search: function (req, res) {
+        let query = req.params.query || req.body.query || req.params.query || [' '];
+        if (!Array.isArray(query)) {
+            query = query.split(' ');
+        }
+
+        const categories = JSON.parse(req.body.categories) || [];
+        let limit = req.body.limit || req.query.limit || req.params.limit || 10;
+        let page = req.body.page || req.query.page || req.params.page || 0;
+
+        let longitude = req.body.long || req.query.long || req.params.long;
+        let latitude = req.body.lat || req.query.lat || req.params.lat;
+        let maxDistance = req.body.distance || req.query.distance || 50000;
+        
+        if (Array.isArray(query)) {
+            for (var x = 0; x < query.length; x++) {
+                query[x] = new RegExp(query[x], 'i');
+            }
+        }
+
+        let fullQuery = { $or: [
+            {
+                'merchantInfo.companyName': { 
+                    '$in' : query
                 }
             }, {
-                'merchantInfo.categories': {
-                    '$regex' : query, 
-                    '$options': 'i'
+                'merchantInfo.companyDetails': {
+                    '$in' : query
+                }
+            }, {
+                'merchantInfo.address': {
+                    '$in' : query
+                }
+            }, {
+                'merchantInfo.city': {
+                    '$in' : query
                 }
             }],
+            "merchantInfo.rewards.0" : { "$exists" : true },
             role: 2
-        })
+        };
+
+        if (categories.length > 0) {
+            fullQuery['merchantInfo.categories'] = {
+                $in: categories
+            }
+        }
+
+        Users.find(fullQuery)
         .populate({
             path: 'merchantInfo.rewards',
             model: 'Reward'
-        }).exec(function (err, merchants) {
+        })
+        .limit(limit)
+        .skip(page * limit)
+        .exec(function (err, merchants) {
             if (err) {
-            res.status(500).send(error);
+                res.status(500).send(err);
+                throw new Error(err);
             } else if (merchants.length === 0) {
-            res.status(404).send({message: 'No Merchants under that name was found'});
+                res.status(404).send({message: 'No Merchants under that name was found'});
             } else {
                 res.status(200).send(merchants);
             }
         });
     },
+
     update: function (req, res) {
+        const body = req.body;
+        const id = req.params.id || req.query.id || req.body.id;
+
         Merchant.findById(req.params.id, function(err, merchant) {
             if (err) {
                 res.status(500).send(err);
+                throw new Error(err);
             } else if (!merchant) {
                 res.status(404).send({message: 'No such user exists'});
             } else {
-                if (req.body.email) {
-                    merchant.email = req.body.email;
+                if (body.email) {
+                    merchant.email = body.email;
                 }
 
-                if ('mobileNumber' in req.body.merchantInfo) {
-                    merchant.merchantInfo.mobileNumber = req.body.merchantInfo.mobileNumber;
-                }
-
-                if ('companyName' in req.body.merchantInfo) {
-                    merchant.merchantInfo.companyName = req.body.merchantInfo.companyName;
-                }
-
-                if (req.body.merchantInfo.companyDetails) {
-                    merchant.merchantInfo.companyDetails = req.body.merchantInfo.companyDetails;
-                }
-
-                if (req.body.merchantInfo.address) {
-                    merchant.merchantInfo.address =  req.body.merchantInfo.address;
-                }
-
-                if (req.body.merchantInfo.city) {
-                    merchant.merchantInfo.city = req.body.merchantInfo.city;
-                }
-
-                if (req.body.merchantInfo.state) {
-                    merchant.merchantInfo.state =  req.body.merchantInfo.state;
-                }
-
-                if (req.body.merchantInfo.location) {
-                    merchant.merchantInfo.location = req.body.merchantInfo.location;
-                }
-
+                ['companyName', 'companyDetails', 'mobileNumber', 'address', 'city', 'state', 'location', 'categories', 'logo', 'banner'].forEach(key => {
+                    if (body.merchantInfo[key]) {
+                        merchant.merchantInfo[key] = body.merchantInfo[key];
+                    }
+                });
+                
                 merchant.modifiedDate = Date.now();
 
                 // save the customer updateCustomer
                 merchant.save(function(err) {
                     if (err) {
-                        console.log(err);
                         res.status(500).send(err);
+                        throw new Error(err);
                     } else {
-                        res.status(200).send({ message: 'Merchant updated!' });
+                        res.status(200).send({
+                            id: merchant._id,
+                            email: merchant.email,
+                            merchantInfo: merchant.merchantInfo,
+                            picture: merchant.picture
+                        });
                     }
 
                 });
             }
-        });
-    },
-    populate: function(req, res) {
-        Merchant.find({'merchantInfo.categories' : {
-            $in: ['foodndrinks']
-        }}, function(err, users) {
-            // for(var t = 0; t < users.length; t++) {
-            //     if (t%2 === 0) {
-            //         users[t].merchantInfo['categories'] = ['foodndrinks', 'shopping', 'gadgets'];
-            //         users[t].save();
-            //     } else {
-            //         users[t].merchantInfo['categories'] = ['foodndrinks', 'entertainment', 'travel', 'tickets'];
-            //         users[t].save();
-            //     }
-            // }
-
-            res.status(200).send(users);
         });
     }
 }

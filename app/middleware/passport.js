@@ -74,7 +74,11 @@ function(req, email, password, done){
         }
         
         // if everything is okay
-        if(user.role === 0 || user.isActive) {
+
+        if(user.role === 0
+            || (user.role === 3 && user.isActive)
+            || (user.role === 2 && user.isActive && user.activated)
+        ) {
             return done(null, user);
         }
 
