@@ -28,7 +28,12 @@ var rewardSchema = new schema({
     required: true
   },
   pictures: [{
-    type: String
+    id: {
+      type: String
+    },
+    url: {
+      type: String
+    }
   }],
   createdDate: {
     type: Date

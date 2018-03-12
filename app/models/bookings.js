@@ -14,19 +14,22 @@ let bookingSchema = new schema({
         ref: 'User'
     },
     rewardId: [{
-        type: String,
-        required: true,
-        ref: 'Reward'
+        id: {
+            type: String,
+            required: true,
+            ref: 'Reward'
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'used', 'expired'],
+            default: 'pending'
+        }
     }],
     shortCode: {
         type: String,
         unique: true,
         sparse: true
     },
-    used: [{
-        type: Number,
-        default: null
-    }],
     useNow: {
         type: Boolean,
         default: true

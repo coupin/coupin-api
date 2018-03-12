@@ -120,6 +120,10 @@ var userSchema = new schema({
             type: String,
             ref: 'Reward'
         }],
+        lastAdded: [{
+            type: Date,
+            default: new Date()
+        }],
         hot: {
             status: {
                 type: Boolean,

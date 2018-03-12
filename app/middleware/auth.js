@@ -47,6 +47,16 @@ module.exports = {
             res.status(400).send({success: false, message: "Unauthurized User"});
         }
     },
+    isOwner: function(req, res) {
+        const id = req.body.id || req.params.id || req.query.id;
+        const requesterId = req.user.id || req.user._id;
+
+        if (id === requesterId) {
+            next();
+        } else {
+            res.status(400).send({success: false, message: "Unauthurized. Only the owner can perform this action"});
+        }
+    },
     isSuperAdmin: function(req, res, next) {
         if (req.user) {
             if(req.user.role == 0) {

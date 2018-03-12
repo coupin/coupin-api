@@ -26,15 +26,15 @@ module.exports = {
 
         req.user.favourites.push(req.body.merchantId);
         req.user.save(function(err) {
-        if (err) {
-            console.log(err);
-            res.status(500).send(err);
-        } else {
-            res.status(200).send({ 
-            message: 'Added Successfully',
-            user: req.user
-            });
-        }
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send({ 
+                message: 'Added Successfully',
+                user: req.user
+                });
+            }
         });
     },
     
@@ -46,8 +46,8 @@ module.exports = {
 
         req.user.save(function (err) {
         if (err) {
-            console.log(err);
             res.status(500).send(err);
+            throw new Error(err);
         } else {
             res.status(200).send({ message: 'Interests Created' });
         }
@@ -66,19 +66,12 @@ module.exports = {
         req.user.save(function (err) {
             if (err) {
             res.status(500).send(err);
+            throw new Error(err);
             } else {
             res.status(200).send(req.user);
             }
         });
         }
-    },
-    retrieveByNo : function(req, res){
-        Customer.findOne({'info.mobileNumber': req.params.mobileNumber}, function(err, customer){
-            if (err)
-            throw err;
-
-            res.json(customer);
-        });
     },
     /**
      * Retrieve users favourites
@@ -93,52 +86,18 @@ module.exports = {
             model: 'Reward'
         }
         }, function (err, userPop) {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            for (let i = 0; i < userPop.favourites.length; i++) {
-            Reward.findById({ merchantID: userPop.favourites[i]._id }, (err, rewards) => {
-                userPop.favourites
-            });
-            }
-            
-            res.status(200).send(userPop.favourites);
-        }
-        });
-    },
-    update : function(req, res) {
-        // use our customer model to find the bear we want
-        Customer.findOne({'info.mobileNumber': req.params.mobileNumber}, function(err, customer) {
-
-            if (err)
-            throw err;
-
-            if (req.body.name)
-            customer.name = req.body.name;
-
-            if (req.body.email)
-            customer.email = req.body.email;
-
-            if (req.body.address)
-            customer.address =  req.body.address;
-
-            if (req.body.state)
-            customer.state =  req.body.state;
-
-            if (req.body.city)
-            customer.city =  req.body.city;
-
-            customer.modifiedDate = Date.now();
-
-            // save the customer updateCustomer
-            customer.save(function(err) {
             if (err) {
                 res.status(500).send(err);
+                throw new Error(err);
             } else {
-                res.json({success: true,  message: 'Customer updated!' });
+                for (let i = 0; i < userPop.favourites.length; i++) {
+                Reward.findById({ merchantID: userPop.favourites[i]._id }, (err, rewards) => {
+                    userPop.favourites
+                });
+                }
+                
+                res.status(200).send(userPop.favourites);
             }
-            });
-
         });
     },
     /**
@@ -152,8 +111,8 @@ module.exports = {
 
         req.user.save(function (err) {
         if (err) {
-            console.log(err);
             res.status(500).send(err);
+            throw new Error(err);
         } else {
             res.status(200).send(req.user);
         }
@@ -168,8 +127,8 @@ module.exports = {
   
       Customer.findById(id, function (err, user) {
         if (err) {
-          console.log(err);
           res.status(500).send(err);
+          throw new Error(err);
         } else if (!user) {
           res.status(404).send({ message: 'User does not exist.' });
         } else {
@@ -184,8 +143,8 @@ module.exports = {
   
           user.save(function(err) {
             if (err) {
-              console.log(err);
               res.status(500).send(err);
+              throw new Error(err);
             } else {
               res.status(200).send(user);
             }

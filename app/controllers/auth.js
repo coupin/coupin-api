@@ -8,12 +8,14 @@ module.exports = {
             User.findById(req.user._id, function (err, user) {
                 if (err) {
                     res.status(500).send(err);
+                    throw new Error(err);
                 } else if (!user) {
                     res.status(404).send({message: 'There is no such user'});
                 } else {
                     User.updatePassword(user, req.body.password, function (err, user) {
                         if (err) {
                             res.status(500).send(err);
+                            throw new Error(err);
                         } else {
                             res.status(200).send({message: 'Password saved successfully'});
                         }
@@ -80,6 +82,7 @@ module.exports = {
                 if (err)
                 {
                     res.status(409).send({message: 'User already exists.'});
+                    throw new Error(err);
                 } else {
                     var payload = {id: customer.id, name: customer.name, email: customer.email};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);

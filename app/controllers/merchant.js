@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const emailer = require('../../config/email');
 const Merchant = require('../models/users');
 
@@ -14,6 +16,7 @@ module.exports = {
         Merchant.findOne({email: body.email}, function (err, merchant) {
             if (err) {
                 res.status(500).send(err);
+                throw new Error(err);
             } else if (merchant) {
                 res.status(409).send({message: 'User already exists'});
             } else {
@@ -37,6 +40,7 @@ module.exports = {
                 Merchant.createCustomer(merchant, function (err) {
                     if (err) {
                         res.status(500).send(err);
+                        throw new Error(err);
                     } else {
                         res.status(200).send({message: 'User created successfully.'});
                     }
@@ -49,37 +53,43 @@ module.exports = {
      * Changeg the status of the merchants
      */
     adminReview: function (req, res) {
-        const decision = req.body;
-        Merchant.findById(req.params.id, function (err, merchant) {
-            if (err)
-            throw err;
+        const body = req.body;
+        const id = req.params.id || req.query.id || req.body.id;
 
-            if (Object.keys(decision).length === 0) {
-            // set isPending to true and save
-            if (merchant.isPending) {
-                res.send({success: false, message: 'User is already pending.'});
+        if (!body.accepted || !body.details) {
+            res.status(400).send({ message: 'Bad body in request.' });
+        }
+
+        Merchant.findById(id, function (err, merchant) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else if(!merchant) {
+                res.status(404).send({ message: 'Merchant does not exist.' });
             } else {
-                merchant.isPending = true;
+                if (body.accepted) {
+                    merchant.isPending = true;
+                } else {
+                    merchant.rejected = true;
+                    merchant.reason = body.details;
+                }
+
                 merchant.save(function (err) {
-                    if (err)
-                        throw err;
-
-                    emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id), function(response) {
-                        res.send({success: true, rejected: false, message: 'Merchant Aprroved and email sent to ' + merchant.companyName});
-                    });
+                    if (err) {
+                        res.status(500).send(err);
+                        throw new Error(err);
+                    } else {
+                        if (decision.accepted) {
+                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id), function(response) {
+                                res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
+                            });
+                        } else {
+                            emailer.sendEmail(merchant.email, `${merchant.merchantInfo.companyName} Registration Rejected`, messages.rejected(merchant.reason), function(response) {
+                                res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
+                            });
+                        }
+                    }
                 });
-            }
-
-            } else {
-            // set rejected to true and save the reason
-            merchant.rejected = true;
-            merchant.reason = decision.details;
-            merchant.save(function(err) {
-                if(err)
-                throw err;
-
-                res.send({success: true, rejected: true, message: 'Merchant declined and email sent to ' + merchant.companyName});
-            });
             }
         });
     },
@@ -88,6 +98,8 @@ module.exports = {
      * Handles merchant confirmation
      */
     confirm: function (req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+
         // get the data from the the
         const address = req.body.address;
         const city = req.body.city;
@@ -105,11 +117,13 @@ module.exports = {
         const errors = req.validationErrors();
 
         if (errors) {
-            res.send({success: false, message: errors[0].msg});
+            res.status(400).send({message: errors[0].msg});
         } else {
-            Merchant.findById(req.params.id, function(err, merchant){
-                if (err)
-                throw err;
+            Merchant.findById(id, function(err, merchant){
+                if (err) {
+                    res.status(500).send(err);
+                    throw new Error(err);
+                }
 
                 merchant.merchantInfo.address = address;
                 merchant.password = password;
@@ -122,9 +136,10 @@ module.exports = {
                 Merchant.createCustomer(merchant, function(err) {
                     if (err) {
                         res.status(500).send(err);
+                        throw new Error(err);
                     }
 
-                    res.status(200).send({success: true, message: 'You have been confirmed!'});
+                    res.status(200).send({success: true, message: 'Congratulations! Welcome to the family! Please login to continue.'});
                 });
             });
         }
@@ -134,59 +149,14 @@ module.exports = {
      * Delete one merchant
      */
     deleteOne: function(req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+
         Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
             if(err)
             throw err;
 
             res.send({message: 'Merchant Deleted'});
         });
-    },
-
-    /**
-     * Get all merchants
-     */
-    getAllMerchants: function (req, res) {
-        Merchant.find({role: 2}, function (err, merchants) {
-            if (err) {
-                res.status(500).send(err);
-            } else {
-                res.status(200).send(merchants);
-            }
-        });
-    },
-
-    /**
-     * Get merchant confirmation page
-     */
-    getConfirmationPage: function(req, res) {
-        // load the merchant registration page
-        Merchant.findById(req.params.id, function(err, merchant){
-            if(err)
-            res.sendfile('./public/views/error.html');
-
-            if('activated' in merchant && merchant.activated) {
-            res.sendfile('./public/shared/views/merchantReg.html');
-            } else {
-            res.sendfile('./public/shared/views/merchantCon.html');
-            }
-        });
-    },
-
-    /**
-     * Get one merchant
-     */
-    getOne: function(req, res) {
-        Merchant.findById(req.params.id, function(err, merchant) {
-            if (err)
-            throw(err);
-
-            res.json(merchant);
-        })
-    },
-
-    getRegPage: function(req, res) {
-        // load the merchant registration page
-        res.sendfile('./public/shared/views/merchantReg.html');
     },
 
      /**
@@ -246,8 +216,8 @@ module.exports = {
         .skip(skip * 5)
         .exec(function (err, users) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                throw new Error(err);
             } else if (users.length === 0) {
                 res.status(404).send({ message: 'Sorry there is no reward around you '});
             } else {
@@ -258,6 +228,7 @@ module.exports = {
                     Rewards.find({merchantID: user._id}, function (error, rewards) {
                         if (error) {
                             res.status(500).send(error);
+                            throw new Error(err);
                         } else if (rewards.length > 0) {
                             const info = {
                                 _id: user._id,
@@ -300,7 +271,7 @@ module.exports = {
                 $in: categories
             }
         })
-        .sort({createdDate: 'desc'})
+        .sort({lastAdded: 'desc'})
         .limit(limit)
         .populate({
             path: 'merchantInfo.rewards',
@@ -308,8 +279,8 @@ module.exports = {
         })
         .exec(function(err, merchants) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                throw new Error(err);
             } else {
                 res.status(200).send(merchants);
             }
@@ -317,17 +288,57 @@ module.exports = {
     },
 
     notificationUpdates: function(req, res) {
-        const temp = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
-
-        const lastChecked = moment(temp);
+        const dateString = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
+        const lastChecked = moment(dateString);
         
+        if (lastChecked.isValid()) {
+            Rewards.find({
+                createdDate:  {
+                    $gte: lastChecked.toString()
+                }
+            })
+            .select('name')
+            .exec(function(err, rewards) {
+                if (err) {
+                    res.status(500).send(err);
+                    throw new Error(err);
+                }
+                res.send({
+                    total: rewards.length,
+                    rewards: rewards
+                });
+            });
+        } else {
+            res.status(400).send({ message: 'Invalid date' });
+        }
+    },
 
-        Rewards.find({
-           createdDate:  {
-               $gte: lastChecked.toString()
-           }
-        }).select('name').exec(function(err, rewards) {
-            res.send({total: rewards.length});
+    /**
+     * Get all merchants
+     */
+    read: function (req, res) {
+        const id = req.query.id || req.body.id;
+        let limit = req.body.limit || req.query.limit || req.params.limit || 10;
+        let page = req.body.page || req.query.page || req.params.page || 0;
+        const query = {
+            role: 2
+        };
+
+        if (id) {
+            query['_id'] = id;
+        }
+
+
+        Merchant.find(query)
+        .limit(limit)
+        .skip(page * limit)
+        .exec(function (err, merchants) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send(merchants);
+            }
         });
     },
 
@@ -345,8 +356,8 @@ module.exports = {
         .limit(limit)
         .exec(function(err, users) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                throw new Error(err);
             } else {
                 res.status(200).send(users);
             }
@@ -370,23 +381,25 @@ module.exports = {
         const errors = req.validationErrors();
 
         if(errors) {
-            res.send({success: false, message: errors[0].msg });
+            res,status(400).send({message: errors[0].msg });
         } else {
-            var createdDate = Date.now();
-            var merchant = new Merchant();      // create a new instance of the Customer model
-            merchant.merchantInfo.companyName = companyName;
-            merchant.email = email;
-            merchant.merchantInfo.mobileNumber = mobileNumber;
-            merchant.merchantInfo.companyDetails = companyDetails;
-            merchant.createdDate = createdDate;
-            merchant.role = 2;
+            var merchant = new Merchant({
+                email : email,
+                merchantInfo: {
+                    companyName : companyName,
+                    mobileNumber : mobileNumber,
+                    companyDetails : companyDetails
+                },
+                createdDate : Date.now(),
+                role : 2
+            });
 
             merchant.save(function(err) {
             if(err) {
                 res.status(500).send(err);
+                throw new Error(err);
             } else {
                 res.status(200).send({
-                    success: true,
                     message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
                 };
             });
@@ -401,6 +414,7 @@ module.exports = {
 
         const categories = JSON.parse(req.body.categories) || [];
         let limit = req.body.limit || req.query.limit || req.params.limit || 10;
+        let page = req.body.page || req.query.page || req.params.page || 0;
 
         let longitude = req.body.long || req.query.long || req.params.long;
         let latitude = req.body.lat || req.query.lat || req.params.lat;
@@ -430,10 +444,6 @@ module.exports = {
                     '$in' : query
                 }
             }],
-            // 'merchantInfo.location' : {
-            //     $near: coords,
-            //     $maxDistance: maxDistance
-            // },
             "merchantInfo.rewards.0" : { "$exists" : true },
             role: 2
         };
@@ -444,27 +454,17 @@ module.exports = {
             }
         }
 
-        //TODO: Finally Decide whether to make location a factor
-        // if (typeof longitude !== Number) {
-        //     longitude = parseFloat(longitude);
-        // }
-
-        // if (typeof latitude !== Number) {
-        //     latitude = parseFloat(latitude);
-        // }
-
-        // const coords = [longitude, latitude];
-
         Users.find(fullQuery)
         .populate({
             path: 'merchantInfo.rewards',
             model: 'Reward'
         })
         .limit(limit)
+        .skip(page * limit)
         .exec(function (err, merchants) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                throw new Error(err);
             } else if (merchants.length === 0) {
                 res.status(404).send({message: 'No Merchants under that name was found'});
             } else {
@@ -475,11 +475,12 @@ module.exports = {
 
     update: function (req, res) {
         const body = req.body;
+        const id = req.params.id || req.query.id || req.body.id;
 
         Merchant.findById(req.params.id, function(err, merchant) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                throw new Error(err);
             } else if (!merchant) {
                 res.status(404).send({message: 'No such user exists'});
             } else {
@@ -498,8 +499,8 @@ module.exports = {
                 // save the customer updateCustomer
                 merchant.save(function(err) {
                     if (err) {
-                        console.log(err);
                         res.status(500).send(err);
+                        throw new Error(err);
                     } else {
                         res.status(200).send({
                             id: merchant._id,
@@ -511,24 +512,6 @@ module.exports = {
 
                 });
             }
-        });
-    },
-
-    populate: function(req, res) {
-        Merchant.find({'merchantInfo.categories' : {
-            $in: ['foodndrinks']
-        }}, function(err, users) {
-            // for(var t = 0; t < users.length; t++) {
-            //     if (t%2 === 0) {
-            //         users[t].merchantInfo['categories'] = ['foodndrinks', 'shopping', 'gadgets'];
-            //         users[t].save();
-            //     } else {
-            //         users[t].merchantInfo['categories'] = ['foodndrinks', 'entertainment', 'travel', 'tickets'];
-            //         users[t].save();
-            //     }
-            // }
-
-            res.status(200).send(users);
         });
     }
 }

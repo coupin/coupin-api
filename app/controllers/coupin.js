@@ -8,8 +8,8 @@ module.exports = {
     const id = req.body.id || req.params.id || req.query.id;
       Booking.findById(id, function (err, booking) {
         if (err) {
-          console.log(err);
           res.status(500).send(err);
+          throw new Error(err);
         } else if (!booking) {
           res.status(404).send({ message: 'No such booking exists' });
         } else {
@@ -18,8 +18,8 @@ module.exports = {
 
           booking.save(function(err, booking) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                throw new Error(err);
             } else {
                 res.status(200).send(booking);
             }
@@ -37,8 +37,8 @@ module.exports = {
 
     Booking.findOne({rewardId: rewardId}, function (err, booking) {
       if (err) {
-        console.log(err);
         res.status(500).send(err);
+        throw new Error(err);
       } if (booking) {
         res.status(409).send({ message: 'Coupin already exists.' });
       } else {
@@ -52,16 +52,16 @@ module.exports = {
 
         booking.save(function (err) {
           if (err) {
-            console.log(err);
             res.status(500).send(err);
+            throw new Error(err);
           } else {
             Booking
             .populate(booking, { 
                 path: 'rewardId'
             }, function (err, booking) {
               if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                throw new Error(err);
               } else {
                 res.status(201).send(booking);
               }
@@ -97,8 +97,8 @@ module.exports = {
       .skip(page * 10)
       .exec(function(err, bookings) {
         if (err) {
-          console.log(err);
           res.status(500).send(err);
+          throw new Error(err);
         } else if (bookings.length === 0) {
             res.status(404).send({message: 'No active bookings.'});
         } else {
@@ -110,13 +110,11 @@ module.exports = {
   redeem: function(req, res) {
     const id = req.body.id || req.params.id || req.query.id;
     const rewards = req.body.rewards;
-    console.log(rewards);
 
     Booking.findById(id, function (err, booking) {
-      console.log(booking);
       if (err) {
-        console.log(err);
         res.status(500).send(err);
+        throw new Error(err);
       } else if (!booking) {
         res.status(404).send({ message: 'Coupin deos not exist.' });
       } else {
@@ -130,9 +128,9 @@ module.exports = {
         }
 
         booking.save(function(err) {
-          console.log(err);
           if (err) {
             res.status(500).send(err);
+            throw new Error(err);
           } else {
             res.status(200).send(booking);
           }
@@ -155,6 +153,7 @@ module.exports = {
     .exec((err, booking) => {
       if (err) {
         res.status(500).send(error);
+        throw new Error(err);
       } else if (!booking) {
         res.status(404).send({ error: 'Coupin does not exist.'});
       } else {

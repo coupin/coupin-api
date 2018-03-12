@@ -7,24 +7,6 @@ const Merchant = require('../models/users');
 const Reward = require('./../models/reward');
 
 module.exports = {
-    activate: function (req, res) {
-        Reward.findById(req.params.id, function (err, reward) {
-            if (err) {
-                res.status(500).send(err);
-            } else if (!reward) {
-                res.status(404).send({message: 'There is no such reward'});
-            } else {
-                reward.isActive = true;
-                reward.save(function (err) {
-                    if (err) {
-                        res.status(500).send(err);
-                    } else {
-                        res.status(200).send({message: 'Reward successfully activated'});
-                    }
-                });
-            }
-        });
-    },
     create: function (req, res) {
         // Form Validator
         req.checkBody('name','Name field is required').notEmpty();
@@ -71,51 +53,26 @@ module.exports = {
                             res.status(500).send(err);
                             throw new Error(err);
                         } else {
-                            res.status(200).send(reward);
+                            res.status(200).send(reward);                            
+                            Merchant.findById(reward.merchantID, function(err, merchant) {
+                                merchant.merchantInfo.lastAdded = new Date();
+
+                                merchant.save();
+                            });
                         }
                     });
                 }
             });
         };
     },
-    deactivate: function (req, res) {
-        Reward.findById(req.params.id, function (err, reward) {
-            if (err) {
-                res.status(500).send(err);
-            } else if (!reward) {
-                res.status(404).send({message: 'There is no such reward'});
-            } else {
-                reward.isActive = false;
-                reward.save(function (err) {
-                    if (err) {
-                        res.status(500).send(err);
-                    } else {
-                        res.status(200).send({message: 'Reward successfully deactivated'});
-                    }
-                });
-            }
-        });
-    },
     delete: function (req, res) {
+        const id = req.params.id || req.body.id || req.query.id;
         Reward.findByIdAndRemove(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send({ message: 'An error occured while deleting the reward', error: err });
+                throw new Error(err);
             } else {
                 res.status(200).send({message: 'Reward successfully deleted'});
-            }
-        });
-    },
-    getAll: function (req, res) {
-        Reward.find({}, function (err, rewards) {
-            res.status(200).send(rewards);
-        });
-    },
-    getBookings: function (req, res) {
-        Booking.find({}, function (err, bookings) {
-            if (err) {
-                res.status(500).send(err);
-            } else {
-                res.status(200).send(bookings);
             }
         });
     },
@@ -123,6 +80,7 @@ module.exports = {
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send(err);
+                throw new Error(err);
             } else {
                 res.status(200).send(reward);
             }
@@ -140,8 +98,8 @@ module.exports = {
             }]
         }, function (err, booking) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                throw new Error(err);
             } if (booking) {
                 res.status(409).send({ message: 'Coupin already exists.' });
             } else {
@@ -154,16 +112,16 @@ module.exports = {
 
                 booking.save(function (err) {
                     if (err) {
-                        console.log(err);
                         res.status(500).send(err);
+                        throw new Error(err);
                     } else {
                         Booking
                         .populate(booking, { 
                             path: 'rewardId'
                         }, function (err, booking) {
                             if (err) {
-                                console.log(err);
                                 res.status(500).send(err);
+                                throw new Error(err);
                             } else {
                                 res.status(201).send(booking);
                             }
@@ -173,17 +131,30 @@ module.exports = {
             }
         });
     },
-    // TODO: Remove
-    testdelete: function (req, res) {
-        Booking.remove({}, (err, bookings) => {
-            res.status(200).send({ message: 'Removed' });
+    toggleStatus: function(req, res) {
+        Reward.findById(req.params.id, function (err, reward) {
+            if (err) {
+                res.status(500).send(err);
+            } else if (!reward) {
+                res.status(404).send({message: 'There is no such reward'});
+            } else {
+                reward.isActive = !reward.isActive;
+                const status = reward.isActive ? 'Activated' : 'Deactivated';
+                reward.save(function (err) {
+                    if (err) {
+                        res.status(500).send(err);
+                    } else {
+                        res.status(200).send({message: `Reward successfully ${status}`});
+                    }
+                });
+            }
         });
     },
     /**
      * Read rewards belonging to particular merchant
      * params(*) req
      */
-    readM: function(req, res) {
+    read: function(req, res) {
         var id = req.params.id || req.user.id;
         var query = req.params.query || req.query.query;
         var page = req.params.page || req.query.page || 1;
@@ -221,8 +192,8 @@ module.exports = {
         .skip(10 * page)
         .exec(function(err, rewards) {
             if (err) {
-            console.log(err);
             res.status(500).send(err);
+            throw new Error(err);
             } else {
             res.status(200).json(rewards);
             }
@@ -232,6 +203,7 @@ module.exports = {
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send({ message: 'An error occured while retreiving the reward', error: err });
+                throw new Error(err);
             } else if (!reward) {
                 res.status(404).send({ message: 'There is no reward matching that id' });
             } else {
@@ -249,6 +221,7 @@ module.exports = {
                 reward.save(function(err) {
                     if (err) {
                         res.status(500).send({ message: 'An error occured while updating the reward' });
+                        throw new Error(err);
                     } else {
                         res.status(200).send({ message: 'Reward Updated' });
                     }
