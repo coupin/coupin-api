@@ -14,7 +14,10 @@ module.exports = function(router) {
     .post(authCtrl.registerCustomer);
 
   router.route('/auth/signin/c')
-    .post(passport.verify, authCtrl.signinCustomer);
+    .post(
+      passport.verify,
+      authCtrl.signinCustomer
+    );
 
   // Social Authentication
   router.route('/auth/signin/c/social')

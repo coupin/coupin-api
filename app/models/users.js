@@ -124,6 +124,10 @@ var userSchema = new schema({
             type: Date,
             default: new Date()
         }],
+        latestExp: {
+            type: Date,
+            default: new Date()
+        },
         hot: {
             status: {
                 type: Boolean,
@@ -161,6 +165,10 @@ var userSchema = new schema({
     reason: {
         type: String
     },
+    blacklist: [{
+        type: String,
+        ref: 'Reward'
+    }],
     createdDate: {
         type: Date,
         default: new Date()
