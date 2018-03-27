@@ -14,7 +14,7 @@ module.exports = function(router) {
       coupinCtrl.create
     );
   
-  router.route('/coupin/:pin/activate')
+  router.route('/coupin/:id/activate')
     .put(
       passport.verifyJWT1,
       auth.isCustomer,

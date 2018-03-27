@@ -2,6 +2,7 @@ const moment = require('moment');
 
 const emailer = require('../../config/email');
 const Merchant = require('../models/users');
+const Reward = require('./../models/reward');
 
 // Coupin App Messages
 const messages = require('../../config/messages');
@@ -196,6 +197,9 @@ module.exports = {
         var query = {
             'role' : 2,
             "merchantInfo.rewards.0" : { "$exists" : true }
+            // "merchantInfo.latestExp": {
+            //     $gte: new Date('03/03/2018')
+            // }
         };
 
         if (longitude && latitude && longitude !== NaN && latitude !== NaN) {
@@ -211,7 +215,7 @@ module.exports = {
             }
         }
 
-        Users.find(query)
+        Merchant.find(query)
         .limit(limit)
         .skip(skip * 5)
         .exec(function (err, users) {
@@ -219,13 +223,13 @@ module.exports = {
                 res.status(500).send(err);
                 throw new Error(err);
             } else if (users.length === 0) {
-                res.status(404).send({ message: 'Sorry there is no reward around you '});
+                res.status(404).send({ message: 'Sorry there is no reward around you.'});
             } else {
                 var counter = 0;
                 var max = users.length - 1;
                 var markerInfo = [];
                 users.forEach(function (user) {
-                    Rewards.find({merchantID: user._id}, function (error, rewards) {
+                    Reward.find({merchantID: user._id}, function (error, rewards) {
                         if (error) {
                             res.status(500).send(error);
                             throw new Error(err);
@@ -236,7 +240,8 @@ module.exports = {
                                 email: user.email,
                                 mobile: user.merchantInfo.mobileNumber,
                                 details: user.merchantInfo.companyDetails,
-                                picture: user.picture || null,
+                                logo: user.merchantInfo.logo || null,
+                                banner: user.merchantInfo.banner || null,
                                 address: user.merchantInfo.address + ', ' + user.merchantInfo.city,
                                 location: {
                                     long: user.merchantInfo.location[0] || null,
@@ -266,7 +271,7 @@ module.exports = {
         const skip = req.query.page || req.body.page || req.params.page ||  0;
         const categories = req.user.interests;
 
-        Users.find({
+        Merchant.find({
             'merchantInfo.categories': {
                 $in: categories
             }
@@ -292,7 +297,7 @@ module.exports = {
         const lastChecked = moment(dateString);
         
         if (lastChecked.isValid()) {
-            Rewards.find({
+            Reward.find({
                 createdDate:  {
                     $gte: lastChecked.toString()
                 }
@@ -348,7 +353,7 @@ module.exports = {
     retrieveHotList: function(req, res) {
         const limit = req.body.limit || 3;
 
-        Users.find({
+        Merchant.find({
             'merchantInfo.hot.status': true
         })
         .populate('merchantInfo.rewards')
@@ -454,7 +459,7 @@ module.exports = {
             }
         }
 
-        Users.find(fullQuery)
+        Merchant.find(fullQuery)
         .populate({
             path: 'merchantInfo.rewards',
             model: 'Reward'

@@ -1,19 +1,9 @@
-const jwt = require('jsonwebtoken');
-const passportJWT = require('passport-jwt');
-
 const Customer = require('../models/users');
 const Reward = require('../models/reward');
 const emailer = require('../../config/email');
 
 // Coupin App Messages
 const messages = require('../../config/messages');
-
-const ExtractJwt = passportJWT.ExtractJwt;
-
-const jwtOptions = {
-    jwtFromRequest : ExtractJwt.fromAuthHeaderWithScheme('jwt'),
-    secretOrKey : 'coupinappcustomer'
-}
 
 module.exports = {
     /**

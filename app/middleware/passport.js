@@ -35,19 +35,15 @@ passport.use('social-login', new LocalStrategy({
 function(req, email, password, done){
     // Check to see if user exists
     User.findOne({ 'email' : email, $or: [{ 'googleId': password} , {'facebookId': password }]}, function(err, user) {
-        if(err) 
+        if(err) {
             return done(err);
-
-        //If no user is found return the signupMessage
-        if(!user) 
+        } else if(!user) {
             return done(null, false, {success : false, message: "No such user exists"});
-        
-        // if everything is okay
-        if(user.role === 0 || user.isActive) {
+        } else if(user.role === 0 || user.isActive) {
             return done(null, user);
+        } else {
+            return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'});
         }
-
-        return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
         
     });
 }))

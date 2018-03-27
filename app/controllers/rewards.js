@@ -1,5 +1,6 @@
 'use strict';
 const _ = require('lodash');
+const moment = require('moment');
 const shortCode = require('shortid32');
 
 const Booking = require('../models/bookings');
@@ -55,9 +56,17 @@ module.exports = {
                         } else {
                             res.status(200).send(reward);                            
                             Merchant.findById(reward.merchantID, function(err, merchant) {
+                                merchant.merchantInfo.rewards.push(reward._id);
                                 merchant.merchantInfo.lastAdded = new Date();
+                                if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
+                                    merchant.merchantInfo.latestExp = reward.endDate;
+                                }
 
-                                merchant.save();
+                                merchant.save(function(err) {
+                                    if (err) {
+                                        throw new Error(err);
+                                    }
+                                });
                             });
                         }
                     });

@@ -22,7 +22,7 @@ overrideRoutes(router);
 rewardRoutes(router);
 userRoutes(router);
 
-router.route('/signature', function(req, res) {
+router.post('/signature', function(req, res) {
     var params = req.body || req.params || req.query;
     var signature = cloudinary.utils.api_sign_request(params, 'F4SmP0wD7kQonfuybQjixWFYzP0');
 

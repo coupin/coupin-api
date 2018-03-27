@@ -1,6 +1,13 @@
 const jwt = require('jsonwebtoken');
+const passportJWT = require('passport-jwt');
 
 const User = require('../models/users');
+
+const ExtractJwt = passportJWT.ExtractJwt;
+const jwtOptions = {
+    jwtFromRequest : ExtractJwt.fromAuthHeaderWithScheme('jwt'),
+    secretOrKey : 'coupinappcustomer'
+}
 
 module.exports = {
     changePassword: function (req, res) {
@@ -55,7 +62,7 @@ module.exports = {
             res.status(400).send({success: false, message: errors[0].msg });
         } else{
             // Create new user
-            var customer = new Customer({
+            var customer = new User({
             name: name,
             email: email,
             // network: network,
@@ -78,7 +85,7 @@ module.exports = {
                 customer['picture'] = picture;
             }
 
-            Customer.createCustomer(customer, function(err, customer) {
+            User.createCustomer(customer, function(err, customer) {
                 if (err)
                 {
                     res.status(409).send({message: 'User already exists.'});
