@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const passportJWT = require('passport-jwt');
 
+const Emailer = require('../../config/email');
+const Messages = require('../../config/messages');
 const User = require('../models/users');
 
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -105,6 +107,49 @@ module.exports = {
         }
     },
 
+    registerMerchant: function(req, res) {
+        // Get merchant details
+        const companyName = req.body.companyName;
+        const email = req.body.email;
+        const mobileNumber = req.body.mobileNumber;
+        const companyDetails = req.body.companyDetails;
+
+        // Form Validator
+        req.checkBody('companyName','Company Name field is required').notEmpty();
+        req.checkBody('email','Email field is required').isEmail();
+        req.checkBody('mobileNumber', 'Mobile number cannot be empty').notEmpty();
+        req.checkBody('companyDetails', 'Company Details field is required').notEmpty();
+
+        // Check Errors
+        const errors = req.validationErrors();
+
+        if(errors) {
+            res,status(400).send({message: errors[0].msg });
+        } else {
+            var merchant = new User({
+                email : email,
+                merchantInfo: {
+                    companyName : companyName,
+                    mobileNumber : mobileNumber,
+                    companyDetails : companyDetails
+                },
+                createdDate : Date.now(),
+                status: 'pending',
+                role : 2
+            });
+
+            merchant.save(function(err) {
+            if(err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send({
+                    message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
+                };
+            });
+        }
+    },
+
     signinCustomer : function (req, res) {
         var customer = req.user;
         var payload = {id: customer.id, name: customer.name, email: customer.email, mobileNumber: customer.mobileNumber};
@@ -122,9 +167,9 @@ module.exports = {
     },
 
     /**
-     * Login Merchants
+     * Login Merchants and Admin
      */
-    signinMerchant: function (req, res) {
+    signinWeb: function (req, res) {
         var token = jwt.sign({
             id: req.user._id,
             email: req.user.email,
@@ -139,9 +184,10 @@ module.exports = {
             email: req.user.email,
             isActive: true,
             merchantInfo: req.user.merchantInfo,
-            picture: req.user.picture
+            picture: req.user.picture,
+            isSuper: req.user.role === 0
         };
         
-        res.status(200).send({success: true, token, user});
+        res.status(200).send({token, user});
     }
 }

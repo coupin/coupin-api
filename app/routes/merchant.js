@@ -19,10 +19,11 @@ module.exports = function(router) {
       MerchantCtrl.markerInfo
     );
 
-  // For Registration of merchants
-  router.route('/merchant/register')
-    .post(
-      MerchantCtrl.register
+  router.route('/merchant/status/:status')
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.getByStatus
     );
 
   router.route('/merchant/:id')
@@ -52,6 +53,13 @@ module.exports = function(router) {
       passport.verifyJWT1,
       auth.isCustomer,
       MerchantCtrl.search
+    );
+
+  router.route('/merchant/:id/status')
+    .put(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.statusUpdate
     );
 
   router.route('/merchant/hot')

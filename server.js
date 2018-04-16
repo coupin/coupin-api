@@ -17,7 +17,6 @@ const morgan = require('morgan');
 // For token validation
 const fs = require('fs-extra');
 const busboy = require('connect-busboy');
-const cloudinary = require('cloudinary');
 const cors = require('cors');
 // Raven for logging
 const Raven = require('raven');
@@ -78,14 +77,6 @@ app.use(expressValidator());
 // Initialize passport and it's sessions
 app.use(passport.initialize());
 app.use(passport.session());
-
-
-// Cloudinary config
-cloudinary.config({
-  cloud_name: 'saintlawal',
-  api_key: '254821729494622',
-  api_secret: 'F4SmP0wD7kQonfuybQjixWFYzP0'
-});
 
 // configure our routes
 app.use('/api/v1', myRoutes);

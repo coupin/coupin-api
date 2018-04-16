@@ -160,6 +160,43 @@ module.exports = {
         });
     },
 
+    getByStatus: function(req, res) {
+        const status = req.params.status;
+        let limit = req.query.limit || req.body.limit || req.params.limit ||  10;
+        let skip = req.query.page || req.body.page || req.params.page ||  0;
+
+        Merchant.find({
+            status: status,
+            role: 2
+        }, function(err, merchants) {
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                var response = [];
+
+                merchants.forEach(function(merchant) {
+                    response.push({
+                        id: merchant._id,
+                        email: merchant.email,
+                        name: merchant.merchantInfo.companyName,
+                        mobile: merchant.merchantInfo.mobileNumber,
+                        details: merchant.merchantInfo.companyDetails,
+                        createdDate: merchant.createdDate,
+                        status: merchant.status,
+                        extra: {
+                            reason: merchant.reason,
+                            isActive: merchant.isActive,
+                            rating: merchant.merchantInfo.rating.value
+                        },
+                        role: 2
+                    });
+                });
+
+                res.status(200).send(response);
+            }
+        });
+    },
+
      /**
      * Handles info gotten for the mobile markers
      */
@@ -369,48 +406,6 @@ module.exports = {
         });
     },
 
-    register: function (req, res) {
-        // Get merchant details
-        const companyName = req.body.companyName;
-        const email = req.body.email;
-        const mobileNumber = req.body.mobileNumber;
-        const companyDetails = req.body.companyDetails;
-
-        // Form Validator
-        req.checkBody('companyName','Company Name field is required').notEmpty();
-        req.checkBody('email','Email field is required').isEmail();
-        req.checkBody('mobileNumber', 'Mobile number cannot be empty').notEmpty();
-        req.checkBody('companyDetails', 'Company Details field is required').notEmpty();
-
-        // Check Errors
-        const errors = req.validationErrors();
-
-        if(errors) {
-            res,status(400).send({message: errors[0].msg });
-        } else {
-            var merchant = new Merchant({
-                email : email,
-                merchantInfo: {
-                    companyName : companyName,
-                    mobileNumber : mobileNumber,
-                    companyDetails : companyDetails
-                },
-                createdDate : Date.now(),
-                role : 2
-            });
-
-            merchant.save(function(err) {
-            if(err) {
-                res.status(500).send(err);
-                throw new Error(err);
-            } else {
-                res.status(200).send({
-                    message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
-                };
-            });
-        }
-    },
-
     search: function (req, res) {
         let query = req.params.query || req.body.query || req.params.query || [' '];
         if (!Array.isArray(query)) {
@@ -478,11 +473,44 @@ module.exports = {
         });
     },
 
+    statusUpdate: function(req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+        const body = req.body;
+
+        Merchant.findById(id, function(err, merchant) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else if (!merchant) {
+                res.status(404).send({message: 'No such user exists'});
+            } else {
+                merchant.status = body.status;
+
+                if (body.rating) {
+                    merchant.merchantInfo.rating.value = body.rating;
+                }
+
+                if (body.reason) {
+                    merchant.reason = body.reason;
+                }
+
+                merchant.save(function(err) {
+                    if (err) {
+                        res.status(500).send(err);
+                        throw new Error(err);
+                    } else {
+                        res.status(200).send({message: `Status is now ${req.body.status}.`});
+                    }
+                });
+            }
+        });
+    },
+
     update: function (req, res) {
         const body = req.body;
         const id = req.params.id || req.query.id || req.body.id;
 
-        Merchant.findById(req.params.id, function(err, merchant) {
+        Merchant.findById(id, function(err, merchant) {
             if (err) {
                 res.status(500).send(err);
                 throw new Error(err);

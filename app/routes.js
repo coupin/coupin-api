@@ -29,6 +29,10 @@ router.post('/signature', function(req, res) {
     res.status(200).send(signature);
 });
 
+router.get('/mobile/version', function(req, res) {
+    res.status(200).send(process.env.MOBILE_VERSION);
+});
+
 router.route('/logout/:opt', function(req, res) {
     req.logout();
     if (req.params.opt === 0) {

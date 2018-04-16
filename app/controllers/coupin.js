@@ -131,11 +131,18 @@ module.exports = {
       } else if (!booking) {
         res.status(404).send({ message: 'Coupin deos not exist.' });
       } else {
-        rewards.forEach((element) => {
-          const position = booking.rewardId.indexOf(element);
+        console.log(rewards);
+        rewards.forEach((index) => {
+          console.log(index);
+            booking.rewardId[index].status = 'used';
+            booking.rewardId[index].usedOn = new Date();
         });
 
-        if (booking.used.length === booking.rewardId.length) {
+        const acitveReward = _.find(booking.rewardId, function(object) {
+          return object.status === 'pending';
+        });
+
+        if (!acitveReward) {
           booking.isActive = false;
         }
 
@@ -175,7 +182,6 @@ module.exports = {
           if(moment(object.id.endDate).isBefore(new Date()) && object.status === 'pending') {
             change = true;
             object.status = 'expired'
-            console.log('Testing');
           }
         });
 

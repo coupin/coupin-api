@@ -54,8 +54,13 @@ var userSchema = new schema({
         enum: ['male', 'female']
     },
     picture: {
-        type: String,
-        default: null
+        id: {
+            type: String
+        },
+        url: {
+            type: String,
+            default: null
+        }
     },
     city: {
         type: String
@@ -66,6 +71,7 @@ var userSchema = new schema({
     },
     role: {
         type: Number,
+        enum: [3, 2, 1, 0],
         default: 3
     },
     interests: [{
@@ -109,12 +115,22 @@ var userSchema = new schema({
             enum: ['entertainment', 'foodndrinks', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
         }],
         logo: {
-            type: String,
-            default: null
+            id: {
+                type: String
+            },
+            url: {
+                type: String,
+                default: null
+            }
         },
         banner: {
-            type: String,
-            default: null
+            id: {
+                type: String
+            },
+            url: {
+                type: String,
+                default: null
+            }
         },
         rewards: [{
             type: String,
@@ -161,6 +177,11 @@ var userSchema = new schema({
     },
     rejected: {
         type: Boolean
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'rejected', 'completed'],
+        default: 'pending'
     },
     reason: {
         type: String

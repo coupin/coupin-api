@@ -1,23 +1,27 @@
+const bcrypt = require('bcryptjs');
 const User = require('./../models/users');
 
 module.exports = {
     /**
      * Activate merchant
      */
-    activate : function(req, res) {
+    activeToggle : function(req, res) {
         User.findById(req.params.id, function(err, user) {
-            if(err) 
-                throw err;
-
-            if(!user) {
-                res.send({success: false, message: 'No Such User Exists'});
+            if(err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else if(!user) {
+                res.status(404).send({message: 'No Such User Exists'});
             } else {
-                user.isActive = true;
+                user.isActive = !user.isActive;
                 user.save( function(err) {
-                    if(err)
-                        throw err;
-
-                    res.send({success: true, message: ' was Activated.'});
+                    if(err) {
+                        res.status(500).send(err);
+                        throw new Error(err);
+                    } else {
+                        var status = user.isActive ? 'Activated' : 'Deactivated';
+                        res.send({message: `${user.email} was ${status} successfully.`});
+                    }
                 });
             }
         });
@@ -38,19 +42,24 @@ module.exports = {
         var errors = req.validationErrors();
 
         if(errors) {
-            res.json({ errors: errors});
+            res.status(400).send({ errors: errors});
         } else {
-            passport.authenticate('local-signup', function(err, user, info){
+            var body = req.body;
+            const salt = bcrypt.genSaltSync(10);
+            var user = new User({
+                email: body.email,
+                password: bcrypt.hashSync(body.password, salt),
+                role: 1
+            });
 
-                if(err)
-                    throw err;
-
-                if(info) 
-                    return res.send({success: false, message: info});
-
-                if(user)
-                    return res.send({success: true, message: 'User Created.'});
-            })(req, res, next);
+            user.save(function(err) {
+                if (err) {
+                    res.status(500).send(err);
+                    throw new Error(err);
+                } else {
+                    res.status(200).send({message: 'User Created.'});
+                }
+            });
         }
     },
 
@@ -73,38 +82,22 @@ module.exports = {
 
     },
 
-    deactivate : function(req, res) {
-        User.findById(req.params.id, function(err, user) {
-            if(err) 
-                throw err;
-
-            if(!user) {
-                res.send({success: false, message: 'No Such User Exists'});
-            } else {
-                user.isActive = false;
-                user.save( function(err) {
-                    if(err)
-                        throw err;
-
-                    res.send({success: true, message: ' was Deactivated.'});
-                });
-            }
-        });
-    },
-
     delete : function(req, res) {
         User.findById(req.params.id, function(err, user) {
-            if(err)
-                throw err;
-
-            if(user) {
+            if(err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else if (!user) {
+                res.status(404).send({message: 'User does not exist.'});
+            } else {
                 User.remove({
                     _id : req.params.id
                 }, function(err, user) {
                     if(err) {
-                        throw err;
+                        res.status(500).send(err);
+                        throw new Error(err);
                     } else {
-                        res.send({success : true, message: 'Admin has been deleted'});
+                        res.status(200).send({message: 'Admin has been deleted'});
                     }
                     
                 });
@@ -113,7 +106,14 @@ module.exports = {
     },
     
     getAllAdmins : function (req, res) {
-        User.find({}, function(err, user) {
+        User.find({
+            role: {
+                $lte: 1
+            },
+            email: {
+                $ne: process.env.SADMIN
+            }
+        }, function(err, user) {
             res.json(user);
         });
     },

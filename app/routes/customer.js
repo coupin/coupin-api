@@ -30,7 +30,7 @@ module.exports = function(router) {
       CustomerCtrl.removeFavourites
     )
     .post(
-      passport.verifyJWT,
+      passport.verifyJWT1,
       auth.isCustomer,
       CustomerCtrl.addToFavourites
     );
