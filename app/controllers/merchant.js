@@ -23,7 +23,6 @@ module.exports = {
             } else {
                 let merchant = new Merchant({
                     email: body.email,
-                    picture: body.picture || null,
                     password: body.password || 'merchant',
                     merchantInfo: {
                         companyName: body.companyName,
@@ -31,10 +30,14 @@ module.exports = {
                         address: body.address,
                         city: body.city,
                         mobileNumber: body.mobileNumber,
-                        location: [body.longitude, body.latitude]
+                        location: [body.longitude, body.latitude],
+                        logo: {
+                            id: body.public_id,
+                            url: body.logo
+                        }
                     },
+                    status: 'completed',
                     isActive: true,
-                    activated: true,
                     role: 2
                 });
 
@@ -43,7 +46,7 @@ module.exports = {
                         res.status(500).send(err);
                         throw new Error(err);
                     } else {
-                        res.status(200).send({message: 'User created successfully.'});
+                        res.status(200).send(merchant);
                     }
                 });
             }
@@ -130,9 +133,8 @@ module.exports = {
                 merchant.password = password;
                 merchant.merchantInfo.city = city;
                 merchant.merchantInfo.state = state;
-                merchant.activated = true;
-                merchant.isPending = false;
-                merchant.rejected = false;
+                merchant.status = 'completed';
+                merchant.completedDate = new Date();
 
                 Merchant.createCustomer(merchant, function(err) {
                     if (err) {
@@ -140,7 +142,12 @@ module.exports = {
                         throw new Error(err);
                     }
 
-                    res.status(200).send({success: true, message: 'Congratulations! Welcome to the family! Please login to continue.'});
+                    res.status(200).send({message: 'Congratulations! Welcome to the family! Please login to continue.'});
+                    emailer.sendEmail(merchant.email, 'Congratulations!', messages.completedEmail({
+                        name: merchant.merchantInfo.companyName
+                    }), function(response) {
+                        console.log(response);
+                    });
                 });
             });
         }
@@ -284,6 +291,7 @@ module.exports = {
                                     long: user.merchantInfo.location[0] || null,
                                     lat: user.merchantInfo.location[1] || null
                                 },
+                                rating: user.merchantInfo.rating.value,
                                 rewards: rewards
                             }
                             
@@ -359,16 +367,11 @@ module.exports = {
      * Get all merchants
      */
     read: function (req, res) {
-        const id = req.query.id || req.body.id;
         let limit = req.body.limit || req.query.limit || req.params.limit || 10;
         let page = req.body.page || req.query.page || req.params.page || 0;
         const query = {
             role: 2
         };
-
-        if (id) {
-            query['_id'] = id;
-        }
 
 
         Merchant.find(query)
@@ -380,6 +383,19 @@ module.exports = {
                 throw new Error(err);
             } else {
                 res.status(200).send(merchants);
+            }
+        });
+    },
+
+    readById: function(req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+
+        Merchant.findById(id, function(err, merchant) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send(merchant);
             }
         });
     },
@@ -507,8 +523,8 @@ module.exports = {
     },
 
     update: function (req, res) {
-        const body = req.body;
         const id = req.params.id || req.query.id || req.body.id;
+        const body = req.body;
 
         Merchant.findById(id, function(err, merchant) {
             if (err) {
@@ -522,8 +538,8 @@ module.exports = {
                 }
 
                 ['companyName', 'companyDetails', 'mobileNumber', 'address', 'city', 'state', 'location', 'categories', 'logo', 'banner'].forEach(key => {
-                    if (body.merchantInfo[key]) {
-                        merchant.merchantInfo[key] = body.merchantInfo[key];
+                    if (body[key]) {
+                        merchant.merchantInfo[key] = body[key];
                     }
                 });
                 

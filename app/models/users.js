@@ -112,7 +112,7 @@ var userSchema = new schema({
         },
         categories: [{
             type: String,
-            enum: ['entertainment', 'foodndrinks', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
+            enum: ['entertainment', 'foodndrink', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
         }],
         logo: {
             id: {
@@ -167,17 +167,6 @@ var userSchema = new schema({
         type: Boolean,
         default: true
     },
-    activated: {
-        type: Boolean,
-        default: false
-    },
-    isPending: {
-        type: Boolean,
-        default: false
-    },
-    rejected: {
-        type: Boolean
-    },
     status: {
         type: String,
         enum: ['pending', 'accepted', 'rejected', 'completed'],
@@ -186,10 +175,13 @@ var userSchema = new schema({
     reason: {
         type: String
     },
-    blacklist: [{
+    expired: [{
         type: String,
         ref: 'Reward'
     }],
+    completedDate: {
+        type: Date
+    },
     createdDate: {
         type: Date,
         default: new Date()
@@ -201,7 +193,7 @@ var userSchema = new schema({
 
 userSchema.pre('save', function(next) {
     if ( this.categories && this.categories.length === 0) {
-        this.categories.push('foodndrinks')
+        this.categories.push('foodndrink')
     }
 
     next();

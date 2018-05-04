@@ -7,7 +7,6 @@ const MerchantCtrl = require('./../controllers/merchant');
 
 module.exports = function(router) {
   router.route('/merchant')
-    // .post(MerchantCtrl.populate)
     .get(
       auth.authenticate,
       auth.isAdmin,
@@ -17,6 +16,13 @@ module.exports = function(router) {
       passport.verifyJWT1,
       auth.isCustomer,
       MerchantCtrl.markerInfo
+    );
+
+  router.route('/merchant/register')
+    .post(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.adminCreate
     );
 
   router.route('/merchant/status/:status')
@@ -31,6 +37,11 @@ module.exports = function(router) {
       auth.authenticate,
       auth.isAdmin,
       MerchantCtrl.deleteOne
+    )
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.readById
     )
     .put(
       auth.authenticate,

@@ -1,6 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const moment = require('moment');
+const schedule = require('node-schedule');
 const shortCode = require('shortid32');
 
 const Booking = require('../models/bookings');
@@ -61,6 +62,23 @@ module.exports = {
                                 if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
                                     merchant.merchantInfo.latestExp = reward.endDate;
                                 }
+
+                                // Schedule to move to used on expired
+                                schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
+                                    reward.status = 'expired';
+                                    reward.isActive = false;
+                                    reward.save();
+
+                                    merchant.merchantInfo.rewards.forEach(function(element) {
+                                        return element !== reward._id;
+                                    });
+
+                                    if (!merchant.expired) {
+                                        merchant.expired = [];
+                                    }
+                                    merchant.expired.push(reward._id);
+                                    merchant.save();
+                                }).bind(null, merchant, reward);
 
                                 merchant.save(function(err) {
                                     if (err) {
