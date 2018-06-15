@@ -98,6 +98,38 @@ module.exports = {
         });
     },
 
+    billing: function(req, res) {
+        const body = req.body;
+        const id = req.params.id || req.query.id || req.body.id;
+
+        Merchant.findById(id, function(err, merchant) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else if (!merchant) {
+                res.status(404).send({ message: 'User does not exist.' });
+            } else {
+                merchant.merchantInfo.billing.plan = body.plan;
+                if (!merchant.merchantInfo.billing.history) {
+                    merchant.merchantInfo.billing.history = [];
+                }
+                merchant.merchantInfo.billing.history.push({
+                    plan: body.plan,
+                    reference: body.plan !== 'payAsYouGo' ? body.reference : null
+                });
+
+                merchant.save(function(err, merchant) {
+                    if (err) {
+                        res.status(500).send(err);
+                        throw new Error(err);
+                    } else {
+                        res.status(200).send(merchant.merchantInfo);
+                    }
+                });
+            }
+        });
+    },
+
     /**
      * Handles merchant confirmation
      */
@@ -204,6 +236,19 @@ module.exports = {
         });
     },
 
+    getNames: function(req, res) {
+        Merchant.find({
+            role: 2
+        }, 'merchantInfo.companyName', function(err, rewards) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send(rewards);
+            }
+        });
+    },
+
      /**
      * Handles info gotten for the mobile markers
      */
@@ -273,7 +318,16 @@ module.exports = {
                 var max = users.length - 1;
                 var markerInfo = [];
                 users.forEach(function (user) {
-                    Reward.find({merchantID: user._id}, function (error, rewards) {
+                    Reward.find({
+                        merchantID: user._id,
+                        status: 'active',
+                        startDate: {
+                            $lte: new Date()
+                        },
+                        endDate: {
+                            $gte: new Date()
+                        }
+                    }, 'name', function (error, rewards) {
                         if (error) {
                             res.status(500).send(error);
                             throw new Error(err);
@@ -292,7 +346,8 @@ module.exports = {
                                     lat: user.merchantInfo.location[1] || null
                                 },
                                 rating: user.merchantInfo.rating.value,
-                                rewards: rewards
+                                reward: rewards[0],
+                                count: rewards.length
                             }
                             
                             markerInfo.push(info);
@@ -427,6 +482,8 @@ module.exports = {
         if (!Array.isArray(query)) {
             query = query.split(' ');
         }
+        console.log('One');
+        console.log(query);
 
         const categories = JSON.parse(req.body.categories) || [];
         let limit = req.body.limit || req.query.limit || req.params.limit || 10;
@@ -537,12 +594,12 @@ module.exports = {
                     merchant.email = body.email;
                 }
 
-                ['companyName', 'companyDetails', 'mobileNumber', 'address', 'city', 'state', 'location', 'categories', 'logo', 'banner'].forEach(key => {
+                ['companyName', 'companyDetails', 'mobileNumber', 'address', 'city', 'state', 'location', 'categories', 'logo', 'banner', 'rating'].forEach(key => {
                     if (body[key]) {
                         merchant.merchantInfo[key] = body[key];
                     }
                 });
-                
+
                 merchant.modifiedDate = Date.now();
 
                 // save the customer updateCustomer

@@ -87,7 +87,7 @@ app.listen(port).on('error', function (err) {
 });
 
 // confirmation
-console.log('Too Cool for port ' + port);
+console.log('Coupin API started on ' + port);
 
 // expose app
 module.exports = app;

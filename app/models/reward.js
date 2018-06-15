@@ -62,10 +62,14 @@ var rewardSchema = new schema({
   }],
   status: {
     type: String,
-    enum: ['isPending', 'active', 'expired', ],
+    enum: ['isPending', 'active', 'inactive', 'expired'],
     default: 'isPending'
   },
   isActive: {
+      type: Boolean,
+      default: false
+  },
+  delivery: {
       type: Boolean,
       default: false
   }

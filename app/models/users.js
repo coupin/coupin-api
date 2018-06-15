@@ -158,9 +158,28 @@ var userSchema = new schema({
                 type: Number
             },
             raters: {
-                default: 0,
+                default: 1,
                 type: Number
             }
+        },
+        billing: {
+            plan: {
+                type: String,
+                enum: ['payAsYouGo', 'monthly', 'yearly'],
+                default: 'payAsYouGo'
+            },
+            history: [{
+                plan: {
+                    type: String
+                },
+                date: {
+                    type: Date,
+                    default: Date.now
+                },
+                reference: {
+                    type: String
+                }
+            }]
         }
     },
     isActive: {
