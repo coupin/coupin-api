@@ -1,6 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const moment = require('moment');
+const schedule = require('node-schedule');
 const shortCode = require('shortid32');
 
 const Booking = require('../models/bookings');
@@ -8,6 +9,91 @@ const Merchant = require('../models/users');
 const Reward = require('./../models/reward');
 
 module.exports = {
+    adminCreate: function (req, res) {
+        // Form Validator
+        req.checkBody('name','Name field is required').notEmpty();
+        req.checkBody('description','Description field is required').notEmpty();
+        req.checkBody('categories','Categories field is required').notEmpty();
+        req.checkBody('multiple','The Multiple field is required').notEmpty();
+        req.checkBody('startDate','Start Date field is required').notEmpty();
+        req.checkBody('endDate','End Date field is required').notEmpty();
+        req.checkBody('applicableDays','Applicable Days field is required').notEmpty();
+
+        // Check Errors
+        var errors = req.validationErrors();
+
+        if(errors){
+            res.status(400).send({ message: errors });
+        } else{
+            Reward.findOne({ name: req.body.name }, function (err, reward) {
+                if (err) {
+                    res.status(500).send(err);
+                    throw new Error(err);
+                } else if (reward) {
+                    res.status(409).send({message: 'There is already a reward with that name'});
+                } else {
+                    // Get information of reward
+                    var newReward = {
+                        name : req.body.name,
+                        merchantID : req.user.id || req.body.merchantID,
+                        description :  req.body.description,
+                        categories : req.body.categories,
+                        startDate : req.body.startDate,
+                        endDate : req.body.endDate,
+                        multiple :  req.body.multiple,
+                        applicableDays : req.body.applicableDays,
+                        price: req.body.price,
+                        delivery: req.body.delivery,
+                        createdDate: Date.now(),
+                        isActive: true,
+                        status: 'active'
+                    };
+
+                    // Create new reward
+                    var reward = new Reward(newReward);
+
+                    reward.save(function (err) {
+                        if(err) {
+                            res.status(500).send(err);
+                            throw new Error(err);
+                        } else {
+                            res.status(200).send(reward);                            
+                            Merchant.findById(reward.merchantID, function(err, merchant) {
+                                merchant.merchantInfo.rewards.push(reward._id);
+                                merchant.merchantInfo.lastAdded = new Date();
+                                if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
+                                    merchant.merchantInfo.latestExp = reward.endDate;
+                                }
+
+                                // Schedule to move to used on expired
+                                schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
+                                    reward.status = 'expired';
+                                    reward.isActive = false;
+                                    reward.save();
+
+                                    merchant.merchantInfo.rewards.forEach(function(element) {
+                                        return element !== reward._id;
+                                    });
+
+                                    if (!merchant.expired) {
+                                        merchant.expired = [];
+                                    }
+                                    merchant.expired.push(reward._id);
+                                    merchant.save();
+                                }).bind(null, merchant, reward);
+
+                                merchant.save(function(err) {
+                                    if (err) {
+                                        throw new Error(err);
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+        };
+    },
     create: function (req, res) {
         // Form Validator
         req.checkBody('name','Name field is required').notEmpty();
@@ -33,17 +119,17 @@ module.exports = {
                 } else {
                     // Get information of reward
                     var newReward = {
-                    name : req.body.name,
-                    merchantID : req.user.id || req.body.merchantID,
-                    description :  req.body.description,
-                    categories : req.body.categories,
-                    startDate : req.body.startDate,
-                    endDate : req.body.endDate,
-                    multiple :  req.body.multiple,
-                    applicableDays : req.body.applicableDays,
-                    price: req.body.price,
-                    createdDate: Date.now(),
-                    isActive: true
+                        name : req.body.name,
+                        merchantID : req.user.id || req.body.merchantID,
+                        description :  req.body.description,
+                        categories : req.body.categories,
+                        startDate : req.body.startDate,
+                        endDate : req.body.endDate,
+                        multiple :  req.body.multiple,
+                        applicableDays : req.body.applicableDays,
+                        price: req.body.price,
+                        delivery: req.body.delivery,
+                        createdDate: Date.now()
                     };
 
                     // Create new reward
@@ -55,19 +141,36 @@ module.exports = {
                             throw new Error(err);
                         } else {
                             res.status(200).send(reward);                            
-                            Merchant.findById(reward.merchantID, function(err, merchant) {
-                                merchant.merchantInfo.rewards.push(reward._id);
-                                merchant.merchantInfo.lastAdded = new Date();
-                                if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
-                                    merchant.merchantInfo.latestExp = reward.endDate;
-                                }
+                            // Merchant.findById(reward.merchantID, function(err, merchant) {
+                            //     merchant.merchantInfo.rewards.push(reward._id);
+                            //     merchant.merchantInfo.lastAdded = new Date();
+                            //     if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
+                            //         merchant.merchantInfo.latestExp = reward.endDate;
+                            //     }
 
-                                merchant.save(function(err) {
-                                    if (err) {
-                                        throw new Error(err);
-                                    }
-                                });
-                            });
+                            //     // Schedule to move to used on expired
+                            //     schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
+                            //         reward.status = 'expired';
+                            //         reward.isActive = false;
+                            //         reward.save();
+
+                            //         merchant.merchantInfo.rewards.forEach(function(element) {
+                            //             return element !== reward._id;
+                            //         });
+
+                            //         if (!merchant.expired) {
+                            //             merchant.expired = [];
+                            //         }
+                            //         merchant.expired.push(reward._id);
+                            //         merchant.save();
+                            //     }).bind(null, merchant, reward);
+
+                            //     merchant.save(function(err) {
+                            //         if (err) {
+                            //             throw new Error(err);
+                            //         }
+                            //     });
+                            // });
                         }
                     });
                 }
@@ -148,6 +251,7 @@ module.exports = {
                 res.status(404).send({message: 'There is no such reward'});
             } else {
                 reward.isActive = !reward.isActive;
+                reward.status = req.body.status || reward.status;
                 const status = reward.isActive ? 'Activated' : 'Deactivated';
                 reward.save(function (err) {
                     if (err) {
@@ -166,10 +270,9 @@ module.exports = {
     read: function(req, res) {
         var id = req.params.id || req.user.id;
         var query = req.params.query || req.query.query;
+        var opt = {};
         var page = req.params.page || req.query.page || 1;
         page -= 1;
-
-        var opt = {};
         
         if (id) {
             opt['merchantID'] = id;
@@ -201,10 +304,61 @@ module.exports = {
         .skip(10 * page)
         .exec(function(err, rewards) {
             if (err) {
-            res.status(500).send(err);
-            throw new Error(err);
+                res.status(500).send(err);
+                throw new Error(err);
             } else {
-            res.status(200).json(rewards);
+                res.status(200).json(rewards);
+            }
+        });
+    },
+    readByMerchant: function(req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+        let limit = req.params.limit || req.query.limit || req.body.limit || 10;
+        let page = req.params.page || req.query.page || req.body.page || 0;
+
+        if (typeof limit !== Number) {
+            limit = parseInt(limit);
+        }
+
+        if (typeof page !== Number) {
+            page = parseInt(page);
+        }
+
+        var query = {
+            merchantID: id,
+            startDate: {
+                $lte: new Date()
+            },
+            endDate: {
+                $gte: new Date()
+            }
+        };
+        
+        if (req.query.status) {
+            if (req.query.status !== 'all') {
+                query['status'] = req.query.status;
+            }
+        } else {
+            query['status'] = 'active';
+        }
+
+        Reward.find(query)
+        .sort('-startDate')
+        .populate({
+            path: 'merchantID',
+            model: 'User',
+            select: 'merchantInfo.companyName'
+        })
+        .limit(limit)
+        .skip(page * limit)
+        .exec(function(err, rewards) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else if (!rewards) {
+                res.status(404).send({ message: 'There no more rewards available.' });
+            } else {
+                res.status(200).send(rewards);
             }
         });
     },
@@ -225,6 +379,7 @@ module.exports = {
                 reward.multiple =  req.body.multiple || reward.multiple;
                 reward.applicableDays = req.body.applicableDays || reward.applicableDays;
                 reward.price = req.body.price || reward.price;
+                reward.delivery = req.body.delivery || reward.delivery;
                 reward.modifiedDate = Date.now();
 
                 reward.save(function(err) {

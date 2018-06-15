@@ -23,6 +23,10 @@ let bookingSchema = new schema({
             type: String,
             enum: ['pending', 'used', 'expired'],
             default: 'pending'
+        },
+        usedOn: {
+            type: Date,
+            default: null
         }
     }],
     shortCode: {

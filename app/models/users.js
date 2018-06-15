@@ -54,8 +54,13 @@ var userSchema = new schema({
         enum: ['male', 'female']
     },
     picture: {
-        type: String,
-        default: null
+        id: {
+            type: String
+        },
+        url: {
+            type: String,
+            default: null
+        }
     },
     city: {
         type: String
@@ -66,6 +71,7 @@ var userSchema = new schema({
     },
     role: {
         type: Number,
+        enum: [3, 2, 1, 0],
         default: 3
     },
     interests: [{
@@ -106,15 +112,25 @@ var userSchema = new schema({
         },
         categories: [{
             type: String,
-            enum: ['entertainment', 'foodndrinks', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
+            enum: ['entertainment', 'foodndrink', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
         }],
         logo: {
-            type: String,
-            default: null
+            id: {
+                type: String
+            },
+            url: {
+                type: String,
+                default: null
+            }
         },
         banner: {
-            type: String,
-            default: null
+            id: {
+                type: String
+            },
+            url: {
+                type: String,
+                default: null
+            }
         },
         rewards: [{
             type: String,
@@ -142,33 +158,49 @@ var userSchema = new schema({
                 type: Number
             },
             raters: {
-                default: 0,
+                default: 1,
                 type: Number
             }
+        },
+        billing: {
+            plan: {
+                type: String,
+                enum: ['payAsYouGo', 'monthly', 'yearly'],
+                default: 'payAsYouGo'
+            },
+            history: [{
+                plan: {
+                    type: String
+                },
+                date: {
+                    type: Date,
+                    default: Date.now
+                },
+                reference: {
+                    type: String
+                }
+            }]
         }
     },
     isActive: {
         type: Boolean,
         default: true
     },
-    activated: {
-        type: Boolean,
-        default: false
-    },
-    isPending: {
-        type: Boolean,
-        default: false
-    },
-    rejected: {
-        type: Boolean
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'rejected', 'completed'],
+        default: 'pending'
     },
     reason: {
         type: String
     },
-    blacklist: [{
+    expired: [{
         type: String,
         ref: 'Reward'
     }],
+    completedDate: {
+        type: Date
+    },
     createdDate: {
         type: Date,
         default: new Date()
@@ -180,7 +212,7 @@ var userSchema = new schema({
 
 userSchema.pre('save', function(next) {
     if ( this.categories && this.categories.length === 0) {
-        this.categories.push('foodndrinks')
+        this.categories.push('foodndrink')
     }
 
     next();

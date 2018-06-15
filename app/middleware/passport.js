@@ -27,6 +27,73 @@ passport.deserializeUser(function(id, done){
 });
 
 // Local sign-in
+passport.use('admin-login', new LocalStrategy({
+    usernameField : 'email',
+    passwordField: 'password',
+    passReqToCallback : true
+},
+function(req, email, password, done){
+    // Check to see if user exists
+    User.findOne({ 
+        'email' : email,
+        'role': {
+            $lte: 1
+        }
+    }, function(err, user) {
+        if(err) 
+            return done(err);
+
+        //If no user is found return the signupMessage
+        if(!user) 
+            return done(null, false, {success : false, message: "No such user exists"});
+
+        // id user is found but password is wrong
+        if(!User.isValid(password, user.password)) {
+            return done(null, false, {success : false, message: 'Wrong Password'});
+        }
+        
+
+        if(user.role === 0
+            || (user.role === 1 && user.isActive)
+        ) {
+            return done(null, user);
+        }
+
+        return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
+        
+    });
+}));
+
+// Merchant sign-in
+passport.use('merchant-login', new LocalStrategy({
+    usernameField : 'email',
+    passwordField: 'password',
+    passReqToCallback : true
+},
+function(req, email, password, done){
+    // Check to see if user exists
+    User.findOne({
+        'email' : email,
+        'role': 2
+    }, function(err, user) {
+        if(err) {
+            return done(err);
+        } else if(!user) {
+            return done(null, false, {success : false, message: "No such user exists"});
+        } else if(!User.isValid(password, user.password)) {
+            return done(null, false, {success : false, message: 'Wrong Password'});
+        } else  if(user.role === 0
+            || (user.isActive)
+        ) {
+            return done(null, user);
+        } else {
+            return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
+        }
+        
+    });
+}));
+
+// Local sign-in
 passport.use('social-login', new LocalStrategy({
     usernameField : 'email',
     passwordField: 'password',
@@ -46,7 +113,7 @@ function(req, email, password, done){
         }
         
     });
-}))
+}));
 
 // Local sign-in
 passport.use('local-login', new LocalStrategy({
@@ -56,7 +123,10 @@ passport.use('local-login', new LocalStrategy({
 },
 function(req, email, password, done){
     // Check to see if user exists
-    User.findOne({ 'email' : email }, function(err, user) {
+    User.findOne({
+        'email' : email,
+        'role': 3
+    }, function(err, user) {
         if(err) 
             return done(err);
 
@@ -69,11 +139,9 @@ function(req, email, password, done){
             return done(null, false, {success : false, message: 'Wrong Password'});
         }
         
-        // if everything is okay
 
         if(user.role === 0
-            || (user.role === 3 && user.isActive)
-            || (user.role === 2 && user.isActive && user.activated)
+            || user.isActive
         ) {
             return done(null, user);
         }
@@ -81,7 +149,7 @@ function(req, email, password, done){
         return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
         
     });
-}))
+}));
 
 // Local Sign-up
 passport.use('local-signup', new LocalStrategy({
@@ -121,21 +189,7 @@ function(req, email, password, done) {
     });
 }));
 
-// Strategy for merchants
-passport.use('jwt-1', new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-    User.findOne({ 
-        'email' : jwt_payload.email
-    }, function(err, merchant) {
-        if (err) throw err;
-        if (merchant) {
-        next(null, merchant);
-        } else {
-        next(null, false,{message: 'Unknown Merchant'});
-        }
-    });
-}));
-
-passport.use('jwt-2', new JwtStrategy(jwtOptions, function(jwt_payload, done) {
+passport.use('jwt-0', new JwtStrategy(jwtOptions, function(jwt_payload, done) {
     User.findById(jwt_payload.id, function(err, customer) {
         if (err) {
             throw err;
@@ -150,8 +204,10 @@ passport.use('jwt-2', new JwtStrategy(jwtOptions, function(jwt_payload, done) {
 
 
 exports.verify = passport.authenticate('local-login');
+exports.verifyAdmin = passport.authenticate('admin-login');
+exports.verifyMerchant = passport.authenticate('merchant-login');
 exports.verifySocial = passport.authenticate('social-login');
-exports.verifyJWT = passport.authenticate('jwt-1',{session: false});
-exports.verifyJWT1 = passport.authenticate('jwt-2', {session : false});
+// exports.verifyJWT = passport.authenticate('jwt-1',{session: false});
+exports.verifyJWT1 = passport.authenticate('jwt-0', {session : false});
 
 

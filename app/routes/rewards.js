@@ -8,7 +8,7 @@ const auth = require('./../middleware/auth');
 
 module.exports = function(router) {
   //The route to create a reward for a merchant
-  router.route('/reward')
+  router.route('/rewards')
     .get(
       auth.authenticate,
       auth.isMerchant,
@@ -20,14 +20,21 @@ module.exports = function(router) {
       rewardCtrl.create
     );
 
-  router.route('/reward/status/:id')
+  router.route('/rewards/status/:id')
     .put(
       auth.authenticate,
       auth.isMerchant,
       rewardCtrl.toggleStatus
     );
+
+  router.route('/rewards/merchant/:id')
+    .get(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      rewardCtrl.readByMerchant
+    );
     
-  router.route('/reward/:id')
+  router.route('/rewards/:id')
     .get(
       auth.authenticate,
       auth.isMerchant,

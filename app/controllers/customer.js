@@ -1,9 +1,12 @@
 const Customer = require('../models/users');
 const Reward = require('../models/reward');
-const emailer = require('../../config/email');
 
 // Coupin App Messages
+const config = require('../../config/config');
+const emailer = require('../../config/email');
 const messages = require('../../config/messages');
+
+const cloudinary = config.cloudinary;
 
 module.exports = {
     /**
@@ -80,13 +83,27 @@ module.exports = {
                 res.status(500).send(err);
                 throw new Error(err);
             } else {
+                var response = [];
                 for (let i = 0; i < userPop.favourites.length; i++) {
-                Reward.findById({ merchantID: userPop.favourites[i]._id }, (err, rewards) => {
-                    userPop.favourites
-                });
+                    var merchant = userPop.favourites[i];
+                    response.push({
+                        _id: merchant._id,
+                        name: merchant.merchantInfo.companyName,
+                        email: merchant.email,
+                        mobile: merchant.merchantInfo.mobileNumber,
+                        details: merchant.merchantInfo.companyDetails,
+                        logo: merchant.merchantInfo.logo || null,
+                        banner: merchant.merchantInfo.banner || null,
+                        address: merchant.merchantInfo.address + ', ' + merchant.merchantInfo.city,
+                        location: {
+                            long: merchant.merchantInfo.location[0] || null,
+                            lat: merchant.merchantInfo.location[1] || null
+                        },
+                        rewards: merchant.merchantInfo.rewards
+                    });
                 }
-                
-                res.status(200).send(userPop.favourites);
+
+                res.status(200).send(response);
             }
         });
     },
@@ -114,6 +131,8 @@ module.exports = {
     updateUser : function (req, res) {
       const id = req.params.id || req.query.id || req.body.id;
       const body = req.body;
+      let deletePicture = false;
+      let formerPicture = '';
   
       Customer.findById(id, function (err, user) {
         if (err) {
@@ -122,14 +141,26 @@ module.exports = {
         } else if (!user) {
           res.status(404).send({ message: 'User does not exist.' });
         } else {
-          ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'picture', 'ageRange'].forEach(
+          ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'ageRange'].forEach(
             function (value) {
               if (body[value]) {
                 user[value] = body[value];
               }
             });
+
+          if (body.picture) {
+              if (user.picture.url) {
+                  deletePicture = true;
+                  formerPicture = user.picture.id;
+              }
+              const picture = JSON.parse(body.picture);
+              user.picture = {
+                id: picture.id,
+                url: picture.url
+              };
+          }
   
-            user.modifiedDate = new Date();
+          user.modifiedDate = new Date();
   
           user.save(function(err) {
             if (err) {
@@ -137,6 +168,16 @@ module.exports = {
               throw new Error(err);
             } else {
               res.status(200).send(user);
+              if (deletePicture) {
+                cloudinary.v2.uploader.destroy(formerPicture, {
+                    invalidate: true
+                }, function(err, result) {
+                    if (err) {
+                    console.log(err);
+                    throw new Error(err);
+                    }
+                });
+              }
             }
           });
         }

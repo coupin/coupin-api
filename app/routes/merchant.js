@@ -4,10 +4,10 @@ const passport = require('./../middleware/passport');
 const auth = require('./../middleware/auth');
 // Controllers
 const MerchantCtrl = require('./../controllers/merchant');
+const RewardCtrl = require('./../controllers/rewards');
 
 module.exports = function(router) {
   router.route('/merchant')
-    // .post(MerchantCtrl.populate)
     .get(
       auth.authenticate,
       auth.isAdmin,
@@ -18,23 +18,26 @@ module.exports = function(router) {
       auth.isCustomer,
       MerchantCtrl.markerInfo
     );
-
-  // For Registration of merchants
-  router.route('/merchant/register')
-    .post(
-      MerchantCtrl.register
-    );
-
-  router.route('/merchant/:id')
-    .delete(
+  
+  router.route('/merchant/names')
+    .get(
       auth.authenticate,
       auth.isAdmin,
-      MerchantCtrl.deleteOne
-    )
-    .put(
+      MerchantCtrl.getNames
+    );
+
+  router.route('/merchant/register')
+    .post(
       auth.authenticate,
-      auth.isMerchant,
-      MerchantCtrl.update
+      auth.isAdmin,
+      MerchantCtrl.adminCreate
+    );
+
+  router.route('/merchant/status/:status')
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.getByStatus
     );
 
   router.route('/merchant/:id/confirm')
@@ -48,10 +51,24 @@ module.exports = function(router) {
     );
 
   router.route('/merchant/:query/search')
-    .get(
+    .post(
       passport.verifyJWT1,
       auth.isCustomer,
       MerchantCtrl.search
+    );
+
+  router.route('/merchant/:id/status')
+    .put(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.statusUpdate
+    );
+
+  router.route('/merchant/:id/rewards')
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      RewardCtrl.readByMerchant
     );
 
   router.route('/merchant/hot')
@@ -71,5 +88,27 @@ module.exports = function(router) {
       passport.verifyJWT1,
       auth.isCustomer,
       MerchantCtrl.mostRecent
+    );
+
+  router.route('/merchant/:id')
+    .delete(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.deleteOne
+    )
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.readById
+    )
+    .put(
+      auth.authenticate,
+      auth.isMerchant,
+      MerchantCtrl.update
+    )
+    .post(
+      auth.authenticate,
+      auth.isMerchant,
+      MerchantCtrl.billing
     );
 };

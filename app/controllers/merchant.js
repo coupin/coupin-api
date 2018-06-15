@@ -23,7 +23,6 @@ module.exports = {
             } else {
                 let merchant = new Merchant({
                     email: body.email,
-                    picture: body.picture || null,
                     password: body.password || 'merchant',
                     merchantInfo: {
                         companyName: body.companyName,
@@ -31,10 +30,14 @@ module.exports = {
                         address: body.address,
                         city: body.city,
                         mobileNumber: body.mobileNumber,
-                        location: [body.longitude, body.latitude]
+                        location: [body.longitude, body.latitude],
+                        logo: {
+                            id: body.public_id,
+                            url: body.logo
+                        }
                     },
+                    status: 'completed',
                     isActive: true,
-                    activated: true,
                     role: 2
                 });
 
@@ -43,7 +46,7 @@ module.exports = {
                         res.status(500).send(err);
                         throw new Error(err);
                     } else {
-                        res.status(200).send({message: 'User created successfully.'});
+                        res.status(200).send(merchant);
                     }
                 });
             }
@@ -95,6 +98,38 @@ module.exports = {
         });
     },
 
+    billing: function(req, res) {
+        const body = req.body;
+        const id = req.params.id || req.query.id || req.body.id;
+
+        Merchant.findById(id, function(err, merchant) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else if (!merchant) {
+                res.status(404).send({ message: 'User does not exist.' });
+            } else {
+                merchant.merchantInfo.billing.plan = body.plan;
+                if (!merchant.merchantInfo.billing.history) {
+                    merchant.merchantInfo.billing.history = [];
+                }
+                merchant.merchantInfo.billing.history.push({
+                    plan: body.plan,
+                    reference: body.plan !== 'payAsYouGo' ? body.reference : null
+                });
+
+                merchant.save(function(err, merchant) {
+                    if (err) {
+                        res.status(500).send(err);
+                        throw new Error(err);
+                    } else {
+                        res.status(200).send(merchant.merchantInfo);
+                    }
+                });
+            }
+        });
+    },
+
     /**
      * Handles merchant confirmation
      */
@@ -130,9 +165,8 @@ module.exports = {
                 merchant.password = password;
                 merchant.merchantInfo.city = city;
                 merchant.merchantInfo.state = state;
-                merchant.activated = true;
-                merchant.isPending = false;
-                merchant.rejected = false;
+                merchant.status = 'completed';
+                merchant.completedDate = new Date();
 
                 Merchant.createCustomer(merchant, function(err) {
                     if (err) {
@@ -140,7 +174,12 @@ module.exports = {
                         throw new Error(err);
                     }
 
-                    res.status(200).send({success: true, message: 'Congratulations! Welcome to the family! Please login to continue.'});
+                    res.status(200).send({message: 'Congratulations! Welcome to the family! Please login to continue.'});
+                    emailer.sendEmail(merchant.email, 'Congratulations!', messages.completedEmail({
+                        name: merchant.merchantInfo.companyName
+                    }), function(response) {
+                        console.log(response);
+                    });
                 });
             });
         }
@@ -157,6 +196,56 @@ module.exports = {
             throw err;
 
             res.send({message: 'Merchant Deleted'});
+        });
+    },
+
+    getByStatus: function(req, res) {
+        const status = req.params.status;
+        let limit = req.query.limit || req.body.limit || req.params.limit ||  10;
+        let skip = req.query.page || req.body.page || req.params.page ||  0;
+
+        Merchant.find({
+            status: status,
+            role: 2
+        }, function(err, merchants) {
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                var response = [];
+
+                merchants.forEach(function(merchant) {
+                    response.push({
+                        id: merchant._id,
+                        email: merchant.email,
+                        name: merchant.merchantInfo.companyName,
+                        mobile: merchant.merchantInfo.mobileNumber,
+                        details: merchant.merchantInfo.companyDetails,
+                        createdDate: merchant.createdDate,
+                        status: merchant.status,
+                        extra: {
+                            reason: merchant.reason,
+                            isActive: merchant.isActive,
+                            rating: merchant.merchantInfo.rating.value
+                        },
+                        role: 2
+                    });
+                });
+
+                res.status(200).send(response);
+            }
+        });
+    },
+
+    getNames: function(req, res) {
+        Merchant.find({
+            role: 2
+        }, 'merchantInfo.companyName', function(err, rewards) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send(rewards);
+            }
         });
     },
 
@@ -229,7 +318,16 @@ module.exports = {
                 var max = users.length - 1;
                 var markerInfo = [];
                 users.forEach(function (user) {
-                    Reward.find({merchantID: user._id}, function (error, rewards) {
+                    Reward.find({
+                        merchantID: user._id,
+                        status: 'active',
+                        startDate: {
+                            $lte: new Date()
+                        },
+                        endDate: {
+                            $gte: new Date()
+                        }
+                    }, 'name', function (error, rewards) {
                         if (error) {
                             res.status(500).send(error);
                             throw new Error(err);
@@ -247,7 +345,9 @@ module.exports = {
                                     long: user.merchantInfo.location[0] || null,
                                     lat: user.merchantInfo.location[1] || null
                                 },
-                                rewards: rewards
+                                rating: user.merchantInfo.rating.value,
+                                reward: rewards[0],
+                                count: rewards.length
                             }
                             
                             markerInfo.push(info);
@@ -322,16 +422,11 @@ module.exports = {
      * Get all merchants
      */
     read: function (req, res) {
-        const id = req.query.id || req.body.id;
         let limit = req.body.limit || req.query.limit || req.params.limit || 10;
         let page = req.body.page || req.query.page || req.params.page || 0;
         const query = {
             role: 2
         };
-
-        if (id) {
-            query['_id'] = id;
-        }
 
 
         Merchant.find(query)
@@ -343,6 +438,19 @@ module.exports = {
                 throw new Error(err);
             } else {
                 res.status(200).send(merchants);
+            }
+        });
+    },
+
+    readById: function(req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+
+        Merchant.findById(id, function(err, merchant) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send(merchant);
             }
         });
     },
@@ -369,53 +477,13 @@ module.exports = {
         });
     },
 
-    register: function (req, res) {
-        // Get merchant details
-        const companyName = req.body.companyName;
-        const email = req.body.email;
-        const mobileNumber = req.body.mobileNumber;
-        const companyDetails = req.body.companyDetails;
-
-        // Form Validator
-        req.checkBody('companyName','Company Name field is required').notEmpty();
-        req.checkBody('email','Email field is required').isEmail();
-        req.checkBody('mobileNumber', 'Mobile number cannot be empty').notEmpty();
-        req.checkBody('companyDetails', 'Company Details field is required').notEmpty();
-
-        // Check Errors
-        const errors = req.validationErrors();
-
-        if(errors) {
-            res,status(400).send({message: errors[0].msg });
-        } else {
-            var merchant = new Merchant({
-                email : email,
-                merchantInfo: {
-                    companyName : companyName,
-                    mobileNumber : mobileNumber,
-                    companyDetails : companyDetails
-                },
-                createdDate : Date.now(),
-                role : 2
-            });
-
-            merchant.save(function(err) {
-            if(err) {
-                res.status(500).send(err);
-                throw new Error(err);
-            } else {
-                res.status(200).send({
-                    message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
-                };
-            });
-        }
-    },
-
     search: function (req, res) {
         let query = req.params.query || req.body.query || req.params.query || [' '];
         if (!Array.isArray(query)) {
             query = query.split(' ');
         }
+        console.log('One');
+        console.log(query);
 
         const categories = JSON.parse(req.body.categories) || [];
         let limit = req.body.limit || req.query.limit || req.params.limit || 10;
@@ -478,11 +546,44 @@ module.exports = {
         });
     },
 
-    update: function (req, res) {
-        const body = req.body;
+    statusUpdate: function(req, res) {
         const id = req.params.id || req.query.id || req.body.id;
+        const body = req.body;
 
-        Merchant.findById(req.params.id, function(err, merchant) {
+        Merchant.findById(id, function(err, merchant) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else if (!merchant) {
+                res.status(404).send({message: 'No such user exists'});
+            } else {
+                merchant.status = body.status;
+
+                if (body.rating) {
+                    merchant.merchantInfo.rating.value = body.rating;
+                }
+
+                if (body.reason) {
+                    merchant.reason = body.reason;
+                }
+
+                merchant.save(function(err) {
+                    if (err) {
+                        res.status(500).send(err);
+                        throw new Error(err);
+                    } else {
+                        res.status(200).send({message: `Status is now ${req.body.status}.`});
+                    }
+                });
+            }
+        });
+    },
+
+    update: function (req, res) {
+        const id = req.params.id || req.query.id || req.body.id;
+        const body = req.body;
+
+        Merchant.findById(id, function(err, merchant) {
             if (err) {
                 res.status(500).send(err);
                 throw new Error(err);
@@ -493,12 +594,12 @@ module.exports = {
                     merchant.email = body.email;
                 }
 
-                ['companyName', 'companyDetails', 'mobileNumber', 'address', 'city', 'state', 'location', 'categories', 'logo', 'banner'].forEach(key => {
-                    if (body.merchantInfo[key]) {
-                        merchant.merchantInfo[key] = body.merchantInfo[key];
+                ['companyName', 'companyDetails', 'mobileNumber', 'address', 'city', 'state', 'location', 'categories', 'logo', 'banner', 'rating'].forEach(key => {
+                    if (body[key]) {
+                        merchant.merchantInfo[key] = body[key];
                     }
                 });
-                
+
                 merchant.modifiedDate = Date.now();
 
                 // save the customer updateCustomer
