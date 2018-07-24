@@ -381,6 +381,7 @@ module.exports = {
                 reward.price = req.body.price || reward.price;
                 reward.delivery = req.body.delivery || reward.delivery;
                 reward.modifiedDate = Date.now();
+                reward.status = req.body.status || reward.status;
 
                 reward.save(function(err) {
                     if (err) {

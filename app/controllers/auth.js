@@ -88,8 +88,7 @@ module.exports = {
             }
 
             User.createCustomer(customer, function(err, customer) {
-                if (err)
-                {
+                if (err) {
                     res.status(409).send({message: 'User already exists.'});
                     throw new Error(err);
                 } else {
@@ -123,7 +122,7 @@ module.exports = {
         // Check Errors
         const errors = req.validationErrors();
 
-        if(errors) {
+        if (errors) {
             res,status(400).send({message: errors[0].msg });
         } else {
             var merchant = new User({
@@ -182,7 +181,7 @@ module.exports = {
         var user = {
             id: req.user._id,
             email: req.user.email,
-            isActive: true,
+            isActive: true, 
             merchantInfo: req.user.merchantInfo,
             picture: req.user.picture,
             isSuper: req.user.role === 0

@@ -41,6 +41,9 @@ module.exports = function(router) {
     );
 
   router.route('/merchant/:id/confirm')
+    .get(
+      MerchantCtrl.readById
+    )
     .post(
       MerchantCtrl.confirm
     )
@@ -98,7 +101,7 @@ module.exports = function(router) {
     )
     .get(
       auth.authenticate,
-      auth.isAdmin,
+      auth.isMerchant,
       MerchantCtrl.readById
     )
     .put(
