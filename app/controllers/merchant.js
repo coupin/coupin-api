@@ -72,9 +72,9 @@ module.exports = {
                 res.status(404).send({ message: 'Merchant does not exist.' });
             } else {
                 if (body.accepted) {
-                    merchant.isPending = true;
+                    merchant.status = 'accepted';
                 } else {
-                    merchant.rejected = true;
+                    merchant.status = 'rejected';
                     merchant.reason = body.details;
                 }
 
@@ -84,7 +84,7 @@ module.exports = {
                         throw new Error(err);
                     } else {
                         if (decision.accepted) {
-                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id), function(response) {
+                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id, emailer.getUiUrl()), function(response) {
                                 res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
                             });
                         } else {
@@ -595,7 +595,17 @@ module.exports = {
                         res.status(500).send(err);
                         throw new Error(err);
                     } else {
-                        res.status(200).send({message: `Status is now ${req.body.status}.`});
+                        if (body.status === 'accepted') {
+                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id, emailer.getUiUrl()), function(response) {
+                                res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
+                            });
+                        } else if (body.status === 'rejected') {
+                            emailer.sendEmail(merchant.email, `${merchant.merchantInfo.companyName} Registration Rejected`, messages.rejected(merchant.reason), function(response) {
+                                res.status(200).send({ message: 'Merchant Declined and email sent to ' + merchant.companyName });
+                            });
+                        } else {
+                            res.status(200).send({message: `Status is now ${req.body.status}.`});
+                        }
                     }
                 });
             }
