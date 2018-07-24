@@ -170,7 +170,8 @@ var userSchema = new schema({
             },
             history: [{
                 plan: {
-                    type: String
+                    type: String,
+                    enum: ['payAsYouGo', 'monthly', 'yearly']
                 },
                 date: {
                     type: Date,
@@ -184,7 +185,7 @@ var userSchema = new schema({
     },
     isActive: {
         type: Boolean,
-        default: true
+        default: false
     },
     status: {
         type: String,
@@ -212,7 +213,7 @@ var userSchema = new schema({
 
 userSchema.pre('save', function(next) {
     if ( this.categories && this.categories.length === 0) {
-        this.categories.push('foodndrink')
+        this.categories = [];
     }
 
     next();

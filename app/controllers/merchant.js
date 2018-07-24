@@ -115,7 +115,7 @@ module.exports = {
                 }
                 merchant.merchantInfo.billing.history.push({
                     plan: body.plan,
-                    reference: body.plan !== 'payAsYouGo' ? body.reference : null
+                    reference: body.reference
                 });
 
                 merchant.save(function(err, merchant) {
@@ -123,7 +123,14 @@ module.exports = {
                         res.status(500).send(err);
                         throw new Error(err);
                     } else {
-                        res.status(200).send(merchant.merchantInfo);
+                        res.status(200).send({
+                            id: merchant._id,
+                            email: merchant.email,
+                            isActive: true,
+                            merchantInfo: merchant.merchantInfo,
+                            picture: merchant.picture,
+                            isSuper: req.user.role === 0
+                        });
                     }
                 });
             }
@@ -141,6 +148,7 @@ module.exports = {
         const city = req.body.city;
         const password = req.body.password;
         const state = req.body.state;
+        const billing = req.body.billing;
 
         // Form Validator
         req.checkBody('address','Address field is required').notEmpty();
@@ -149,6 +157,7 @@ module.exports = {
         req.checkBody('password2', 'Passwords are not the same').equals(req.body.password);
         req.checkBody('city', 'City field is required').notEmpty();
         req.checkBody('state', 'State field is required').notEmpty();
+        req.checkBody('billing', 'Billing info is required').notEmpty();
 
         const errors = req.validationErrors();
 
@@ -159,28 +168,40 @@ module.exports = {
                 if (err) {
                     res.status(500).send(err);
                     throw new Error(err);
-                }
+                } else if (!merchant) {
+                    res.status(404).send({ message: 'Merchant does not exist.' });
+                } else {
+                    console.log(req.body);
+                    merchant.merchantInfo.address = address;
+                    merchant.password = password;
+                    merchant.merchantInfo.city = city;
+                    merchant.merchantInfo.billing = {
+                        plan : billing.plan,
+                        history : [{
+                            plan: billing.plan,
+                            date: new Date(billing.date),
+                            reference: billing.reference
+                        }]
+                    };
+                    merchant.merchantInfo.state = state;
+                    merchant.isActive = true;
+                    merchant.status = 'completed';
+                    merchant.completedDate = new Date();
 
-                merchant.merchantInfo.address = address;
-                merchant.password = password;
-                merchant.merchantInfo.city = city;
-                merchant.merchantInfo.state = state;
-                merchant.status = 'completed';
-                merchant.completedDate = new Date();
-
-                Merchant.createCustomer(merchant, function(err) {
-                    if (err) {
-                        res.status(500).send(err);
-                        throw new Error(err);
-                    }
-
-                    res.status(200).send({message: 'Congratulations! Welcome to the family! Please login to continue.'});
-                    emailer.sendEmail(merchant.email, 'Congratulations!', messages.completedEmail({
-                        name: merchant.merchantInfo.companyName
-                    }), function(response) {
-                        console.log(response);
+                    Merchant.createCustomer(merchant, function(err) {
+                        if (err) {
+                            res.status(500).send(err);
+                            throw new Error(err);
+                        } else {
+                            res.status(200).send({message: 'Congratulations! Welcome to the family! Please login to continue.'});
+                            emailer.sendEmail(merchant.email, 'Congratulations!', messages.completedEmail({
+                                name: merchant.merchantInfo.companyName
+                            }), function(response) {
+                                console.log(response);
+                            });
+                        }
                     });
-                });
+                }
             });
         }
     },
@@ -327,11 +348,12 @@ module.exports = {
                         endDate: {
                             $gte: new Date()
                         }
-                    }, 'name', function (error, rewards) {
+                    }).limit(2).select('name').exec(function (error, rewards) {
+                        console.log(rewards);
                         if (error) {
                             res.status(500).send(error);
                             throw new Error(err);
-                        } else if (rewards.length > 0) {
+                        } else if (rewards) {
                             const info = {
                                 _id: user._id,
                                 name: user.merchantInfo.companyName,
@@ -346,8 +368,9 @@ module.exports = {
                                     lat: user.merchantInfo.location[1] || null
                                 },
                                 rating: user.merchantInfo.rating.value,
-                                reward: rewards[0],
-                                count: rewards.length
+                                rewards: rewards,
+                                count: user.merchantInfo.rewards.length,
+                                category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)]
                             }
                             
                             markerInfo.push(info);
@@ -445,7 +468,9 @@ module.exports = {
     readById: function(req, res) {
         const id = req.params.id || req.query.id || req.body.id;
 
-        Merchant.findById(id, function(err, merchant) {
+        Merchant.findById(id)
+        .select('name email merchantInfo isActive status')
+        .exec(function(err, merchant) {
             if (err) {
                 res.status(500).send(err);
                 throw new Error(err);
@@ -482,8 +507,6 @@ module.exports = {
         if (!Array.isArray(query)) {
             query = query.split(' ');
         }
-        console.log('One');
-        console.log(query);
 
         const categories = JSON.parse(req.body.categories) || [];
         let limit = req.body.limit || req.query.limit || req.params.limit || 10;
@@ -611,8 +634,10 @@ module.exports = {
                         res.status(200).send({
                             id: merchant._id,
                             email: merchant.email,
+                            isActive: true,
                             merchantInfo: merchant.merchantInfo,
-                            picture: merchant.picture
+                            picture: merchant.picture,
+                            isSuper: req.user.role === 0
                         });
                     }
 
