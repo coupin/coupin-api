@@ -1,9 +1,11 @@
 module.exports = {
-  approved: function(id) {
-      return '<h4> We are excited to have you as part of the team</h4><br/>'
-      + 'Please click on the link <a href="http://localhost:5030/merchant/confirm/'+id+'">http://localhost:5030/merchant/confirm/'+id+'</a> to activate your account<br/><br/>'
-      + 'If you have any questions, please feel free to message us at info@coupinapp.com<br/><br/>'
-      + 'Best Regards,</br>The Coupin App Family.';
+  approved: function(id, url) {
+    console.log(id);
+    console.log(url);
+      return `<h4> We are excited to have you as part of the team</h4><br/>
+      Please click on the link <a href="${url}/merchant/${id}/confirm">${url}/merchant/${id}/confirm</a> to activate your account<br/><br/>
+      If you have any questions, please feel free to message us at info@coupinapp.com<br/><br/>
+      Best Regards,</br>The Coupin App Family.`;
   },
   completedEmail: function(data) {
     return `
@@ -19,6 +21,10 @@ module.exports = {
   coupinCreated: function(booking) {
       return '<h4> Your Coupin was created successfully. below is the information needed:</h4><br/>'
       + `<h2>Your Code is ${booking.shortCode}</h2>`;
+  },
+  registered: function(name) {
+    return `<h4> Hello There, </h4><br/>
+    <p>This is to let you know that we got your application for ${name}. We will get back to you in the next 24hours.</p>`;
   },
   rejected: function(msg) {
     return `<h4> We are sorry to let you know that your application has been rejected :(</h4><br/>

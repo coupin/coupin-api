@@ -145,6 +145,10 @@ module.exports = {
                 res.status(200).send({
                     message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
                 };
+
+                Emailer.sendEmail(email, 'Registration Received', Messages.registered(companyName), function(response) {
+                    console.log(`Email sent to ${companyName} at ${(new Date().toDateString())}`);
+                });
             });
         }
     },

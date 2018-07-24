@@ -6,6 +6,11 @@ const config = require('./config');
 const mailgun = config.mailgun;
 
 module.exports = {
+    getUiUrl: function() {
+        console.log('Inside getUiUtl');
+        console.log(process.env.UI_URL);
+        return `http://${process.env.UI_URL}`;
+    },
     sendEmail: function(to, subject, message, callback){
 
         const mailOptions = {

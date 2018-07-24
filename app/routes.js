@@ -14,6 +14,9 @@ const overrideRoutes = require('./routes/override');
 const rewardRoutes = require('./routes/rewards');
 const userRoutes = require('./routes/customer');
 
+// For Test
+const MerchantCtrl = require('./controllers/merchant');
+
 adminRoutes(router);
 authRoutes(router);
 coupinRoutes(router);
