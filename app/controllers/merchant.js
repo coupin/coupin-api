@@ -149,6 +149,8 @@ module.exports = {
         const password = req.body.password;
         const state = req.body.state;
         const billing = req.body.billing;
+        const banner = req.body.banner;
+        const logo = req.body.logo;
 
         // Form Validator
         req.checkBody('address','Address field is required').notEmpty();
@@ -158,6 +160,8 @@ module.exports = {
         req.checkBody('city', 'City field is required').notEmpty();
         req.checkBody('state', 'State field is required').notEmpty();
         req.checkBody('billing', 'Billing info is required').notEmpty();
+        req.checkBody('logo', 'Logo is required').notEmpty();
+        req.checkBody('banner', 'Banner is required').notEmpty();
 
         const errors = req.validationErrors();
 
@@ -171,10 +175,11 @@ module.exports = {
                 } else if (!merchant) {
                     res.status(404).send({ message: 'Merchant does not exist.' });
                 } else {
-                    console.log(req.body);
                     merchant.merchantInfo.address = address;
                     merchant.password = password;
                     merchant.merchantInfo.city = city;
+                    merchant.merchantInfo.logo = logo;
+                    merchant.merchantInfo.banner = banner;
                     merchant.merchantInfo.billing = {
                         plan : billing.plan,
                         history : [{
