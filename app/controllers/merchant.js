@@ -587,6 +587,10 @@ module.exports = {
             } else {
                 merchant.status = body.status;
 
+                if (body.location) {
+                    merchant.merchantInfo.location = [body.location.long, body.location.lat];
+                }
+
                 if (body.rating) {
                     merchant.merchantInfo.rating.value = body.rating;
                 }
