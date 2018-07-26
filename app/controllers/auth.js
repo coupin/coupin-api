@@ -61,7 +61,7 @@ module.exports = {
         var errors = req.validationErrors();
 
         if(errors){
-            res.status(400).send({success: false, message: errors[0].msg });
+            res.status(400).send({message: errors[0].msg });
         } else{
             // Create new user
             var customer = new User({
@@ -95,8 +95,7 @@ module.exports = {
                     var payload = {id: customer.id, name: customer.name, email: customer.email};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
-                    res.json({
-                        success: true,
+                    res.status(200).send({
                         message: 'Customer created!',
                         token: 'JWT ' + token,
                         user: customer
@@ -162,8 +161,7 @@ module.exports = {
         //  expiresInMinutes: 1440
         //});
 
-        res.json({
-        success: true,
+        res.status(200).send({
         token: 'JWT ' + token,
         user: req.user
         });
