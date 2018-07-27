@@ -144,21 +144,25 @@ module.exports = {
         const id = req.params.id || req.query.id || req.body.id;
 
         // get the data from the the
-        const address = req.body.address;
-        const city = req.body.city;
         const password = req.body.password;
-        const state = req.body.state;
-        const billing = req.body.billing;
         const banner = req.body.banner;
+        const billing = req.body.billing;
+        const companyDetails = req.body.companyDetails;
         const logo = req.body.logo;
+        const state = req.body.state;
+        var expiryDate = moment(billing.date);
+
+        if (billing.plan === 'monthly') {
+            expiryDate.add(1, 'months');
+        } else if (billing.plan === 'yearly') {
+            expiryDate.add(1, 'years');
+        }
 
         // Form Validator
-        req.checkBody('address','Address field is required').notEmpty();
+        req.checkBody('companyDetails', 'Company Details field is required').notEmpty();
         req.checkBody('password','Password field is required').notEmpty();
         req.checkBody('password2', 'Please confirm password').notEmpty();
         req.checkBody('password2', 'Passwords are not the same').equals(req.body.password);
-        req.checkBody('city', 'City field is required').notEmpty();
-        req.checkBody('state', 'State field is required').notEmpty();
         req.checkBody('billing', 'Billing info is required').notEmpty();
         req.checkBody('logo', 'Logo is required').notEmpty();
         req.checkBody('banner', 'Banner is required').notEmpty();
@@ -175,9 +179,8 @@ module.exports = {
                 } else if (!merchant) {
                     res.status(404).send({ message: 'Merchant does not exist.' });
                 } else {
-                    merchant.merchantInfo.address = address;
                     merchant.password = password;
-                    merchant.merchantInfo.city = city;
+                    merchant.merchantInfo.companyDetails = companyDetails;
                     merchant.merchantInfo.logo = logo;
                     merchant.merchantInfo.banner = banner;
                     merchant.merchantInfo.billing = {
@@ -185,7 +188,8 @@ module.exports = {
                         history : [{
                             plan: billing.plan,
                             date: new Date(billing.date),
-                            reference: billing.reference
+                            reference: billing.reference,
+                            expiration: expiryDate.toDate()
                         }]
                     };
                     merchant.merchantInfo.state = state;

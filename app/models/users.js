@@ -136,14 +136,6 @@ var userSchema = new schema({
             type: String,
             ref: 'Reward'
         }],
-        lastAdded: [{
-            type: Date,
-            default: new Date()
-        }],
-        latestExp: {
-            type: Date,
-            default: new Date()
-        },
         hot: {
             status: {
                 type: Boolean,
@@ -179,6 +171,9 @@ var userSchema = new schema({
                 },
                 reference: {
                     type: String
+                },
+                expiration: {
+                    type: Date
                 }
             }]
         }
@@ -195,10 +190,6 @@ var userSchema = new schema({
     reason: {
         type: String
     },
-    expired: [{
-        type: String,
-        ref: 'Reward'
-    }],
     completedDate: {
         type: Date
     },
