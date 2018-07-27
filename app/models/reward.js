@@ -13,7 +13,8 @@ var rewardSchema = new schema({
   },
   merchantID: {
       type: String,
-      required: true
+      required: true,
+      ref: 'User'
   },
   categories: [{
     type: String,

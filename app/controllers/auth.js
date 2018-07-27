@@ -107,16 +107,19 @@ module.exports = {
 
     registerMerchant: function(req, res) {
         // Get merchant details
+        const address = req.body.address;
+        const city = req.body.city;
         const companyName = req.body.companyName;
         const email = req.body.email;
         const mobileNumber = req.body.mobileNumber;
-        const companyDetails = req.body.companyDetails;
 
         // Form Validator
         req.checkBody('companyName','Company Name field is required').notEmpty();
         req.checkBody('email','Email field is required').isEmail();
         req.checkBody('mobileNumber', 'Mobile number cannot be empty').notEmpty();
-        req.checkBody('companyDetails', 'Company Details field is required').notEmpty();
+        req.checkBody('address', 'Address field is required').notEmpty();
+        req.checkBody('city', 'City field is required').notEmpty();
+        req.checkBody('state', 'State field is required').notEmpty();
 
         // Check Errors
         const errors = req.validationErrors();
@@ -129,7 +132,8 @@ module.exports = {
                 merchantInfo: {
                     companyName : companyName,
                     mobileNumber : mobileNumber,
-                    companyDetails : companyDetails
+                    address : address,
+                    city : city
                 },
                 createdDate : Date.now(),
                 status: 'pending',

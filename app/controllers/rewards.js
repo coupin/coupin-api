@@ -109,7 +109,7 @@ module.exports = {
 
         if(errors){
             res.status(400).json({ message: errors });
-        } else{
+        } else {
             Reward.findOne({ name: req.body.name }, function (err, reward) {
                 if (err) {
                     res.status(500).send(err);
@@ -140,37 +140,32 @@ module.exports = {
                             res.status(500).send(err);
                             throw new Error(err);
                         } else {
-                            res.status(200).send(reward);                            
-                            // Merchant.findById(reward.merchantID, function(err, merchant) {
-                            //     merchant.merchantInfo.rewards.push(reward._id);
-                            //     merchant.merchantInfo.lastAdded = new Date();
-                            //     if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
-                            //         merchant.merchantInfo.latestExp = reward.endDate;
-                            //     }
+                            res.status(200).send(reward);          
+                            Merchant.findById(reward.merchantID, function(err, merchant) {
+                                if (err) {
+                                    throw new Error(err);
+                                } else {
+                                    merchant.merchantInfo.rewards.push(reward._id);
 
-                            //     // Schedule to move to used on expired
-                            //     schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
-                            //         reward.status = 'expired';
-                            //         reward.isActive = false;
-                            //         reward.save();
+                                    // Schedule to move to used on expired
+                                    schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
+                                        reward.status = 'expired';
+                                        reward.isActive = false;
+                                        reward.save();
 
-                            //         merchant.merchantInfo.rewards.forEach(function(element) {
-                            //             return element !== reward._id;
-                            //         });
+                                        merchant.merchantInfo.rewards.forEach(function(element) {
+                                            return element !== reward._id;
+                                        });
+                                        merchant.save();
+                                    }).bind(null, merchant, reward);
 
-                            //         if (!merchant.expired) {
-                            //             merchant.expired = [];
-                            //         }
-                            //         merchant.expired.push(reward._id);
-                            //         merchant.save();
-                            //     }).bind(null, merchant, reward);
-
-                            //     merchant.save(function(err) {
-                            //         if (err) {
-                            //             throw new Error(err);
-                            //         }
-                            //     });
-                            // });
+                                    merchant.save(function(err) {
+                                        if (err) {
+                                            throw new Error(err);
+                                        }
+                                    });
+                                }
+                            });
                         }
                     });
                 }
@@ -324,22 +319,14 @@ module.exports = {
             page = parseInt(page);
         }
 
-        var query = {
-            merchantID: id,
-            startDate: {
-                $lte: new Date()
-            },
-            endDate: {
-                $gte: new Date()
-            }
-        };
+        var query = {};
+
+        if (id !== '0') {
+            query['merchantID'] = id;
+        }
         
-        if (req.query.status) {
-            if (req.query.status !== 'all') {
-                query['status'] = req.query.status;
-            }
-        } else {
-            query['status'] = 'active';
+        if (req.query.status && req.query.status !== 'all') {
+            query['status'] = req.query.status;
         }
 
         Reward.find(query)
