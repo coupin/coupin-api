@@ -37,7 +37,8 @@ var rewardSchema = new schema({
     }
   }],
   createdDate: {
-    type: Date
+    type: Date,
+    default: new Date
   },
   modifiedDate: {
     type: Date
@@ -63,7 +64,7 @@ var rewardSchema = new schema({
   }],
   status: {
     type: String,
-    enum: ['draft', 'isPending', 'active', 'inactive', 'expired'],
+    enum: ['draft', 'isPending', 'review', 'active', 'inactive', 'expired'],
     default: 'draft'
   },
   isActive: {
@@ -73,6 +74,29 @@ var rewardSchema = new schema({
   delivery: {
       type: Boolean,
       default: false
+  },
+  review: [{
+    admin: {
+      type: String,
+      ref: 'User',
+      require: true
+    },
+    comment: {
+      type: String,
+      require: true
+    },
+    timeStamp: {
+      type: Date,
+      default: new Date
+    },
+    seen: {
+      type: Boolean,
+      default: false
+    }
+  }],
+  notify: {
+    type: Boolean,
+    default: false
   }
 });
 // module.exports allows is to pass this to other files when it is called

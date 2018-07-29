@@ -20,6 +20,13 @@ module.exports = function(router) {
       rewardCtrl.create
     );
 
+  router.route('/rewards/requests')
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      rewardCtrl.readByRequests
+    )
+
   router.route('/rewards/status/:id')
     .put(
       auth.authenticate,
