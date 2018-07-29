@@ -31,5 +31,12 @@ module.exports = {
         Please send addition information at info@coupinapp.com, to help us in verifying your business.<br/><br/>
         <br/>The Rejection Reason was: <br/>${msg}<br/><br/>
         Best Regards,</br>The Coupin App Family.`;
+  },
+  reviewed: function(review, reward) {
+    const status = reward.isActive ? 'accepted' : 'reviewed and chances are required'.
+    return `<h4> Your Reward, ${reward.name}, has been ${status}:(</h4><br/>
+      If review requested, please login to make any changes required. If no changes and it has been approved, it can now be seen on the Coupin app.<br/><br/>
+      <br/><b>Please log on to see comment.</b><br/><br/>
+      Best Regards,</br>The Coupin App Family.`;
   }
 };

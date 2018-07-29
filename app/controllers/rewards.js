@@ -5,7 +5,9 @@ const schedule = require('node-schedule');
 const shortCode = require('shortid32');
 
 const Booking = require('../models/bookings');
+const Emailer = require('../../config/email');
 const Merchant = require('../models/users');
+const Messages = require('../../config/messages');
 const Reward = require('./../models/reward');
 
 module.exports = {
@@ -349,7 +351,38 @@ module.exports = {
             }
         });
     },
+    readByRequests: function(req, res) {
+        let limit = req.params.limit || req.query.limit || req.body.limit || 10;
+        let page = req.params.page || req.query.page || req.body.page || 0;
+
+        if (typeof limit !== Number) {
+            limit = parseInt(limit);
+        }
+
+        if (typeof page !== Number) {
+            page = parseInt(page);
+        }
+
+        Reward.find({
+            status: 'isPending'
+        })
+        .limit(10)
+        .skip(page * limit)
+        .exec(function(err, rewards) {
+            console.log(rewards);
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                res.status(200).send(rewards);
+            }
+        });
+    },
     updateReward: function (req, res) {
+        const body = req.body;
+        let sendEmail = false;
+        let tile = '';
+
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send({ message: 'An error occured while retreiving the reward', error: err });
@@ -357,18 +390,32 @@ module.exports = {
             } else if (!reward) {
                 res.status(404).send({ message: 'There is no reward matching that id' });
             } else {
-                reward.name = req.body.name || reward.name;
-                reward.description = req.body.description || reward.description;
-                reward.categories = req.body.categories || reward.categories;
-                reward.startDate = req.body.startDate || reward.startDate;
-                reward.endDate = req.body.endDate || reward.endDate;
-                reward.pictures = req.body.pictures || reward.pictures;
-                reward.multiple =  req.body.multiple || reward.multiple;
-                reward.applicableDays = req.body.applicableDays || reward.applicableDays;
-                reward.price = req.body.price || reward.price;
-                reward.delivery = req.body.delivery || reward.delivery;
+                ['name', 'description', 'categories', 'startDate', 'endDate', 'pictures', 'multiple',
+                'applicableDays', 'price', 'delivery', 'status', 'review'].forEach(function(key) {
+                    if (body[key] && key === 'review') {
+                        if (reward[key]) {
+                            reward[key].push(body[key]);
+                        } {
+                            reward[key] = [body[key]];
+                        }
+                        sendEmail = true;
+                        reward.notify = true;
+                    } else if (body[key]) {
+                        reward[key] = body[key];
+                    }
+                });
+
+                if (reward.status === 'active' && !reward.isActive) {
+                    title = `${reward.name} Approved.`;
+                    reward.isActive = true;
+                }
+
+                if (reward.status === 'inactive' || reward.status === 'expired' && reward.isActive) {
+                    title = `${reward.name} Requires Changes.`;
+                    reward.isActive = false;
+                }
+
                 reward.modifiedDate = Date.now();
-                reward.status = req.body.status || reward.status;
 
                 reward.save(function(err) {
                     if (err) {
@@ -376,6 +423,22 @@ module.exports = {
                         throw new Error(err);
                     } else {
                         res.status(200).send({ message: 'Reward Updated' });
+
+                        if (sendEmail) {
+                            Reward.populate(reward, {
+                                path:"merchantID",
+                                model: 'User',
+                                select: 'email merchantInfo.companyName'
+                            }, function(err, reward) {
+                                if (err) {
+                                    console.log(`Email about reward failed to send to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
+                                } else {
+                                    Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.review), function(response) {
+                                        console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
+                                    });
+                                }
+                             });
+                        }
                     }
                 });
             }
