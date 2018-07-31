@@ -249,7 +249,7 @@ module.exports = {
                         email: merchant.email,
                         name: merchant.merchantInfo.companyName,
                         mobile: merchant.merchantInfo.mobileNumber,
-                        details: merchant.merchantInfo.companyDetails,
+                        address: merchant.merchantInfo.address,
                         createdDate: merchant.createdDate,
                         status: merchant.status,
                         extra: {
