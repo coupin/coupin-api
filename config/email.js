@@ -24,8 +24,11 @@ module.exports = {
         // send mail with transporter
         mailgun.messages().send(mailOptions, (err, info) => {
             if(err) {
+                console.log('Email attempt failed!');
+                console.log(err);
                 return callback({success: false, error: err});
             } else {
+                console.log('Email attempt succeeded!');
                 console.log(info);
                 return callback({success: true, message: info});
             }
