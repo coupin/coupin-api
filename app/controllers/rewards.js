@@ -392,7 +392,7 @@ module.exports = {
                 res.status(404).send({ message: 'There is no reward matching that id' });
             } else {
                 if (!reward.review) {
-                    reward.review = [];
+                    reward['review'] = [];
                 }
                 reward.review.push(body.review);
                 reward.status = body.status;
