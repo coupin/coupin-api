@@ -32,6 +32,10 @@ module.exports = function(router) {
       auth.authenticate,
       auth.isMerchant,
       rewardCtrl.toggleStatus
+    ).post(
+      auth.authenticate,
+      auth.isAdmin,
+      rewardCtrl.updateReview
     );
 
   router.route('/rewards/merchant/:id')
