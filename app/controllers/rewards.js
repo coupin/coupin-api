@@ -414,20 +414,21 @@ module.exports = {
                         throw new Error(err);
                     } else {
                         res.status(200).send({ message: 'Review added successfully.' });
-                        Reward.populate(reward, {
-                            path:"merchantID",
-                            model: 'User',
-                            select: 'email merchantInfo.companyName'
-                        }, function(err, reward) {
-                            if (err) {
-                                console.log(`Email about reward failed to send to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
-                            } else {
-                                const status = reward.isActive ? 'accepted' : 'reviewed and chances are required'.
-                                Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.name, status), function(response) {
-                                    console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
-                                });
-                            }
-                        });
+                        //TODO: Uncomment when sorted
+                        // Reward.populate(reward, {
+                        //     path:"merchantID",
+                        //     model: 'User',
+                        //     select: 'email merchantInfo.companyName'
+                        // }, function(err, reward) {
+                        //     if (err) {
+                        //         console.log(`Email about reward failed to send to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
+                        //     } else {
+                        //         const status = reward.isActive ? 'accepted' : 'reviewed and chances are required'.
+                        //         Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.name, status), function(response) {
+                        //             console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
+                        //         });
+                        //     }
+                        // });
                     }
                 });
             }
