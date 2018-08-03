@@ -148,6 +148,10 @@ module.exports = {
                                 if (err) {
                                     throw new Error(err);
                                 } else {
+                                    if (!merchant.merchantInfo.rewards) {
+                                        merchant.merchantInfo.rewards = [];
+                                    }
+
                                     merchant.merchantInfo.rewards.push(reward._id);
 
                                     // Schedule to move to used on expired
