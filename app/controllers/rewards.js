@@ -148,11 +148,9 @@ module.exports = {
                                 if (err) {
                                     throw new Error(err);
                                 } else {
-                                    if (!merchant.merchantInfo.rewards) {
-                                        merchant.merchantInfo.rewards = [];
-                                    }
-
-                                    merchant.merchantInfo.rewards.push(reward._id);
+                                    var rewardsList = merchant.merchantInfo.rewards ? merchant.merchantInfo.rewards : [];
+                                    rewardsList.push(reward._id);
+                                    merchant.merchantInfo.rewards = rewardsList;
 
                                     // Schedule to move to used on expired
                                     schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
