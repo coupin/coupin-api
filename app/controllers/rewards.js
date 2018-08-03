@@ -403,6 +403,15 @@ module.exports = {
                         }
                         sendEmail = true;
                         reward.notify = true;
+                    } else if (body[key] && key === 'pictures') {
+                        var picturesList = [];
+                        body[key].forEach(function(value) {
+                            picturesList.push(Object({
+                                id: value.id,
+                                url: value.url
+                            }));
+                        });
+                        reward[key] = picturesList;
                     } else if (body[key]) {
                         reward[key] = body[key];
                     }
