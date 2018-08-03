@@ -163,14 +163,16 @@ var userSchema = new schema({
             history: [{
                 plan: {
                     type: String,
-                    enum: ['payAsYouGo', 'monthly', 'yearly']
+                    enum: ['payAsYouGo', 'monthly', 'yearly'],
+                    require: true
                 },
                 date: {
                     type: Date,
                     default: Date.now
                 },
                 reference: {
-                    type: String
+                    type: String,
+                    require: true
                 },
                 expiration: {
                     type: Date

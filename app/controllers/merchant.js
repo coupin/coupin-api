@@ -113,9 +113,21 @@ module.exports = {
                 if (!merchant.merchantInfo.billing.history) {
                     merchant.merchantInfo.billing.history = [];
                 }
+                var expiration = null;
+                if (body.plan !== 'payAsYouGo') {
+                    if (body.plan === 'monthly') {
+                        expiration = moment(new Date()).add(1, 'months').toDate();
+                    } else if (body.plan === 'yearly') {
+                        expiration = moment(new Date()).add(1, 'years').toDate();
+                    } else {
+                        expiration = null;
+                    }
+                }
+
                 merchant.merchantInfo.billing.history.push({
                     plan: body.plan,
-                    reference: body.reference
+                    reference: body.reference,
+                    expiration: expiration
                 });
 
                 merchant.save(function(err, merchant) {
@@ -151,11 +163,12 @@ module.exports = {
         const logo = req.body.logo;
         const state = req.body.state;
         var expiryDate = moment(billing.date);
+        var expiration = null;
 
         if (billing.plan === 'monthly') {
-            expiryDate.add(1, 'months');
+            expiration = expiryDate.add(1, 'months').toDate();
         } else if (billing.plan === 'yearly') {
-            expiryDate.add(1, 'years');
+            expiration = expiryDate.add(1, 'years').toDate();
         }
 
         // Form Validator
@@ -189,7 +202,7 @@ module.exports = {
                             plan: billing.plan,
                             date: new Date(billing.date),
                             reference: billing.reference,
-                            expiration: expiryDate.toDate()
+                            expiration: expiration
                         }]
                     };
                     merchant.merchantInfo.state = state;
