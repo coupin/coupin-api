@@ -82,7 +82,7 @@ module.exports = {
                                     }
                                     merchant.expired.push(reward._id);
                                     merchant.save();
-                                }).bind(null, merchant, reward);
+                                }.bind(null, merchant, reward)));
 
                                 merchant.save(function(err) {
                                     if (err) {
@@ -131,6 +131,7 @@ module.exports = {
                         applicableDays : req.body.applicableDays,
                         price: req.body.price,
                         delivery: req.body.delivery,
+                        status: req.body.status,
                         createdDate: Date.now()
                     };
 
@@ -159,7 +160,7 @@ module.exports = {
                                             return element !== reward._id;
                                         });
                                         merchant.save();
-                                    }).bind(null, merchant, reward);
+                                    }.bind(null, merchant, reward));
 
                                     merchant.save(function(err) {
                                         if (err) {
