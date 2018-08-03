@@ -421,6 +421,8 @@ module.exports = {
                 }
 
                 reward.modifiedDate = Date.now();
+                console.log(req.body);
+                console.log(reward);
 
                 reward.save(function(err) {
                     if (err) {

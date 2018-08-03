@@ -202,8 +202,6 @@ var userSchema = new schema({
     modifiedDate: {
         type: Date
     }
-}, {
-    usePushEach: true
 });
 
 userSchema.pre('save', function(next) {
