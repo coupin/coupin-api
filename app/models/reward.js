@@ -98,8 +98,6 @@ var rewardSchema = new schema({
     type: Boolean,
     default: false
   }
-}, {
-  usePushEach: true
 });
 // module.exports allows is to pass this to other files when it is called
 var Reward = module.exports = mongoose.model('Reward', rewardSchema);
