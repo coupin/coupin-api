@@ -422,7 +422,10 @@ module.exports = {
                             if (err) {
                                 console.log(`Email about reward failed to send to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                             } else {
-                                Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.review), function(response) {
+                                Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.review, {
+                                    isActive: reward.isActive,
+                                    name: reward.name
+                                }), function(response) {
                                     console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                                 });
                             }
