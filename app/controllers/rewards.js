@@ -82,7 +82,7 @@ module.exports = {
                                     }
                                     merchant.expired.push(reward._id);
                                     merchant.save();
-                                }.bind(null, merchant, reward)));
+                                }.bind(null, merchant, reward));
 
                                 merchant.save(function(err) {
                                     if (err) {
