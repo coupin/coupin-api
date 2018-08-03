@@ -372,7 +372,6 @@ module.exports = {
         .limit(10)
         .skip(page * limit)
         .exec(function(err, rewards) {
-            console.log(rewards);
             if (err) {
                 res.status(500).send(err);
                 throw new Error(err);
@@ -392,6 +391,9 @@ module.exports = {
             } else if (!reward) {
                 res.status(404).send({ message: 'There is no reward matching that id' });
             } else {
+                if (!reward.review) {
+                    reward['review'] = [];
+                }
                 reward.review.push(body.review);
                 reward.status = body.status;
 
