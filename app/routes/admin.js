@@ -28,7 +28,10 @@ module.exports = function(router) {
 
     router.route('/admin/hotlist')
         .get(AdminCtrl.retrieveHotList)
-        .post(AdminCtrl.setHotList);
+        .post(
+            auth.authenticate,
+            auth.isAdmin,
+            AdminCtrl.setHotList);
 
     // To Delete an Admin 
     router.route('/admin/:id')
