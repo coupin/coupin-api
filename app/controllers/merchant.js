@@ -350,6 +350,11 @@ module.exports = {
         Merchant.find(query)
         .limit(limit)
         .skip(skip * 5)
+        .populate({
+            path: 'merchantInfo.rewards',
+            model: 'Reward',
+            select: 'name'
+        })
         .exec(function (err, users) {
             if (err) {
                 res.status(500).send(err);
@@ -357,6 +362,7 @@ module.exports = {
             } else if (users.length === 0) {
                 res.status(404).send({ message: 'Sorry there is no reward around you.'});
             } else {
+                console.log(users);
                 var counter = 0;
                 var max = users.length - 1;
                 var markerInfo = [];
@@ -390,6 +396,7 @@ module.exports = {
                                     lat: user.merchantInfo.location[1] || null
                                 },
                                 rating: user.merchantInfo.rating.value,
+                                reward: user.merchantInfo.rewards[0],
                                 rewards: rewards,
                                 count: user.merchantInfo.rewards.length,
                                 category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)]
