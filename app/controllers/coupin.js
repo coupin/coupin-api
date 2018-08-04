@@ -9,7 +9,6 @@ const messages = require('../../config/messages');
 module.exports = {
   // Use a saved coupin
   activate: function(req, res) {
-    console.log('Inside here');
     const id = req.body.id || req.params.id || req.query.id;
       Booking.findById(id, function (err, booking) {
         if (err) {
