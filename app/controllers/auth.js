@@ -87,6 +87,8 @@ module.exports = {
                 customer['picture'] = picture;
             }
 
+            customer.isActive = true;
+
             User.createCustomer(customer, function(err, customer) {
                 if (err) {
                     res.status(409).send({message: 'User already exists.'});
@@ -166,8 +168,8 @@ module.exports = {
         //});
 
         res.status(200).send({
-        token: 'JWT ' + token,
-        user: req.user
+            token: 'JWT ' + token,
+            user: req.user
         });
     },
 

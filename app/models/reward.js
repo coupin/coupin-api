@@ -102,7 +102,7 @@ var rewardSchema = new schema({
   usePushEach: true
 });
 // module.exports allows is to pass this to other files when it is called
-var Reward = module.exports = mongoose.model('Reward', rewardSchema);
+var Reward = mongoose.model('Reward', rewardSchema);
 
 Reward.getRewardById = function(id, callback){
 	Reward.findById(id, callback);

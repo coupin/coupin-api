@@ -39,12 +39,12 @@ module.exports = {
     let rewardId = rewardString.split(" ");
     rewardId = _.without(rewardId, "");
     rewardId.forEach(function(reward) {
-      if (req.user.blacklist.indexOf(reward) === -1) {
+      // if (req.user.blacklist.indexOf(reward) === -1) {
         rewards.push({
           id: reward,
           status: 'pending'
         });
-      }
+      // }
     });
 
     let saved = req.body.saved || req.params.saved || req.query.saved || 'false';
