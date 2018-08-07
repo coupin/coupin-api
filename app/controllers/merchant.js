@@ -296,7 +296,7 @@ module.exports = {
      * Handles info gotten for the mobile markers
      */
     markerInfo: function (req, res) {
-        const categories = JSON.parse(req.body.categories) || [];
+        const categories = req.body.categories ? JSON.parse(req.body.categories) : [];
         let limit = req.query.limit || req.body.limit || req.params.limit ||  4;
         let skip = req.query.page || req.body.page || req.params.page ||  0;
         let longitude = req.query.longitude || req.body.longitude || req.params.longitude;
@@ -322,22 +322,21 @@ module.exports = {
         let maxDistance = req.body.distance || req.query.distance || req.params.distance || 3;
         maxDistance *= 1000;
         let coords = [longitude, latitude];
-
-        // Convert to radians.radisu of the earth is approxs 6371 kilometers
-        maxDistance /= 6371;
-
+        
         var query = {
             'role' : 2,
             "merchantInfo.rewards.0" : { "$exists" : true }
-            // "merchantInfo.latestExp": {
-            //     $gte: new Date('03/03/2018')
-            // }
         };
 
         if (longitude && latitude && longitude !== NaN && latitude !== NaN) {
             query['merchantInfo.location'] = {
-                $near: coords,
-                $maxDistance: maxDistance
+                $near: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: coords
+                    },
+                    $maxDistance: maxDistance
+                }
             }
         }
 
@@ -362,7 +361,6 @@ module.exports = {
             } else if (users.length === 0) {
                 res.status(404).send({ message: 'Sorry there is no reward around you.'});
             } else {
-                console.log(users);
                 var counter = 0;
                 var max = users.length - 1;
                 var markerInfo = [];
@@ -377,7 +375,6 @@ module.exports = {
                             $gte: new Date()
                         }
                     }).limit(2).select('name').exec(function (error, rewards) {
-                        console.log(rewards);
                         if (error) {
                             res.status(500).send(error);
                             throw new Error(err);
