@@ -66,6 +66,7 @@ module.exports = {
                                 if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
                                     merchant.merchantInfo.latestExp = reward.endDate;
                                 }
+                                merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
 
                                 // Schedule to move to used on expired
                                 schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
@@ -151,6 +152,7 @@ module.exports = {
                                     var rewardsList = merchant.merchantInfo.rewards ? merchant.merchantInfo.rewards : [];
                                     rewardsList.push(reward._id);
                                     merchant.merchantInfo.rewards = rewardsList;
+                                    merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
 
                                     // Schedule to move to used on expired
                                     schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
