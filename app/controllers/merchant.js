@@ -301,6 +301,7 @@ module.exports = {
         let skip = req.query.page || req.body.page || req.params.page ||  0;
         let longitude = req.query.longitude || req.body.longitude || req.params.longitude;
         let latitude = req.query.latitude || req.body.latitude || req.params.latitude;
+        console.log(categories);
 
         if (typeof limit !== Number) {
             limit = parseInt(limit);
