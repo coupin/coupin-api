@@ -1,4 +1,6 @@
 const bcrypt = require('bcryptjs');
+
+const Prime = require('../models/prime');
 const User = require('./../models/users');
 
 module.exports = {
@@ -143,19 +145,28 @@ module.exports = {
     },
 
     retrieveHotList: function(req, res) {
-        const limit = req.body.limit || 5;
-
-        User.find({
-            'merchantInfo.hot.status': true
+        Prime.findOne({})
+        .populate({
+            path: 'featured.first',
+            model: 'User',
+            select: 'merchantInfo.companyName merchantInfo.logo'
         })
-        .sort({ 'merchantInfo.hot.starts': 'desc' })
-        .limit(limit)
-        .exec(function(err, users) {
+        .populate({
+            path: 'featured.second',
+            model: 'User',
+            select: 'merchantInfo.companyName merchantInfo.logo'
+        })
+        .populate({
+            path: 'featured.third',
+            model: 'User',
+            select: 'merchantInfo.companyName merchantInfo.logo'
+        })
+        .exec(function(err, prime) {
             if (err) {
                 console.log(err);
                 res.status(500).send(err);
             } else {
-                res.status(200).send(users);
+                res.status(200).send(prime);
             }
         });
     },
@@ -165,25 +176,39 @@ module.exports = {
      */
     setHotList: function(req, res) {
         const body = req.body;
-        const id = req.params.id || req.body.id;
 
-        User.findById(id, function(err, user) {
+        Prime.findOne(function(err, prime) {
             if (err) {
                 console.log(err);
                 res.status(500).send(err);
-            } else if (!user) {
-                res.status(404).send({ message: 'User does not exist.' });
             } else {
-                user.merchantInfo.hot.status = body.status;
+                prime = !prime ? new Prime() : prime;
 
-                if (body.status) {
-                    user.merchantInfo.hot.starts = new Date(body.starts);
-                    user.merchantInfo.hot.expires = new Date(body.expires);
+                if (body.isFeatured) {
+                    prime.featured = {
+                        first: body.featured.first._id,
+                        second: body.featured.second._id,
+                        third: body.featured.third._id
+                    };
+                } else {
+                    const hotlist = JSON.parse(body.hotlist);
+                    if (Array.isArray(hotlist)) {
+                        if (!prime.hotlist) {
+                            prime.hotlist = [];
+                        }
+                        featured.forEach(element => {
+                            prime.hotlist.push({
+                                id: element.id,
+                                url: element.url
+                            });
+                        });
+                    } else {
+                        res.status(400).send({ message: 'Bad hot list format.' });
+                    }
                 }
 
-                user.save(function(err) {
+                prime.save(function(err) {
                     if (err) {
-                        console.log(err);
                         res.status(500).send(err);
                     } else {
                         res.status(200).send({message: 'Done' });

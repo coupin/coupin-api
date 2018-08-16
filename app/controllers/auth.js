@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const passportJWT = require('passport-jwt');
 
@@ -169,7 +170,7 @@ module.exports = {
 
         res.status(200).send({
             token: 'JWT ' + token,
-            user: req.user
+            user: customer
         });
     },
 

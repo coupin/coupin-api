@@ -63,7 +63,8 @@ var userSchema = new schema({
         }
     },
     city: {
-        type: String
+        type: String,
+        default: 'lagos'
     },
     state: {
         type: String,
@@ -100,7 +101,8 @@ var userSchema = new schema({
         },
         city: {
             type: String,
-            lowercase: true
+            lowercase: true,
+            default: 'lagos'
         },
         state: {
             type: String
