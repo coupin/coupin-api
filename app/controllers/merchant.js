@@ -281,8 +281,9 @@ module.exports = {
 
     getNames: function(req, res) {
         Merchant.find({
+            status: 'completed',
             role: 2
-        }, 'merchantInfo.companyName', function(err, rewards) {
+        }, 'merchantInfo.companyName merchantInfo.logo', function(err, rewards) {
             if (err) {
                 res.status(500).send(err);
                 throw new Error(err);

@@ -6,9 +6,10 @@ const auth = require('./../middleware/auth');
 const authCtrl = require('./../controllers/auth');
 
 module.exports = function(router) {
-  router.route('/auth/password')
+  router.route('/auth/password/c')
     .post(
-      auth.authenticate,
+      passport.verifyJWT1,
+      auth.isCustomer,
       authCtrl.changePassword
     );
 

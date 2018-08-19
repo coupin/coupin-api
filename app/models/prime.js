@@ -4,35 +4,47 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var primeSchema = new Schema({
-  hotlist: {
-    type: [{
+  featured: {
+    first: {
       type: Schema.Types.ObjectId,
       ref: 'User'
-    }],
-    validate: [hotLimit, 'You can only have 3 hot merchants at a time.']
+    },
+    second: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    third: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }
   },
-  slidelist: [{
+  hotlist: [{
     id: {
-      type: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-      }],
-      require: true,
-      validate: [slideLimit, 'You can only have 6 merchants at a time on the slide.']
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      require: true
+    },
+    index: {
+      type: Number,
+      require: true
     },
     url: {
       type: String,
       require: true
     }
+  }],
+  history: [{
+    activity: {
+      type: String,
+      require: true
+    },
+    timeStamp: {
+      type: Date,
+      default: new Date()
+    }
   }]
+}, {
+  usePushEach: true
 });
-
-function hotLimit(val) {
-  return val.length <= 3;
-}
-
-function slideLimit(val) {
-  return val.length <= 6;
-}
 
 module.exports = mongoose.model('Prime', primeSchema);

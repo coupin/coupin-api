@@ -92,14 +92,17 @@ module.exports = {
                         email: merchant.email,
                         mobile: merchant.merchantInfo.mobileNumber,
                         details: merchant.merchantInfo.companyDetails,
-                        logo: merchant.merchantInfo.logo || null,
-                        banner: merchant.merchantInfo.banner || null,
+                        logo: merchant.merchantInfo.logo,
+                        banner: merchant.merchantInfo.banner,
                         address: merchant.merchantInfo.address + ', ' + merchant.merchantInfo.city,
                         location: {
-                            long: merchant.merchantInfo.location[0] || null,
-                            lat: merchant.merchantInfo.location[1] || null
+                            long: merchant.merchantInfo.location[0],
+                            lat: merchant.merchantInfo.location[1]
                         },
-                        rewards: merchant.merchantInfo.rewards
+                        rating: merchant.merchantInfo.rating.value,
+                        reward: merchant.merchantInfo.rewards[0],
+                        rewards: merchant.merchantInfo.rewards,
+                        category: merchant.merchantInfo.categories[Math.floor(Math.random() * merchant.merchantInfo.categories.length)]
                     });
                 }
 
