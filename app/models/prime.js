@@ -20,22 +20,31 @@ var primeSchema = new Schema({
   },
   hotlist: [{
     id: {
-      type: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-      }],
-      require: true,
-      validate: [slideLimit, 'You can only have 6 merchants at a time on the slide.']
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      require: true
+    },
+    index: {
+      type: Number,
+      require: true
     },
     url: {
       type: String,
       require: true
     }
+  }],
+  history: [{
+    activity: {
+      type: String,
+      require: true
+    },
+    timeStamp: {
+      type: Date,
+      default: new Date()
+    }
   }]
+}, {
+  usePushEach: true
 });
-
-function slideLimit(val) {
-  return val.length <= 6;
-}
 
 module.exports = mongoose.model('Prime', primeSchema);

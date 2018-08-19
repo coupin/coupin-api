@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 
 const Prime = require('../models/prime');
@@ -144,22 +145,55 @@ module.exports = {
         }
     },
 
+    removeSlide: function(req, res) {
+        const body = req.body;
+
+        Prime.findOne(function(err, prime) {
+            if (err) {
+                res.status(500).send(err);
+                throw new Error(err);
+            } else {
+                var index = _.findIndex(prime.hotlist, function(element) {
+                    return body.index === element.index;
+                });
+                prime.hotlist.splice(index, 1);
+
+                prime.history.push({
+                    activity: `${req.user.email} removed a user with id ${body.id._id} into ${body.index}`
+                });
+
+                prime.save(function(err) {
+                    if (err) {
+                        res.status(500).send(err);
+                    } else {
+                        res.status(200).send({message: 'Done' });
+                    }
+                });
+            }
+        });
+    },
+
     retrieveHotList: function(req, res) {
         Prime.findOne({})
         .populate({
             path: 'featured.first',
             model: 'User',
-            select: 'merchantInfo.companyName merchantInfo.logo'
+            select: 'merchantInfo'
         })
         .populate({
             path: 'featured.second',
             model: 'User',
-            select: 'merchantInfo.companyName merchantInfo.logo'
+            select: 'merchantInfo'
         })
         .populate({
             path: 'featured.third',
             model: 'User',
-            select: 'merchantInfo.companyName merchantInfo.logo'
+            select: 'merchantInfo'
+        })
+        .populate({
+            path: 'hotlist.id',
+            model: 'User',
+            select: 'merchantInfo'
         })
         .exec(function(err, prime) {
             if (err) {
@@ -190,20 +224,27 @@ module.exports = {
                         second: body.featured.second._id,
                         third: body.featured.third._id
                     };
+                    prime.history.push({
+                        activity: `${req.user.email} added ${body.featured.first.merchantInfo.companyName}, 
+                        ${body.featured.second.merchantInfo.companyName} and ${body.featured.third.merchantInfo.companyName}`
+                    });
                 } else {
-                    const hotlist = JSON.parse(body.hotlist);
-                    if (Array.isArray(hotlist)) {
+                    const slide = body.slide;
+                    if (!slide.hasOwnProperty('id') || !slide.hasOwnProperty('url')) {
+                        res.status(400).send({ message: 'Inavlid slide object.' });
+                    } else {
                         if (!prime.hotlist) {
                             prime.hotlist = [];
                         }
-                        featured.forEach(element => {
-                            prime.hotlist.push({
-                                id: element.id,
-                                url: element.url
-                            });
+
+                        prime.hotlist.push({
+                            id: body.slide.id,
+                            index: body.slide.index,
+                            url: body.slide.url
                         });
-                    } else {
-                        res.status(400).send({ message: 'Bad hot list format.' });
+                        prime.history.push({
+                            activity: `${req.user.email} added a user with id ${body.slide.id} into ${body.slide.index}`
+                        });
                     }
                 }
 

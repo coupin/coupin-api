@@ -41,7 +41,6 @@ mongoose.connect(process.env.MONGO_URL);
  * parse application/json
  */
 app.use(Raven.requestHandler());
-app.use(Raven.errorHandler());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -80,6 +79,11 @@ app.use(passport.session());
 
 // configure our routes
 app.use('/api/v1', myRoutes);
+
+app.use(Raven.errorHandler());
+app.use(function onError(err, req, res, next) {
+  res.status(500).send(res.sentry + '\n');
+});
 
 //start on localhost 3030
 app.listen(port).on('error', function (err) {

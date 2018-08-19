@@ -27,13 +27,19 @@ module.exports = function(router) {
         .post(AdminCtrl.addSuperAdmin);
 
     router.route('/admin/hotlist')
+        .put(
+            auth.authenticate,
+            auth.isAdmin,
+            AdminCtrl.removeSlide
+        )
         .get(
             AdminCtrl.retrieveHotList
         )
         .post(
             auth.authenticate,
             auth.isAdmin,
-            AdminCtrl.setHotList);
+            AdminCtrl.setHotList
+        );
 
     // To Delete an Admin 
     router.route('/admin/:id')
