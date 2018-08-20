@@ -70,12 +70,19 @@ app.use(expressValidator({
  */
 app.use(methodOverride('X-HTTP-Method-Override'));
 
+// set the static files location /public/img will be /img
+app.use(express.static(__dirname + '/apiDoc'));
+
 // Add express validator
 app.use(expressValidator());
 
 // Initialize passport and it's sessions
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use('/doc', function(req, res) {
+  res.status(200).sendfile('./apiDoc/index.html');
+});
 
 // configure our routes
 app.use('/api/v1', myRoutes);
