@@ -1,9 +1,10 @@
-const passport = require('./../middleware/passport');
+'use strict';
+var passport = require('./../middleware/passport');
 
 // Middleware
-const auth = require('./../middleware/auth');
+var auth = require('./../middleware/auth');
 //Controller
-const authCtrl = require('./../controllers/auth');
+var authCtrl = require('./../controllers/auth');
 
 module.exports = function(router) {
   router.route('/auth/password/c')

@@ -13,6 +13,47 @@ const jwtOptions = {
 }
 
 module.exports = {
+    /**
+     * @api {post} /auth/password/c Change Password
+     * @apiName changePassword
+     * @apiGroup Auth
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {String} New Password. Confirming password should be done on mobile.
+     * 
+     * @apiSuccess {String} message 'Password change successful' 
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "message": "Password change successful",
+     *  }
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError UserNotFound no such user exists..
+     * 
+     * @apiErrorExample UserNotFound:
+     *  HTTP/1.1 404 UserNotFound
+     *  {
+     *      "message": "There is no such user."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
+     */
     changePassword: function (req, res) {
         if (req.user) {
             User.findById(req.user._id, function (err, user) {
@@ -27,16 +68,68 @@ module.exports = {
                             res.status(500).send(err);
                             throw new Error(err);
                         } else {
-                            res.status(200).send({message: 'Password saved successfully'});
+                            res.status(200).send({message: 'Password change successful'});
                         }
                     }); 
                 }
             });
         } else {
-            res.status(404).send({message: 'There is no signed in user'});
+            res.status(401).send({message: 'There is no signed in user'});
         }
     },
 
+    /**
+     * @api {post} /auth/register/c Sign up: Mobile
+     * @apiName registerCustomer
+     * @apiGroup Auth
+     * 
+     * @apiParam {String} facebookId (Optional) unique facebook id for loging in with facebook
+     * @apiParam {String} googleId (Optional) unique google id for loging in with google
+     * @apiParam {String} name Full name of the user 
+     * @apiParam {String} email Email of the user
+     * @apiParam {String} password
+     * @apiParam {String} confirmed password compares with password above
+     * @apiParam {String} picture (Optional) image url
+     * 
+     * @apiSuccess {String} token 'JWT token' to be exact, to be used for authentication
+     * @apiSuccess {String} message 'Successful Registration' 
+     * @apiSuccess {Object} user an object holding the user's information
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "token": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmlzby5sYXdhbEBnbWFpbC5jb20iLCJqdGkiOiI5OTAzODA2MS01NmI3LTQxYjktYTlkZi03MjAwM2FhZTFlNWUiLCJpZCI6IjciLCJuYmYiOjE1MzQyNDMyNzQsImV4cCI6MTUzNDMyOTY3NCwiaXNzIjoiaHR0cHM6Ly9hcGkubHlucS5jb20iLCJhdWQiOiJodHRwczovL2x5bnEuY29tIn0.cutCBM5PFkf2n3MaUQfNJU8Na4A78UFfPk6KgnWRHC4",
+     *      "message": "Successful Registration",
+     *      "user": {
+     *          "_id": "5b7ab4ce24688b0adcb9f54b",
+     *          "email": "test@email.com"
+     *          "name": "Test User",
+     *          "isActive": true,
+     *          "favourites": [],
+     *          "interests": [],
+     *          "city": "lagos",
+     *          "picutre": {
+     *              "url": null
+     *          }":
+     *       }
+     *  }
+     * 
+     * @apiError BadRequest A Field is invalid or missing
+     * 
+     * @apiErrorExample BadRequest:
+     *  HTTP/1.1 400 Bad Request
+     *  {
+     *      "message": "Name Field is Required."
+     *  }
+     * 
+     * @apiError Conflict User already exists the email of the user already exists
+     * 
+     * @apiErrorExample Conflict:
+     *  HTTP/1.1 409 Conflict
+     *  {
+     *      "message": "User already exists."
+     *  }
+     */
     registerCustomer : function(req, res) {
         // Get information on customer
         var name = req.body.name;
@@ -52,7 +145,6 @@ module.exports = {
         // Form Validator
         req.checkBody('name','Name field is required').notEmpty();
         req.checkBody('email','Email field is required').isEmail();
-        // req.checkBody('network','Network is required').notEmpty();
         if (!googleId && !facebookId) {
             req.checkBody('password','Password field is required').notEmpty();
             req.checkBody('password2','Passwords do not match').equals(req.body.password);
@@ -98,10 +190,24 @@ module.exports = {
                     var payload = {id: customer.id, name: customer.name, email: customer.email};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
+                    //TODO: Remove customer details not necessary
+                    var data = {
+                        _id: user._id,
+                        email: user.email,
+                        name: user.name,
+                        isActive: user.isActive,
+                        favourites: user.favourites,
+                        interests: user.interests,
+                        city: user.city,
+                        picutre: {
+                            url: user.picture
+                        }
+                    };
+
                     res.status(200).send({
-                        message: 'Customer created!',
+                        message: 'Successful Registration!',
                         token: 'JWT ' + token,
-                        user: customer
+                        user: data
                     });
                 }
             });
@@ -159,18 +265,82 @@ module.exports = {
         }
     },
 
+    /**
+     * @api {post} /auth/signin Sign in: Mobile (Add "/c" to sign in with social)
+     * @apiName signinCustomer
+     * @apiGroup Auth
+     * 
+     * @apiParam {String} facebookId (Optional) unique facebook id for loging in with facebook, to be sent to social
+     * @apiParam {String} googleId (Optional) unique google id for loging in with google, to be sent to social
+     * @apiParam {String} email Email of the user
+     * @apiParam {String} password
+     * 
+     * @apiSuccess {String} token 'JWT token' to be exact, to be used for authentication
+     * @apiSuccess {String} message 'Successful Registration' 
+     * @apiSuccess {Object} user an object holding the user's information
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "token": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmlzby5sYXdhbEBnbWFpbC5jb20iLCJqdGkiOiI5OTAzODA2MS01NmI3LTQxYjktYTlkZi03MjAwM2FhZTFlNWUiLCJpZCI6IjciLCJuYmYiOjE1MzQyNDMyNzQsImV4cCI6MTUzNDMyOTY3NCwiaXNzIjoiaHR0cHM6Ly9hcGkubHlucS5jb20iLCJhdWQiOiJodHRwczovL2x5bnEuY29tIn0.cutCBM5PFkf2n3MaUQfNJU8Na4A78UFfPk6KgnWRHC4",
+     *      "user": {
+     *          "_id": "5b7ab4ce24688b0adcb9f54b",
+     *          "email": "test@email.com"
+     *          "name": "Test User",
+     *          "isActive": true,
+     *          "favourites": [],
+     *          "interests": [],
+     *          "city": "lagos",
+     *          "picutre": {
+     *              "url": null
+     *          }":
+     *       }
+     *  }
+     * 
+     * @apiError BadRequest Field is invalid or missing
+     * 
+     * @apiErrorExample BadRequest:
+     *  HTTP/1.1 400 Bad Request
+     *  {
+     *      "message": "Name Field is Required."
+     *  }
+     * 
+     * @apiError Unauthorized Failed to authenticate
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Bad Request
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError UserNotFound User does not exist
+     * 
+     * @apiErrorExample UserNotFound:
+     *  HTTP/1.1 404 Unknown
+     *  {
+     *      "message": "User already exists."
+     *  }
+     */
     signinCustomer : function (req, res) {
-        var customer = req.user;
-        var payload = {id: customer.id, name: customer.name, email: customer.email, mobileNumber: customer.mobileNumber};
+        var user = req.user;
+        var payload = {id: user.id, name: user.name, email: user.email, mobileNumber: user.mobileNumber};
         var token = jwt.sign(payload, jwtOptions.secretOrKey);
-
-        //var token = jwt.sign(customer, secretKey, {
-        //  expiresInMinutes: 1440
-        //});
+        var data = {
+            _id: user._id,
+            email: user.email,
+            name: user.name,
+            isActive: user.isActive,
+            favourites: user.favourites,
+            interests: user.interests,
+            city: user.city,
+            picutre: {
+                url: user.picture
+            }
+        };
 
         res.status(200).send({
             token: 'JWT ' + token,
-            user: customer
+            user: data
         });
     },
 

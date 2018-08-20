@@ -41,10 +41,33 @@
     "raven": "^2.4.2",
     "shortid32": "^0.1.1"
   },
+  "apidoc": {
+    "name": "coupin-api-doc",
+    "version": "0.0.1",
+    "description": "coupin's api documentation",
+    "title": "Coupin's Api Documentation",
+    "url": "https://localhost:5030/api/v1",
+    "sampleUrl": "https://localhost:5030/api/v1",
+    "header": {
+      "title": "Start",
+      "filename": "header.md"
+    },
+    "footer": {
+      "title": "End",
+      "filename": "footer.md"
+    },
+    "template": {
+      "withCompare": true,
+      "withGenerator": true
+    }
+  },
   "devDependencies": {
+    "eslint": "^5.4.0",
+    "eslint-plugin-angular": "^3.3.0",
     "nodemon": "^1.12.1"
   },
   "scripts": {
-    "start": "node init.js && nodemon server.js"
+    "generate-docs": "apidoc -i app/ -o apiDoc/ -t apiDocTemplate/",
+    "start": "npm run-script generate-docs && node init.js && nodemon server.js"
   }
 }
