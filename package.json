@@ -67,6 +67,7 @@
     "nodemon": "^1.12.1"
   },
   "scripts": {
+    "preinstall": "npm install apidoc -g",
     "generate-docs": "apidoc -i app/ -o apiDoc/ -t apiDocTemplate/",
     "start": "npm run-script generate-docs && node init.js && nodemon server.js"
   }
