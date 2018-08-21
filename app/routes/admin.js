@@ -3,10 +3,10 @@ var passport = require('./../middleware/passport');
 // Models
 var User = require('../models/users');
 // Middles ware
-const auth = require('./../middleware/auth');
+var auth = require('./../middleware/auth');
 
 // Controllers
-const AdminCtrl = require('./../controllers/admin');
+var AdminCtrl = require('./../controllers/admin');
 
 module.exports = function(router) {
     // Log a user in from the form

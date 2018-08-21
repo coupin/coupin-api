@@ -138,6 +138,10 @@ var userSchema = new schema({
             type: String,
             ref: 'Reward'
         }],
+        rewardsSize: {
+            type: Number,
+            default: 0
+        },
         hot: {
             status: {
                 type: Boolean,

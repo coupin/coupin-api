@@ -62,6 +62,7 @@ module.exports = {
                             res.status(200).send(reward);                            
                             Merchant.findById(reward.merchantID, function(err, merchant) {
                                 merchant.merchantInfo.rewards.push(reward._id);
+                                merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewardsSize + 1;
                                 merchant.merchantInfo.lastAdded = new Date();
                                 if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
                                     merchant.merchantInfo.latestExp = reward.endDate;
@@ -77,6 +78,7 @@ module.exports = {
                                     merchant.merchantInfo.rewards.forEach(function(element) {
                                         return element !== reward._id;
                                     });
+                                    merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewardsSize - 1;
 
                                     if (!merchant.expired) {
                                         merchant.expired = [];
@@ -152,6 +154,7 @@ module.exports = {
                                     var rewardsList = merchant.merchantInfo.rewards ? merchant.merchantInfo.rewards : [];
                                     rewardsList.push(reward._id);
                                     merchant.merchantInfo.rewards = rewardsList;
+                                    merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewardsSize + 1;
                                     merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
 
                                     // Schedule to move to used on expired

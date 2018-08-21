@@ -327,7 +327,7 @@ module.exports = {
     })
     .populate('rewardId.id', 'applicableDays description endDate isActive name multiple picture')
     .populate('userId', 'name email mobileNumber')
-    .exec((err, booking) => {
+    .exec(function(err, booking) {
       if (err) {
         res.status(500).send(error);
         throw new Error(err);

@@ -1,8 +1,8 @@
-const _ = require('lodash');
-const bcrypt = require('bcryptjs');
+var _ = require('lodash');
+var bcrypt = require('bcryptjs');
 
-const Prime = require('../models/prime');
-const User = require('./../models/users');
+var Prime = require('../models/prime');
+var User = require('./../models/users');
 
 module.exports = {
     /**
@@ -200,6 +200,7 @@ module.exports = {
                 console.log(err);
                 res.status(500).send(err);
             } else {
+
                 res.status(200).send(prime);
             }
         });
