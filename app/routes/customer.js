@@ -1,9 +1,9 @@
 var passport = require('./../middleware/passport');
 
 // models
-const auth = require('./../middleware/auth');
-const Customer = require('./../models/users');
-const CustomerCtrl = require('./../controllers/customer');
+var auth = require('./../middleware/auth');
+var Customer = require('./../models/users');
+var CustomerCtrl = require('./../controllers/customer');
 
 module.exports = function(router) {
   router.route('/customer/category')

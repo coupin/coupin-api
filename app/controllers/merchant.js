@@ -1,18 +1,19 @@
-const moment = require('moment');
+var moment = require('moment');
 
-const emailer = require('../../config/email');
-const Merchant = require('../models/users');
-const Reward = require('./../models/reward');
+var emailer = require('../../config/email');
+var Merchant = require('../models/users');
+var Prime = require('../models/prime');
+var Reward = require('./../models/reward');
 
 // Coupin App Messages
-const messages = require('../../config/messages');
+var messages = require('../../config/messages');
 
 module.exports = {
     /**
      * Handles creation of merchants
      */
     adminCreate: function (req, res) {
-        const body = req.body;
+        var body = req.body;
 
         Merchant.findOne({email: body.email}, function (err, merchant) {
             if (err) {
@@ -21,7 +22,7 @@ module.exports = {
             } else if (merchant) {
                 res.status(409).send({message: 'User already exists'});
             } else {
-                let merchant = new Merchant({
+                var merchant = new Merchant({
                     email: body.email,
                     password: body.password || 'merchant',
                     merchantInfo: {
@@ -57,8 +58,8 @@ module.exports = {
      * Changeg the status of the merchants
      */
     adminReview: function (req, res) {
-        const body = req.body;
-        const id = req.params.id || req.query.id || req.body.id;
+        var body = req.body;
+        var id = req.params.id || req.query.id || req.body.id;
 
         if (!body.accepted || !body.details) {
             res.status(400).send({ message: 'Bad body in request.' });
@@ -99,8 +100,8 @@ module.exports = {
     },
 
     billing: function(req, res) {
-        const body = req.body;
-        const id = req.params.id || req.query.id || req.body.id;
+        var body = req.body;
+        var id = req.params.id || req.query.id || req.body.id;
 
         Merchant.findById(id, function(err, merchant) {
             if (err) {
@@ -153,15 +154,15 @@ module.exports = {
      * Handles merchant confirmation
      */
     confirm: function (req, res) {
-        const id = req.params.id || req.query.id || req.body.id;
+        var id = req.params.id || req.query.id || req.body.id;
 
         // get the data from the the
-        const password = req.body.password;
-        const banner = req.body.banner;
-        const billing = req.body.billing;
-        const companyDetails = req.body.companyDetails;
-        const logo = req.body.logo;
-        const state = req.body.state;
+        var password = req.body.password;
+        var banner = req.body.banner;
+        var billing = req.body.billing;
+        var companyDetails = req.body.companyDetails;
+        var logo = req.body.logo;
+        var state = req.body.state;
         var expiryDate = moment(billing.date);
         var expiration = null;
 
@@ -180,7 +181,7 @@ module.exports = {
         req.checkBody('logo', 'Logo is required').notEmpty();
         req.checkBody('banner', 'Banner is required').notEmpty();
 
-        const errors = req.validationErrors();
+        var errors = req.validationErrors();
 
         if (errors) {
             res.status(400).send({message: errors[0].msg});
@@ -232,7 +233,7 @@ module.exports = {
      * Delete one merchant
      */
     deleteOne: function(req, res) {
-        const id = req.params.id || req.query.id || req.body.id;
+        var id = req.params.id || req.query.id || req.body.id;
 
         Merchant.findByIdAndRemove(req.params.id, function(err, merchant) {
             if(err)
@@ -243,9 +244,9 @@ module.exports = {
     },
 
     getByStatus: function(req, res) {
-        const status = req.params.status;
-        let limit = req.query.limit || req.body.limit || req.params.limit ||  10;
-        let skip = req.query.page || req.body.page || req.params.page ||  0;
+        var status = req.params.status;
+        var limit = req.query.limit || req.body.limit || req.params.limit ||  10;
+        var skip = req.query.page || req.body.page || req.params.page ||  0;
 
         Merchant.find({
             status: status,
@@ -297,11 +298,11 @@ module.exports = {
      * Handles info gotten for the mobile markers
      */
     markerInfo: function (req, res) {
-        const categories = req.body.categories ? JSON.parse(req.body.categories) : [];
-        let limit = req.query.limit || req.body.limit || req.params.limit ||  4;
-        let skip = req.query.page || req.body.page || req.params.page ||  0;
-        let longitude = req.query.longitude || req.body.longitude || req.params.longitude;
-        let latitude = req.query.latitude || req.body.latitude || req.params.latitude;
+        var categories = req.body.categories ? JSON.parse(req.body.categories) : [];
+        var limit = req.query.limit || req.body.limit || req.params.limit ||  4;
+        var skip = req.query.page || req.body.page || req.params.page ||  0;
+        var longitude = req.query.longitude || req.body.longitude || req.params.longitude;
+        var latitude = req.query.latitude || req.body.latitude || req.params.latitude;
         console.log(categories);
 
         if (typeof limit !== Number) {
@@ -321,20 +322,20 @@ module.exports = {
         }
 
         // Kilometers
-        let maxDistance = req.body.distance || req.query.distance || req.params.distance || 3;
+        var maxDistance = req.body.distance || req.query.distance || req.params.distance || 3;
         maxDistance *= 1000;
-        let coords = [longitude, latitude];
+        var coords = [longitude, latitude];
         
         var query = {
             'role' : 2,
-            "merchantInfo.rewards.0" : { "$exists" : true }
+            'merchantInfo.rewards.0' : { '$exists' : true }
         };
 
         if (longitude && latitude && longitude !== NaN && latitude !== NaN) {
             query['merchantInfo.location'] = {
                 $near: {
                     $geometry: {
-                        type: "Point",
+                        type: 'Point',
                         coordinates: coords
                     },
                     $maxDistance: maxDistance
@@ -367,49 +368,33 @@ module.exports = {
                 var max = users.length - 1;
                 var markerInfo = [];
                 users.forEach(function (user) {
-                    Reward.find({
-                        merchantID: user._id,
-                        status: 'active',
-                        startDate: {
-                            $lte: new Date()
+                    var info = {
+                        _id: user._id,
+                        name: user.merchantInfo.companyName,
+                        email: user.email,
+                        mobile: user.merchantInfo.mobileNumber,
+                        details: user.merchantInfo.companyDetails,
+                        logo: user.merchantInfo.logo || null,
+                        banner: user.merchantInfo.banner || null,
+                        address: user.merchantInfo.address + ', ' + user.merchantInfo.city,
+                        location: {
+                            long: user.merchantInfo.location[0] || null,
+                            lat: user.merchantInfo.location[1] || null
                         },
-                        endDate: {
-                            $gte: new Date()
-                        }
-                    }).limit(2).select('name').exec(function (error, rewards) {
-                        if (error) {
-                            res.status(500).send(error);
-                            throw new Error(err);
-                        } else if (rewards) {
-                            const info = {
-                                _id: user._id,
-                                name: user.merchantInfo.companyName,
-                                email: user.email,
-                                mobile: user.merchantInfo.mobileNumber,
-                                details: user.merchantInfo.companyDetails,
-                                logo: user.merchantInfo.logo || null,
-                                banner: user.merchantInfo.banner || null,
-                                address: user.merchantInfo.address + ', ' + user.merchantInfo.city,
-                                location: {
-                                    long: user.merchantInfo.location[0] || null,
-                                    lat: user.merchantInfo.location[1] || null
-                                },
-                                rating: user.merchantInfo.rating.value,
-                                reward: user.merchantInfo.rewards[0],
-                                rewards: rewards,
-                                count: user.merchantInfo.rewards.length,
-                                category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)]
-                            }
-                            
-                            markerInfo.push(info);
-                        }
+                        rating: user.merchantInfo.rating.value,
+                        reward: user.merchantInfo.rewards[0],
+                        rewards: user.merchantInfo.rewards,
+                        count: user.merchantInfo.rewards.length,
+                        category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)]
+                    }
+                    
+                    markerInfo.push(info);
 
-                        if (counter === max) {
-                            res.status(200).send(markerInfo);
-                        } else {
-                            counter++;
-                        }
-                    });
+                    if (counter === max) {
+                        res.status(200).send(markerInfo);
+                    } else {
+                        counter++;
+                    }
                 });
             }
         });
@@ -418,15 +403,23 @@ module.exports = {
 
     // TODO: Send Back most recent based on users categories
     mostRecent: function(req, res) {
-        const limit = req.query.limit || req.body.limit || req.params.limit ||  10;
-        const skip = req.query.page || req.body.page || req.params.page ||  0;
-        const categories = req.user.interests;
+        var limit = req.query.limit || req.body.limit || req.params.limit ||  10;
+        var skip = req.query.page || req.body.page || req.params.page ||  0;
+        var categories = req.user.interests;
 
         Merchant.find({
             'merchantInfo.categories': {
                 $in: categories
-            }
+            },
+            // 'merchantInfo.rewardsSize' : {
+            //     $gte: 1
+            // },
+            'merchantInfo.rewards.0' : {
+                $exists: true
+            },
+            role : 2
         })
+        .select('email merchantInfo')
         .sort({lastAdded: 'desc'})
         .limit(limit)
         .populate({
@@ -444,8 +437,8 @@ module.exports = {
     },
 
     notificationUpdates: function(req, res) {
-        const dateString = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
-        const lastChecked = moment(dateString);
+        var dateString = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
+        var lastChecked = moment(dateString);
         
         if (lastChecked.isValid()) {
             Reward.find({
@@ -473,9 +466,9 @@ module.exports = {
      * Get all merchants
      */
     read: function (req, res) {
-        let limit = req.body.limit || req.query.limit || req.params.limit || 10;
-        let page = req.body.page || req.query.page || req.params.page || 0;
-        const query = {
+        var limit = req.body.limit || req.query.limit || req.params.limit || 10;
+        var page = req.body.page || req.query.page || req.params.page || 0;
+        var query = {
             role: 2
         };
 
@@ -494,7 +487,7 @@ module.exports = {
     },
 
     readById: function(req, res) {
-        const id = req.params.id || req.query.id || req.body.id;
+        var id = req.params.id || req.query.id || req.body.id;
 
         Merchant.findById(id)
         .select('name email merchantInfo isActive status')
@@ -512,37 +505,74 @@ module.exports = {
      * Get the hot list
      */
     retrieveHotList: function(req, res) {
-        const limit = req.body.limit || 3;
 
-        Merchant.find({
-            'merchantInfo.hot.status': true
+        Prime.findOne({})
+        .populate({
+            path: 'featured.first',
+            model: 'User',
+            select: 'email merchantInfo'
         })
-        .populate('merchantInfo.rewards')
-        .sort({ 'merchantInfo.hot.starts': 'desc' })
-        .limit(limit)
-        .exec(function(err, users) {
+        .populate({
+            path: 'featured.second',
+            model: 'User',
+            select: 'email merchantInfo'
+        })
+        .populate({
+            path: 'featured.third',
+            model: 'User',
+            select: 'email merchantInfo'
+        })
+        .populate({
+            path: 'hotlist.id',
+            model: 'User',
+            select: 'email merchantInfo'
+        })
+        .exec(function(err, prime) {
             if (err) {
+                console.log(err);
                 res.status(500).send(err);
-                throw new Error(err);
             } else {
-                res.status(200).send(users);
+                Reward.populate(prime, [{
+                    path: 'featured.first.merchantInfo.rewards',
+                    model: 'Reward',
+                    select: 'name'
+                }, {
+                    path: 'featured.second.merchantInfo.rewards',
+                    model: 'Reward',
+                    select: 'name'
+                }, {
+                    path: 'featured.third.merchantInfo.rewards',
+                    model: 'Reward',
+                    select: 'name'
+                }, {
+                    path: 'hotlist.id.merchantInfo.rewards',
+                    model: 'Reward',
+                    select: 'name'
+                }], function(err) {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send(err);
+                    } else {
+                        res.status(200).send(prime);
+                    }
+                });
             }
         });
     },
 
     search: function (req, res) {
-        let query = req.params.query || req.body.query || req.params.query || [' '];
+        var query = req.params.query || req.body.query || req.params.query || [' '];
         if (!Array.isArray(query)) {
             query = query.split(' ');
         }
 
-        const categories = JSON.parse(req.body.categories) || [];
-        let limit = req.body.limit || req.query.limit || req.params.limit || 10;
-        let page = req.body.page || req.query.page || req.params.page || 0;
+        var categories = JSON.parse(req.body.categories) || [];
+        var limit = req.body.limit || req.query.limit || req.params.limit || 10;
+        var page = req.body.page || req.query.page || req.params.page || 0;
 
-        let longitude = req.body.long || req.query.long || req.params.long;
-        let latitude = req.body.lat || req.query.lat || req.params.lat;
-        let maxDistance = req.body.distance || req.query.distance || 50000;
+        var longitude = req.body.long || req.query.long || req.params.long;
+        var latitude = req.body.lat || req.query.lat || req.params.lat;
+        var maxDistance = req.body.distance || req.query.distance || 50000;
         
         if (Array.isArray(query)) {
             for (var x = 0; x < query.length; x++) {
@@ -550,7 +580,7 @@ module.exports = {
             }
         }
 
-        let fullQuery = { $or: [
+        var fullQuery = { $or: [
             {
                 'merchantInfo.companyName': { 
                     '$in' : query
@@ -568,7 +598,9 @@ module.exports = {
                     '$in' : query
                 }
             }],
-            "merchantInfo.rewards.0" : { "$exists" : true },
+            'merchantInfo.rewards.0' : {
+                $exists : true
+            },
             role: 2
         };
 
@@ -598,8 +630,8 @@ module.exports = {
     },
 
     statusUpdate: function(req, res) {
-        const id = req.params.id || req.query.id || req.body.id;
-        const body = req.body;
+        var id = req.params.id || req.query.id || req.body.id;
+        var body = req.body;
 
         Merchant.findById(id, function(err, merchant) {
             if (err) {
@@ -645,8 +677,8 @@ module.exports = {
     },
 
     update: function (req, res) {
-        const id = req.params.id || req.query.id || req.body.id;
-        const body = req.body;
+        var id = req.params.id || req.query.id || req.body.id;
+        var body = req.body;
 
         Merchant.findById(id, function(err, merchant) {
             if (err) {

@@ -1,10 +1,10 @@
-const passport = require('./../middleware/passport');
+var passport = require('./../middleware/passport');
 
 // Middleware
-const auth = require('./../middleware/auth');
+var auth = require('./../middleware/auth');
 // Controllers
-const MerchantCtrl = require('./../controllers/merchant');
-const RewardCtrl = require('./../controllers/rewards');
+var MerchantCtrl = require('./../controllers/merchant');
+var RewardCtrl = require('./../controllers/rewards');
 
 module.exports = function(router) {
   router.route('/merchant')
@@ -74,7 +74,7 @@ module.exports = function(router) {
       RewardCtrl.readByMerchant
     );
 
-  router.route('/merchant/hot')
+  router.route('/merchant/prime')
     .get(
       MerchantCtrl.retrieveHotList
     );

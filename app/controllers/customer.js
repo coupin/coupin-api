@@ -1,31 +1,93 @@
-const Customer = require('../models/users');
-const Reward = require('../models/reward');
+var Customer = require('../models/users');
+var Reward = require('../models/reward');
 
 // Coupin App Messages
-const config = require('../../config/config');
-const emailer = require('../../config/email');
-const messages = require('../../config/messages');
+var config = require('../../config/config');
+var emailer = require('../../config/email');
+var messages = require('../../config/messages');
 
-const cloudinary = config.cloudinary;
+var cloudinary = config.cloudinary;
 
 module.exports = {
     /**
-     * Add merchant to favourites
+     * @api {post} /customer/favourites Add a merchant to favourites
+     * @apiName addToFavourites
+     * @apiGroup Customer
+     * 
+     * @apiExample {curl} Example usage:
+     * curl -i http://localhost:5030/api/v1/customer/45
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {String} merchantId id of the merchant
+     * 
+     * @apiSuccess {String} message 'Added Successfully' 
+     * @apiSuccess {Object} user an object holding the user's information
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "message": "Added Successfully",
+     *      "user": {
+     *          "_id": "5b7ab4ce24688b0adcb9f54b",
+     *          "email": "test@email.com"
+     *          "name": "Test User",
+     *          "isActive": true,
+     *          "favourites": [],
+     *          "interests": [],
+     *          "city": "lagos",
+     *          "picutre": {
+     *              "url": null
+     *          }":
+     *       }
+     *  }
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
      */
     addToFavourites : function (req, res) {
-        if (!req.user.favourites) {
-        req.user.favourites = [];
+        var body = req.body;
+        var user = req.user;
+
+        if (!user.favourites) {
+            user.favourites = [];
         }
 
-        req.user.favourites.push(req.body.merchantId);
+        req.user.favourites.push(body.merchantId);
         req.user.save(function(err) {
             if (err) {
                 res.status(500).send(err);
                 throw new Error(err);
             } else {
+                var data = {
+                    _id: user._id,
+                    email: user.email,
+                    name: user.name,
+                    isActive: user.isActive,
+                    favourites: user.favourites,
+                    interests: user.interests,
+                    city: user.city,
+                    picutre: {
+                        url: user.picture
+                    }
+                };
+
                 res.status(200).send({ 
-                message: 'Added Successfully',
-                user: req.user
+                    message: 'Added Successfully',
+                    user: data
                 });
             }
         });
@@ -46,11 +108,68 @@ module.exports = {
         }
         });
     },
+
     /**
-     * Remove favourites
+     * @api {put} /customer/:id Remove a merchant from favourites
+     * @apiName removeFavourites
+     * @apiGroup Customer
+     * 
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {String} merchantId id of the merchant
+     * 
+     * @apiSuccess {String} _id The id of customer
+     * @apiSuccess {String} email The email of the 
+     * @apiSuccess {String} name The full name of the user
+     * @apiSuccess {Boolean} isActive Tells you if a user is active or not
+     * @apiSuccess {String[]} favourites String array of favourites
+     * @apiSuccess {String[]} interests String array of interests
+     * @apiSuccess {String} city The city of the user
+     * @apiSuccess {Object} picutre An object containing url {String} url of image
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *     "_id": "5b7ab4ce24688b0adcb9f54b",
+     *     "email": "test@email.com"
+     *     "name": "Test User",
+     *     "isActive": true,
+     *     "favourites": [],
+     *     "interests": [],
+     *     "city": "lagos",
+     *     "picutre": {
+     *         "url": null
+     *     }
+     *  }
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError FavouriteNotFound Invalid token.
+     * 
+     * @apiErrorExample FavouriteNotFound:
+     *  HTTP/1.1 404 FavouriteNotFound
+     *  {
+     *      "message": "Favourite does not exist.."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
      */
     removeFavourites : function (req, res) {
-        const index = req.user.favourites.indexOf(req.body.merchantId);
+        var index = req.user.favourites.indexOf(req.body.merchantId);
+        var user = req.user;
         
         if (index === -1) {
         res.status(404).send({ message: 'Favourite does not exist.' });
@@ -58,33 +177,112 @@ module.exports = {
         req.user.favourites.splice(index, 1);
         req.user.save(function (err) {
             if (err) {
-            res.status(500).send(err);
-            throw new Error(err);
+                res.status(500).send(err);
+                throw new Error(err);
             } else {
-            res.status(200).send(req.user);
+                var data = {
+                    _id: user._id,
+                    email: user.email,
+                    name: user.name,
+                    isActive: user.isActive,
+                    favourites: user.favourites,
+                    interests: user.interests,
+                    city: user.city,
+                    picutre: {
+                        url: user.picture
+                    }
+                };
+
+                res.status(200).send(data);
             }
         });
         }
     },
+    
     /**
-     * Retrieve users favourites
+     * @api {get} /customer/favourites Retrieve user's favourite merchants
+     * @apiName retrieveFavourites
+     * @apiGroup Customer
+     * 
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {String} merchantId id of the merchant
+     * 
+     * @apiSuccess {String} _id The id of customer
+     * @apiSuccess {String} email The email of the 
+     * @apiSuccess {String} name The company's name
+     * @apiSuccess {String} mobile The merchant's mobile number
+     * @apiSuccess {String} details The merchant's company details
+     * @apiSuccess {Object} logo An object containing url {String} url of image
+     * @apiSuccess {Object} banner An object containing url {String} url of image
+     * @apiSuccess {String} address The company's address
+     * @apiSuccess {Object} location The company's geolocation. long {Number} longitude and lat {Number} latitude.
+     * @apiSuccess {Object} reward The company's first reward
+     * @apiSuccess {String[]} reward Array containing ids of the rewards
+     * @apiSuccess {String} category A random category the company falls under
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  [{
+     *     "_id": 5b7ab4ce24688b0adcb9f54b,
+     *     "name": "The Palms",
+     *     "email": "thepalms@email.com",
+     *     "mobile": "09045673289",
+     *     "details": "A mall full of many surprises.",
+     *     "logo": {
+     *          "id": "coupin/palms-logo",
+     *          "url": "https://www.example.com/folder/4567/coupin/palms-logo.png"
+     *     },
+     *     "banner": {
+     *          "id": "coupin/palms-banner",
+     *          "url": "https://www.example.com/folder/4567/coupin/palms-banner.png"
+     *     },
+     *     "address": "25A Adeola Odeku Street, V.I, Lagos",
+     *     "location": {
+     *         "long": 3.467894,
+     *         "lat": 6.455654
+     *     },
+     *     "rating": 5,
+     *     "reward": {
+     *          Refer to Reward Model
+     *     },
+     *     "rewards": ["5b7ab4ce24688b0adcb9f542", "5b7ab4ce24688b0adcb9f541"],
+     *     "category": "foodndrink"
+     *  }]
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
      */
     retrieveFavourites : function (req, res ) {
-        let user = req.user;
+        var user = req.user;
         Customer.populate(user, {
-        path: 'favourites',
-        model: 'User',
-        populate: {
-            path: 'merchantInfo.rewards',
-            model: 'Reward'
-        }
+            path: 'favourites',
+            model: 'User',
+            populate: {
+                path: 'merchantInfo.rewards',
+                model: 'Reward'
+            }
         }, function (err, userPop) {
             if (err) {
                 res.status(500).send(err);
                 throw new Error(err);
             } else {
                 var response = [];
-                for (let i = 0; i < userPop.favourites.length; i++) {
+                for (var i = 0; i < userPop.favourites.length; i++) {
                     var merchant = userPop.favourites[i];
                     response.push({
                         _id: merchant._id,
@@ -132,10 +330,10 @@ module.exports = {
      * Update users
      */
     updateUser : function (req, res) {
-      const id = req.params.id || req.query.id || req.body.id;
-      const body = req.body;
-      let deletePicture = false;
-      let formerPicture = '';
+      var id = req.params.id || req.query.id || req.body.id;
+      var body = req.body;
+      var deletePicture = false;
+      var formerPicture = '';
   
       Customer.findById(id, function (err, user) {
         if (err) {
@@ -156,7 +354,7 @@ module.exports = {
                   deletePicture = true;
                   formerPicture = user.picture.id;
               }
-              const picture = JSON.parse(body.picture);
+              var picture = JSON.parse(body.picture);
               user.picture = {
                 id: picture.id,
                 url: picture.url

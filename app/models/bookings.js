@@ -1,8 +1,8 @@
 //@ts-check
-const mongoose = require('mongoose');
-const schema = mongoose.Schema;
+var mongoose = require('mongoose');
+var schema = mongoose.Schema;
 
-let bookingSchema = new schema({
+var bookingSchema = new schema({
     userId: {
         type: String,
         required: true,
@@ -44,6 +44,6 @@ let bookingSchema = new schema({
     }
 });
 
-let Bookings = mongoose.model('Booking', bookingSchema);
+var Bookings = mongoose.model('Booking', bookingSchema);
 
 module.exports = Bookings;
