@@ -33,6 +33,9 @@ module.exports = {
      *          "email": "test@email.com"
      *          "name": "Test User",
      *          "isActive": true,
+     *          "dateOfBirth": "2018-08-22",
+     *          "ageRange": "15 - 25",
+     *          "sex": "male",
      *          "favourites": [],
      *          "interests": [],
      *          "city": "lagos",
@@ -76,6 +79,9 @@ module.exports = {
                     _id: user._id,
                     email: user.email,
                     name: user.name,
+                    dateOfBirth: user.dateOfBirth,
+                    ageRange: user.ageRange,
+                    sex: user.sex,
                     isActive: user.isActive,
                     favourites: user.favourites,
                     interests: user.interests,
@@ -94,7 +100,38 @@ module.exports = {
     },
     
     /**
-     * Create user interests
+     * @api {post} /customer/category Add a customer's interests
+     * @apiName createInterests
+     * @apiGroup Customer
+     * 
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {String[]} interests An array containing the users interests
+     * 
+     * @apiSuccess {String} message A message stating that the interest has been added
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *     "message": "Interests Created"
+     *  }
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
      */
     createInterests : function (req, res) {
         req.user.interests = JSON.parse(req.body.interests);
@@ -122,6 +159,9 @@ module.exports = {
      * @apiSuccess {String} _id The id of customer
      * @apiSuccess {String} email The email of the 
      * @apiSuccess {String} name The full name of the user
+     * @apiSuccess {Date} dateOfBirth The user's date of birth
+     * @apiSuccess {String} ageRange The user's ageRange
+     * @apiSuccess {String} sex The user's gender
      * @apiSuccess {Boolean} isActive Tells you if a user is active or not
      * @apiSuccess {String[]} favourites String array of favourites
      * @apiSuccess {String[]} interests String array of interests
@@ -134,6 +174,9 @@ module.exports = {
      *     "_id": "5b7ab4ce24688b0adcb9f54b",
      *     "email": "test@email.com"
      *     "name": "Test User",
+     *     "dateOfBirth": "2018-08-22",
+     *     "ageRange": "15 - 25",
+     *     "sex": "male",
      *     "isActive": true,
      *     "favourites": [],
      *     "interests": [],
@@ -184,6 +227,9 @@ module.exports = {
                     _id: user._id,
                     email: user.email,
                     name: user.name,
+                    dateOfBirth: user.dateOfBirth,
+                    ageRange: user.ageRange,
+                    sex: user.sex,
                     isActive: user.isActive,
                     favourites: user.favourites,
                     interests: user.interests,
@@ -309,12 +355,65 @@ module.exports = {
         });
     },
     /**
-     * Update user interests
+     * @api {put} /customer/category Update the user's interests/categories
+     * @apiName updateInterests
+     * @apiGroup Customer
+     * 
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {String[]} interests An array of interests
+     * 
+     * @apiSuccess {String} _id The id of customer
+     * @apiSuccess {String} email The email of the 
+     * @apiSuccess {String} name The full name of the user
+     * @apiSuccess {Date} dateOfBirth The user's date of birth
+     * @apiSuccess {String} ageRange The user's ageRange
+     * @apiSuccess {String} sex The user's gender
+     * @apiSuccess {Boolean} isActive Tells you if a user is active or not
+     * @apiSuccess {String[]} favourites String array of favourites
+     * @apiSuccess {String[]} interests String array of interests
+     * @apiSuccess {String} city The city of the user
+     * @apiSuccess {Object} picutre An object containing url {String} url of image
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *     "_id": "5b7ab4ce24688b0adcb9f54b",
+     *     "email": "test@email.com"
+     *     "name": "Test User",
+     *     "dateOfBirth": "2018-08-22",
+     *     "ageRange": "15 - 25",
+     *     "sex": "male",
+     *     "isActive": true,
+     *     "favourites": [],
+     *     "interests": [],
+     *     "city": "lagos",
+     *     "picutre": {
+     *         "url": null
+     *     }
+     *  }
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
      */
     updateInterests : function (req, res) {
         req.user.interests = JSON.parse(req.body.interests);
         if (!req.user.interests) {
-        req.user.interests = [];
+            req.user.interests = [];
         }
 
         req.user.save(function (err) {
@@ -322,12 +421,92 @@ module.exports = {
             res.status(500).send(err);
             throw new Error(err);
         } else {
-            res.status(200).send(req.user);
+            var user = req.user;
+            var data = {
+                _id: user._id,
+                email: user.email,
+                name: user.name,
+                dateOfBirth: user.dateOfBirth,
+                ageRange: user.ageRange,
+                sex: user.sex,
+                isActive: user.isActive,
+                favourites: user.favourites,
+                interests: user.interests,
+                city: user.city,
+                picutre: {
+                    url: user.picture
+                }
+            };
+            res.status(200).send(data);
         }
         });
     },
+    
     /**
-     * Update users
+     * @api {put} /customer/:id Update the user's information
+     * @apiName updateUser
+     * @apiGroup Customer
+     * 
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {String} _id The id of customer (Optional)
+     * @apiParam {String} email The email of the  (Optional)
+     * @apiParam {String} name The full name of the user (Optional)
+     * @apiParam {Date} dateOfBirth The user's date of birth (Optional)
+     * @apiParam {String} ageRange The user's ageRange (Optional)
+     * @apiParam {String} sex The user's gender (Optional)
+     * @apiParam {Boolean} isActive Tells you if a user is active or not (Optional)
+     * @apiParam {String[]} favourites String array of favourites (Optional)
+     * @apiParam {String[]} interests String array of interests (Optional)
+     * @apiParam {String} city The city of the user (Optional)
+     * @apiParam {Object} picutre An object containing url {String} url of image (Optional)
+     * 
+     * @apiSuccess {String} _id The id of customer
+     * @apiSuccess {String} email The email of the 
+     * @apiSuccess {String} name The full name of the user
+     * @apiSuccess {Date} dateOfBirth The user's date of birth
+     * @apiSuccess {String} ageRange The user's ageRange
+     * @apiSuccess {String} sex The user's gender
+     * @apiSuccess {Boolean} isActive Tells you if a user is active or not
+     * @apiSuccess {String[]} favourites String array of favourites
+     * @apiSuccess {String[]} interests String array of interests
+     * @apiSuccess {String} city The city of the user
+     * @apiSuccess {Object} picutre An object containing url {String} url of image
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *     "_id": "5b7ab4ce24688b0adcb9f54b",
+     *     "email": "test@email.com"
+     *     "name": "Test User",
+     *     "dateOfBirth": "2018-08-22",
+     *     "ageRange": "15 - 25",
+     *     "sex": "male",
+     *     "isActive": true,
+     *     "favourites": [],
+     *     "interests": [],
+     *     "city": "lagos",
+     *     "picutre": {
+     *         "url": null
+     *     }
+     *  }
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
      */
     updateUser : function (req, res) {
       var id = req.params.id || req.query.id || req.body.id;
@@ -368,7 +547,22 @@ module.exports = {
               res.status(500).send(err);
               throw new Error(err);
             } else {
-              res.status(200).send(user);
+                var data = {
+                    _id: user._id,
+                    email: user.email,
+                    name: user.name,
+                    dateOfBirth: user.dateOfBirth,
+                    ageRange: user.ageRange,
+                    sex: user.sex,
+                    isActive: user.isActive,
+                    favourites: user.favourites,
+                    interests: user.interests,
+                    city: user.city,
+                    picutre: {
+                        url: user.picture
+                    }
+                };
+              res.status(200).send(data);
               if (deletePicture) {
                 cloudinary.v2.uploader.destroy(formerPicture, {
                     invalidate: true
