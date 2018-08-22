@@ -142,14 +142,6 @@ var userSchema = new schema({
             type: Number,
             default: 0
         },
-        hot: {
-            status: {
-                type: Boolean,
-                default: false
-            },
-            starts: Date,
-            expires: Date
-        },
         rating: {
             value: {
                 default: 0,
