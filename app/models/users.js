@@ -223,7 +223,7 @@ userSchema.pre('save', function(next) {
 userSchema.index({'merchantInfo.location': '2dsphere'});
 
 // module.exports allows is to pass this to other files when it is called
-const User = mongoose.model('User', userSchema);
+var User = mongoose.model('User', userSchema);
 
 User.getCustomerById = function(id, callback) {
 	User.findById(id, callback);
@@ -264,7 +264,7 @@ User.updatePassword = function (user, password, callback) {
 };
 
 User.isValid = function (plainPassword, hashedPassword) {
-    const salt = bcrypt.genSalt(10);
+    var salt = bcrypt.genSalt(10);
     return bcrypt.compareSync(plainPassword, hashedPassword);
 };
 

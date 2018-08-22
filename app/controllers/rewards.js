@@ -1,14 +1,14 @@
 'use strict';
-const _ = require('lodash');
-const moment = require('moment');
-const schedule = require('node-schedule');
-const shortCode = require('shortid32');
+var _ = require('lodash');
+var moment = require('moment');
+var schedule = require('node-schedule');
+var shortCode = require('shortid32');
 
-const Booking = require('../models/bookings');
-const Emailer = require('../../config/email');
-const Merchant = require('../models/users');
-const Messages = require('../../config/messages');
-const Reward = require('./../models/reward');
+var Booking = require('../models/bookings');
+var Emailer = require('../../config/email');
+var Merchant = require('../models/users');
+var Messages = require('../../config/messages');
+var Reward = require('./../models/reward');
 
 module.exports = {
     adminCreate: function (req, res) {
@@ -183,7 +183,7 @@ module.exports = {
         };
     },
     delete: function (req, res) {
-        const id = req.params.id || req.body.id || req.query.id;
+        var id = req.params.id || req.body.id || req.query.id;
         Reward.findByIdAndRemove(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send({ message: 'An error occured while deleting the reward', error: err });
@@ -204,8 +204,8 @@ module.exports = {
         });
     },
     save: function (req, res) {
-        let rewardString = req.body.rewardId.replace(/[^a-z0-9]+/g," ");
-        let rewardId = rewardString.split(" ");
+        var rewardString = req.body.rewardId.replace(/[^a-z0-9]+/g," ");
+        var rewardId = rewardString.split(" ");
         rewardId = _.without(rewardId, "");
 
         Booking.findOne({ $and: 
@@ -220,7 +220,7 @@ module.exports = {
             } if (booking) {
                 res.status(409).send({ message: 'Coupin already exists.' });
             } else {
-                const booking = new Booking({
+                var booking = new Booking({
                     userId: req.user._id,
                     merchantId: req.body.merchantId,
                     rewardId: rewardId,
@@ -257,7 +257,7 @@ module.exports = {
             } else {
                 reward.isActive = !reward.isActive;
                 reward.status = req.body.status || reward.status;
-                const status = reward.isActive ? 'Activated' : 'Deactivated';
+                var status = reward.isActive ? 'Activated' : 'Deactivated';
                 reward.save(function (err) {
                     if (err) {
                         res.status(500).send(err);
@@ -317,9 +317,9 @@ module.exports = {
         });
     },
     readByMerchant: function(req, res) {
-        const id = req.params.id || req.query.id || req.body.id;
-        let limit = req.params.limit || req.query.limit || req.body.limit || 10;
-        let page = req.params.page || req.query.page || req.body.page || 0;
+        var id = req.params.id || req.query.id || req.body.id;
+        var limit = req.params.limit || req.query.limit || req.body.limit || 10;
+        var page = req.params.page || req.query.page || req.body.page || 0;
 
         if (typeof limit !== Number) {
             limit = parseInt(limit);
@@ -360,8 +360,8 @@ module.exports = {
         });
     },
     readByRequests: function(req, res) {
-        let limit = req.params.limit || req.query.limit || req.body.limit || 10;
-        let page = req.params.page || req.query.page || req.body.page || 0;
+        var limit = req.params.limit || req.query.limit || req.body.limit || 10;
+        var page = req.params.page || req.query.page || req.body.page || 0;
 
         if (typeof limit !== Number) {
             limit = parseInt(limit);
@@ -386,7 +386,7 @@ module.exports = {
         });
     },
     updateReview: function(req, res) {
-        const body = req.body;
+        var body = req.body;
         var title = '';
 
         Reward.findById(req.params.id, function(err, reward) {
@@ -427,7 +427,7 @@ module.exports = {
                             if (err) {
                                 console.log(`Email about reward failed to send to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                             } else {
-                                const status = reward.isActive ? 'accepted' : 'reviewed and chances are required'.
+                                var status = reward.isActive ? 'accepted' : 'reviewed and chances are required'.
                                 Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.name, status), function(response) {
                                     console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                                 });
@@ -439,7 +439,7 @@ module.exports = {
         });
     },
     updateReward: function (req, res) {
-        const body = req.body;
+        var body = req.body;
 
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
