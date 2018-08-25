@@ -1,6 +1,6 @@
-const auth = require('./../middleware/auth');
-const coupinCtrl = require('./../controllers/coupin');
-const passport = require('../middleware/passport');
+var auth = require('./../middleware/auth');
+var coupinCtrl = require('./../controllers/coupin');
+var passport = require('../middleware/passport');
 
 module.exports = function(router) {
   router.route('/coupin')

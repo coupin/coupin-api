@@ -316,6 +316,85 @@ module.exports = {
             }
         });
     },
+
+    /**
+     * @api {get} /rewards/merchant/:id Retrieve a merchnt's rewards
+     * @apiName readByMerchant
+     * @apiGroup Rewards
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {Number} page Index of pages i.e. 0 for page 1 and so on.
+     * @apiParam {String} merchantId id of the merchant
+     * 
+     * @apiSuccess {String} _id The id of reward
+     * @apiSuccess {String} name The name of the reward
+     * @apiSuccess {String} description The description of the reward
+     * @apiSuccess {String} merchantID The id of the merchant that the reward belongs to
+     * @apiSuccess {String[]} categories String array of categories
+     * @apiSuccess {Date} startDate The date that the reward starts
+     * @apiSuccess {Date} endDate The date that the reward ends
+     * @apiSuccess {String[]} pictures String array of pictures belonging to the reward
+     * @apiSuccess {Date} createdDate The date that the reward was created
+     * @apiSuccess {Date} modifiedDate The date that the reward was modified
+     * @apiSuccess {Object} multiple The object containing status {boolean} true for yes and false for no, capacity {Number}
+     * @apiSuccess {Object} price The object containing old {Number} and new {Number}
+     * @apiSuccess {Number[]} applicableDays An array of applicaple days 0 for Monday, 1 for Tuesday and so on
+     * @apiSuccess {Boolean} isActive To tell if the reward is active
+     * @apiSuccess {Boolean} delivery If the reward can be delivered
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  [{
+     *     "_id": "5b7ab4ce24688b0adcb9f54b",
+     *     "name": "Test Reward",
+     *     "merchantID": "0b7ab4ce24688b0adcb9f544",
+     *     "categories": ["foodndrink"],
+     *     "startDate": "2018-08-22",
+     *     "endDate": "2018-08-28",
+     *     "pictures": [{
+     *          "id": "coupin/test",
+     *          "url": "http://www.example.com/coupin/test.png"
+     *     }],
+     *     "createdDate": "2018-08-20",
+     *     "modifiedDate": "2018-08-20",
+     *     "multiple": [{
+     *          "status": true,
+     *          "capacity": 2
+     *     }],
+     *     "price": [{
+     *          "old": 1500,
+     *          "new": 1200
+     *     }],
+     *     "applicableDays": [0, 1, 2, 5],
+     *     "status": "active",
+     *     "delivery": true
+     *  }]
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError FavouriteNotFound Invalid token.
+     * 
+     * @apiErrorExample RewardNotFound:
+     *  HTTP/1.1 404 RewardNotFound
+     *  {
+     *      "message": "There no more rewards available."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
+     */
     readByMerchant: function(req, res) {
         var id = req.params.id || req.query.id || req.body.id;
         var limit = req.params.limit || req.query.limit || req.body.limit || 10;
@@ -330,6 +409,17 @@ module.exports = {
         }
 
         var query = {};
+        var date = new Date();
+
+        if (!req.user.role) {
+            query["startDate"] = {
+                $lte: date
+            };
+
+            query["endDate"] = {
+                $gte: date
+            };
+        }
 
         if (id !== '0') {
             query['merchantID'] = id;

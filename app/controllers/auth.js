@@ -1,13 +1,13 @@
-const _ = require('lodash');
-const jwt = require('jsonwebtoken');
-const passportJWT = require('passport-jwt');
+var _ = require('lodash');
+var jwt = require('jsonwebtoken');
+var passportJWT = require('passport-jwt');
 
-const Emailer = require('../../config/email');
-const Messages = require('../../config/messages');
-const User = require('../models/users');
+var Emailer = require('../../config/email');
+var Messages = require('../../config/messages');
+var User = require('../models/users');
 
-const ExtractJwt = passportJWT.ExtractJwt;
-const jwtOptions = {
+var ExtractJwt = passportJWT.ExtractJwt;
+var jwtOptions = {
     jwtFromRequest : ExtractJwt.fromAuthHeaderWithScheme('jwt'),
     secretOrKey : 'coupinappcustomer'
 }
@@ -222,11 +222,11 @@ module.exports = {
 
     registerMerchant: function(req, res) {
         // Get merchant details
-        const address = req.body.address;
-        const city = req.body.city;
-        const companyName = req.body.companyName;
-        const email = req.body.email;
-        const mobileNumber = req.body.mobileNumber;
+        var address = req.body.address;
+        var city = req.body.city;
+        var companyName = req.body.companyName;
+        var email = req.body.email;
+        var mobileNumber = req.body.mobileNumber;
 
         // Form Validator
         req.checkBody('companyName','Company Name field is required').notEmpty();
@@ -237,7 +237,7 @@ module.exports = {
         req.checkBody('state', 'State field is required').notEmpty();
 
         // Check Errors
-        const errors = req.validationErrors();
+        var errors = req.validationErrors();
 
         if (errors) {
             res,status(400).send({message: errors[0].msg });

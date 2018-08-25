@@ -1,10 +1,10 @@
-const passport = require('../middleware/passport');
+var passport = require('../middleware/passport');
 // Reward Controller
-const rewardCtrl = require('./../controllers/rewards');
+var rewardCtrl = require('./../controllers/rewards');
 // models
-const Reward = require('./../models/reward');
-const Customer = require('./../models/users');
-const auth = require('./../middleware/auth');
+var Reward = require('./../models/reward');
+var Customer = require('./../models/users');
+var auth = require('./../middleware/auth');
 
 module.exports = function(router) {
   //The route to create a reward for a merchant
