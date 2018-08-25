@@ -1044,7 +1044,7 @@ module.exports = {
         }
 
         var categories = JSON.parse(req.body.categories) || [];
-        var limit = req.body.limit || req.query.limit || req.params.limit || 10;
+        var limit = req.body.limit || req.query.limit || req.params.limit || 7;
         var page = req.body.page || req.query.page || req.params.page || 0;
 
         var longitude = req.body.long || req.query.long || req.params.long;
@@ -1076,6 +1076,10 @@ module.exports = {
                     '$in' : query
                 }
             }],
+            'merchantInfo.rewards.0' : {
+                $exists: true
+            },
+            isActive: true,
             role: 2
         };
 
@@ -1088,7 +1092,8 @@ module.exports = {
         Merchant.find(fullQuery)
         .populate({
             path: 'merchantInfo.rewards',
-            model: 'Reward'
+            model: 'Reward',
+            select: 'name'
         })
         .limit(limit)
         .skip(page * limit)
@@ -1102,6 +1107,7 @@ module.exports = {
                 var counter = 0;
                 var max = merchants.length - 1;
                 var result = [];
+
                 merchants.forEach(function (user) {
                     var info = {
                         _id: user._id,

@@ -266,8 +266,11 @@ module.exports = {
       .populate('rewardId.id')
       .populate('userId', 'name email mobileNumber')
       .populate('merchantId', 'merchantInfo _id')
-      .limit(10)
+      .limit(7)
       .skip(page * 10)
+      .sort({
+        createdAt: 'desc'
+      })
       .exec(function(err, bookings) {
         if (err) {
           res.status(500).send(err);
