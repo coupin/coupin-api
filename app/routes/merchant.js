@@ -76,6 +76,7 @@ module.exports = function(router) {
 
   router.route('/merchant/prime')
     .get(
+      passport.verifyJWT1,
       MerchantCtrl.retrieveHotList
     );
 

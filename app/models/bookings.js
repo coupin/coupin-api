@@ -38,6 +38,10 @@ var bookingSchema = new schema({
         type: Boolean,
         default: true
     },
+    expiryDate: {
+        type: Date,
+        required: true
+    },
     isActive: {
         type: Boolean,
         default: true

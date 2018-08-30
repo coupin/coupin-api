@@ -2,6 +2,7 @@ var _ = require('lodash');
 var jwt = require('jsonwebtoken');
 var passportJWT = require('passport-jwt');
 
+var Raven = require('./../../config/config').Raven;
 var Emailer = require('../../config/email');
 var Messages = require('../../config/messages');
 var User = require('../models/users');
@@ -59,14 +60,14 @@ module.exports = {
             User.findById(req.user._id, function (err, user) {
                 if (err) {
                     res.status(500).send(err);
-                    throw new Error(err);
+                    Raven.captureException(err);
                 } else if (!user) {
                     res.status(404).send({message: 'There is no such user'});
                 } else {
                     User.updatePassword(user, req.body.password, function (err, user) {
                         if (err) {
                             res.status(500).send(err);
-                            throw new Error(err);
+                            Raven.captureException(err);
                         } else {
                             res.status(200).send({message: 'Password change successful'});
                         }
@@ -188,7 +189,7 @@ module.exports = {
             User.createCustomer(customer, function(err, customer) {
                 if (err) {
                     res.status(409).send({message: 'User already exists.'});
-                    throw new Error(err);
+                    Raven.captureException(err);
                 } else {
                     var payload = {id: customer.id, name: customer.name, email: customer.email};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
@@ -258,7 +259,7 @@ module.exports = {
             merchant.save(function(err) {
             if(err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).send({
                     message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
@@ -332,13 +333,19 @@ module.exports = {
      */
     signinCustomer : function (req, res) {
         var user = req.user;
-        var payload = {id: user.id, name: user.name, email: user.email, mobileNumber: user.mobileNumber};
+        var payload = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            mobileNumber: user.mobileNumber
+        };
         var token = jwt.sign(payload, jwtOptions.secretOrKey);
         var data = {
             _id: user._id,
             email: user.email,
             name: user.name,
             dateOfBirth: user.dateOfBirth,
+            mobileNumber: user.mobileNumber,
             ageRange: user.ageRange,
             sex: user.sex,
             isActive: user.isActive,

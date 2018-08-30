@@ -83,6 +83,10 @@ var userSchema = new schema({
         type: String,
         ref: 'User'
     }],
+    visited: [{
+        type: String,
+        ref: 'User'
+    }],
     merchantInfo: {
         companyName: {
             type: String,

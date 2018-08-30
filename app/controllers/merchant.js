@@ -1,5 +1,6 @@
 var moment = require('moment');
 
+var Raven = require('./../../config/config').Raven;
 var emailer = require('../../config/email');
 var Merchant = require('../models/users');
 var Prime = require('../models/prime');
@@ -7,6 +8,14 @@ var Reward = require('./../models/reward');
 
 // Coupin App Messages
 var messages = require('../../config/messages');
+
+function getVisited(id) {
+    return new Promise(function(res, rej) {
+        Merchant.findById(id).select('favourites visited').exec(function(err, user) {
+            res(user);
+        });
+    });
+}
 
 module.exports = {
     /**
@@ -18,7 +27,7 @@ module.exports = {
         Merchant.findOne({email: body.email}, function (err, merchant) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (merchant) {
                 res.status(409).send({message: 'User already exists'});
             } else {
@@ -45,7 +54,7 @@ module.exports = {
                 Merchant.createCustomer(merchant, function (err) {
                     if (err) {
                         res.status(500).send(err);
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         res.status(200).send(merchant);
                     }
@@ -68,7 +77,7 @@ module.exports = {
         Merchant.findById(id, function (err, merchant) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if(!merchant) {
                 res.status(404).send({ message: 'Merchant does not exist.' });
             } else {
@@ -82,7 +91,7 @@ module.exports = {
                 merchant.save(function (err) {
                     if (err) {
                         res.status(500).send(err);
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         if (decision.accepted) {
                             emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id, emailer.getUiUrl()), function(response) {
@@ -106,7 +115,7 @@ module.exports = {
         Merchant.findById(id, function(err, merchant) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (!merchant) {
                 res.status(404).send({ message: 'User does not exist.' });
             } else {
@@ -134,7 +143,7 @@ module.exports = {
                 merchant.save(function(err, merchant) {
                     if (err) {
                         res.status(500).send(err);
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         res.status(200).send({
                             id: merchant._id,
@@ -189,7 +198,7 @@ module.exports = {
             Merchant.findById(id, function(err, merchant){
                 if (err) {
                     res.status(500).send(err);
-                    throw new Error(err);
+                    Raven.captureException(err);
                 } else if (!merchant) {
                     res.status(404).send({ message: 'Merchant does not exist.' });
                 } else {
@@ -214,7 +223,7 @@ module.exports = {
                     Merchant.createCustomer(merchant, function(err) {
                         if (err) {
                             res.status(500).send(err);
-                            throw new Error(err);
+                            Raven.captureException(err);
                         } else {
                             res.status(200).send({message: 'Congratulations! Welcome to the family! Please login to continue.'});
                             emailer.sendEmail(merchant.email, 'Congratulations!', messages.completedEmail({
@@ -287,7 +296,7 @@ module.exports = {
         }, 'merchantInfo.companyName merchantInfo.logo', function(err, rewards) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).send(rewards);
             }
@@ -389,7 +398,6 @@ module.exports = {
         var skip = req.query.page || req.body.page || req.params.page ||  0;
         var longitude = req.query.longitude || req.body.longitude || req.params.longitude;
         var latitude = req.query.latitude || req.body.latitude || req.params.latitude;
-        console.log(categories);
 
         if (typeof limit !== Number) {
             limit = parseInt(limit);
@@ -446,7 +454,7 @@ module.exports = {
         .exec(function (err, users) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (users.length === 0) {
                 res.status(404).send({ message: 'Sorry there is no reward around you.'});
             } else {
@@ -509,6 +517,8 @@ module.exports = {
      * @apiSuccess {Object} reward The company's first reward
      * @apiSuccess {String[]} reward Array containing ids of the rewards
      * @apiSuccess {String} category A random category the company falls under
+     * @apiSuccess {boolean} favourite Shows if the merchant is a favourite
+     * @apiSuccess {boolean} visited Shows if a merchant has been visited
      * 
      * @apiSuccessExample Success-Response:
      *  HTTP/1.1 200 OK
@@ -538,7 +548,9 @@ module.exports = {
      *         "rating": {
      *             "value": 5.
      *             "raters": 2
-     *         }
+     *         },
+     *         "visited": true,
+     *         "favourite": false
      *     }
      *  }, {
      *     "email": "String",
@@ -565,7 +577,9 @@ module.exports = {
      *         "rating": {
      *             "value": 5.
      *             "raters": 2
-     *         }
+     *         },
+     *         "visited": false,
+     *         "favourite": false
      *     }
      *  }]
      * 
@@ -606,6 +620,11 @@ module.exports = {
         var skip = req.query.page || req.body.page || req.params.page ||  0;
         var categories = req.user.interests;
 
+        var currentUser;
+        (async function() {
+            currentUser = await getVisited(req.user.id);
+        })();
+
         Merchant.find({
             'merchantInfo.categories': {
                 $in: categories
@@ -625,11 +644,35 @@ module.exports = {
         .exec(function(err, merchants) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (merchants.length === 0) {
                 res.status(404).send({ message: 'No new merchants matching your interests.' });
             } else {
-                res.status(200).send(merchants);
+                var info = merchants.map(function(user) {
+                    return {
+                        _id: user._id,
+                        email: user.email,
+                        merchantInfo: {
+                            companyName: user.merchantInfo.companyName,
+                            mobileNumber: user.merchantInfo.mobileNumber,
+                            companyDetails: user.merchantInfo.companyDetails,
+                            logo: user.merchantInfo.logo,
+                            banner: user.merchantInfo.banner,
+                            address: user.merchantInfo.address + ', ' + user.merchantInfo.city,
+                            city: user.merchantInfo.city,
+                            location: user.merchantInfo.location,
+                            categories: user.merchantInfo.categories,
+                            rating: user.merchantInfo.rating.value,
+                            reward: user.merchantInfo.rewards[0],
+                            rewards: user.merchantInfo.rewards,
+                            rewardsSize: user.merchantInfo.rewards.length,
+                        },
+                        visited: currentUser.visited.indexOf(user._id) > -1,
+                        favourite: currentUser.favourites.indexOf(user._id) > -1
+                    }
+                });
+
+                res.status(200).send(info);
             }
         });
     },
@@ -698,7 +741,7 @@ module.exports = {
             .exec(function(err, rewards) {
                 if (err) {
                     res.status(500).send(err);
-                    throw new Error(err);
+                    Raven.captureException(err);
                 } else {
                     res.status(200).send({
                         total: rewards.length,
@@ -728,7 +771,7 @@ module.exports = {
         .exec(function (err, merchants) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).send(merchants);
             }
@@ -743,7 +786,7 @@ module.exports = {
         .exec(function(err, merchant) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).send(merchant);
             }
@@ -853,6 +896,11 @@ module.exports = {
      *              }
      *          }
      *      },
+     *      "visited": {
+     *          "first": true,
+     *          "second": false,
+     *          "third": false
+     *      },
      *      "hotlist": [{
      *          "_id": "String",
      *          "email": "String",
@@ -893,6 +941,11 @@ module.exports = {
      *  }
      */
     retrieveHotList: function(req, res) {
+        var currentUser;
+        (async function() {
+            currentUser = await getVisited(req.user.id);
+        })();
+
         Prime.findOne({})
         .populate({
             path: 'featured.first',
@@ -940,6 +993,13 @@ module.exports = {
                         console.log(err);
                         res.status(500).send(err);
                     } else {
+
+                        prime['visited'] = {
+                            first: currentUser.visited.indexOf(prime.featured.first._id) > -1,
+                            second: currentUser.visited.indexOf(prime.featured.second._id) > -1,
+                            third: currentUser.visited.indexOf(prime.featured.third._id) > -1
+                        };
+
                         res.status(200).send(prime);
                     }
                 });
@@ -975,6 +1035,8 @@ module.exports = {
      * @apiSuccess {Object} reward The company's first reward
      * @apiSuccess {String[]} reward Array containing ids of the rewards
      * @apiSuccess {String} category A random category the company falls under
+     * @apiSuccess {Boolean} visited To know if the user has visited the merchant
+     * @apiSuccess {Boolean} favourite To know if the user has the merchant as a favourite
      * 
      * @apiSuccessExample Success-Response:
      *  HTTP/1.1 200 OK
@@ -1043,6 +1105,11 @@ module.exports = {
             query = query.split(' ');
         }
 
+        var currentUser;
+        (async function() {
+            currentUser = await getVisited(req.user.id);
+        })();
+
         var categories = JSON.parse(req.body.categories) || [];
         var limit = req.body.limit || req.query.limit || req.params.limit || 7;
         var page = req.body.page || req.query.page || req.params.page || 0;
@@ -1065,6 +1132,10 @@ module.exports = {
                 }
             }, {
                 'merchantInfo.companyDetails': {
+                    '$in' : query
+                }
+            }, {
+                'merchantInfo.categories': {
                     '$in' : query
                 }
             }, {
@@ -1100,7 +1171,7 @@ module.exports = {
         .exec(function (err, merchants) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (merchants.length === 0) {
                 res.status(404).send({message: 'No Merchants under that name was found'});
             } else {
@@ -1126,7 +1197,9 @@ module.exports = {
                         reward: user.merchantInfo.rewards[0],
                         rewards: user.merchantInfo.rewards,
                         count: user.merchantInfo.rewards.length,
-                        category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)]
+                        category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)],
+                        visited: currentUser.visited.indexOf(user._id) > -1,
+                        favourite: currentUser.favourites.indexOf(user._id) > -1
                     }
                     
                     result.push(info);
@@ -1148,7 +1221,7 @@ module.exports = {
         Merchant.findById(id, function(err, merchant) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (!merchant) {
                 res.status(404).send({message: 'No such user exists'});
             } else {
@@ -1169,7 +1242,7 @@ module.exports = {
                 merchant.save(function(err) {
                     if (err) {
                         res.status(500).send(err);
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         if (body.status === 'accepted') {
                             emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id, emailer.getUiUrl()), function(response) {
@@ -1195,7 +1268,7 @@ module.exports = {
         Merchant.findById(id, function(err, merchant) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (!merchant) {
                 res.status(404).send({message: 'No such user exists'});
             } else {
@@ -1215,7 +1288,7 @@ module.exports = {
                 merchant.save(function(err) {
                     if (err) {
                         res.status(500).send(err);
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         res.status(200).send({
                             id: merchant._id,

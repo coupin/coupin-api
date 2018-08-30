@@ -7,6 +7,15 @@ var emailer = require('../../config/email');
 var messages = require('../../config/messages');
 
 var cloudinary = config.cloudinary;
+var Raven = config.Raven;
+
+function getVisited(id) {
+    return new Promise(function(res, rej) {
+        Customer.findById(id).select('favourites visited').exec(function(err, user) {
+            res(user);
+        });
+    });
+}
 
 module.exports = {
     /**
@@ -73,7 +82,7 @@ module.exports = {
         req.user.save(function(err) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 var data = {
                     _id: user._id,
@@ -139,7 +148,7 @@ module.exports = {
         req.user.save(function (err) {
         if (err) {
             res.status(500).send(err);
-            throw new Error(err);
+            Raven.captureException(err);
         } else {
             res.status(200).send({ message: 'Interests Created' });
         }
@@ -221,7 +230,7 @@ module.exports = {
         req.user.save(function (err) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 var data = {
                     _id: user._id,
@@ -315,6 +324,11 @@ module.exports = {
      */
     retrieveFavourites : function (req, res ) {
         var user = req.user;
+        var currentUser;
+        (async function() {
+            currentUser = await getVisited(req.user.id);
+        })();
+
         Customer.populate(user, {
             path: 'favourites',
             model: 'User',
@@ -325,7 +339,7 @@ module.exports = {
         }, function (err, userPop) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 var response = [];
                 for (var i = 0; i < userPop.favourites.length; i++) {
@@ -346,7 +360,8 @@ module.exports = {
                         rating: merchant.merchantInfo.rating.value,
                         reward: merchant.merchantInfo.rewards[0],
                         rewards: merchant.merchantInfo.rewards,
-                        category: merchant.merchantInfo.categories[Math.floor(Math.random() * merchant.merchantInfo.categories.length)]
+                        category: merchant.merchantInfo.categories[Math.floor(Math.random() * merchant.merchantInfo.categories.length)],
+                        visited: currentUser.visited.indexOf(merchant._id) > -1
                     });
                 }
 
@@ -419,7 +434,7 @@ module.exports = {
         req.user.save(function (err) {
         if (err) {
             res.status(500).send(err);
-            throw new Error(err);
+            Raven.captureException(err);
         } else {
             var user = req.user;
             var data = {
@@ -517,7 +532,7 @@ module.exports = {
       Customer.findById(id, function (err, user) {
         if (err) {
           res.status(500).send(err);
-          throw new Error(err);
+          Raven.captureException(err);
         } else if (!user) {
           res.status(404).send({ message: 'User does not exist.' });
         } else {
@@ -545,7 +560,7 @@ module.exports = {
           user.save(function(err) {
             if (err) {
               res.status(500).send(err);
-              throw new Error(err);
+              Raven.captureException(err);
             } else {
                 var data = {
                     _id: user._id,
@@ -569,7 +584,7 @@ module.exports = {
                 }, function(err, result) {
                     if (err) {
                     console.log(err);
-                    throw new Error(err);
+                    Raven.captureException(err);
                     }
                 });
               }

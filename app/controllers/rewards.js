@@ -2,6 +2,7 @@
 var _ = require('lodash');
 var moment = require('moment');
 var schedule = require('node-schedule');
+var Raven = require('./../../config/config').Raven;
 var shortCode = require('shortid32');
 
 var Booking = require('../models/bookings');
@@ -30,7 +31,7 @@ module.exports = {
             Reward.findOne({ name: req.body.name }, function (err, reward) {
                 if (err) {
                     res.status(500).send(err);
-                    throw new Error(err);
+                    Raven.captureException(err);
                 } else if (reward) {
                     res.status(409).send({message: 'There is already a reward with that name'});
                 } else {
@@ -57,7 +58,7 @@ module.exports = {
                     reward.save(function (err) {
                         if(err) {
                             res.status(500).send(err);
-                            throw new Error(err);
+                            Raven.captureException(err);
                         } else {
                             res.status(200).send(reward);                            
                             Merchant.findById(reward.merchantID, function(err, merchant) {
@@ -89,7 +90,7 @@ module.exports = {
 
                                 merchant.save(function(err) {
                                     if (err) {
-                                        throw new Error(err);
+                                        Raven.captureException(err);
                                     }
                                 });
                             });
@@ -118,7 +119,7 @@ module.exports = {
             Reward.findOne({ name: req.body.name }, function (err, reward) {
                 if (err) {
                     res.status(500).send(err);
-                    throw new Error(err);
+                    Raven.captureException(err);
                 } else if (reward) {
                     res.status(409).send({message: 'There is already a reward with that name'});
                 } else {
@@ -144,12 +145,12 @@ module.exports = {
                     reward.save(function (err) {
                         if(err) {
                             res.status(500).send(err);
-                            throw new Error(err);
+                            Raven.captureException(err);
                         } else {
                             res.status(200).send(reward);          
                             Merchant.findById(reward.merchantID, function(err, merchant) {
                                 if (err) {
-                                    throw new Error(err);
+                                    Raven.captureException(err);
                                 } else {
                                     var rewardsList = merchant.merchantInfo.rewards ? merchant.merchantInfo.rewards : [];
                                     rewardsList.push(reward._id);
@@ -171,7 +172,7 @@ module.exports = {
 
                                     merchant.save(function(err) {
                                         if (err) {
-                                            throw new Error(err);
+                                            Raven.captureException(err);
                                         }
                                     });
                                 }
@@ -187,7 +188,7 @@ module.exports = {
         Reward.findByIdAndRemove(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send({ message: 'An error occured while deleting the reward', error: err });
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).send({message: 'Reward successfully deleted'});
             }
@@ -197,7 +198,7 @@ module.exports = {
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).send(reward);
             }
@@ -216,7 +217,7 @@ module.exports = {
         }, function (err, booking) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } if (booking) {
                 res.status(409).send({ message: 'Coupin already exists.' });
             } else {
@@ -230,7 +231,7 @@ module.exports = {
                 booking.save(function (err) {
                     if (err) {
                         res.status(500).send(err);
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         Booking
                         .populate(booking, { 
@@ -238,7 +239,7 @@ module.exports = {
                         }, function (err, booking) {
                             if (err) {
                                 res.status(500).send(err);
-                                throw new Error(err);
+                                Raven.captureException(err);
                             } else {
                                 res.status(201).send(booking);
                             }
@@ -310,7 +311,7 @@ module.exports = {
         .exec(function(err, rewards) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).json(rewards);
             }
@@ -441,7 +442,7 @@ module.exports = {
         .exec(function(err, rewards) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (!rewards) {
                 res.status(404).send({ message: 'There no more rewards available.' });
             } else {
@@ -469,7 +470,7 @@ module.exports = {
         .exec(function(err, rewards) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).send(rewards);
             }
@@ -482,7 +483,7 @@ module.exports = {
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send({ message: 'An error occured while retreiving the reward', error: err });
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (!reward) {
                 res.status(404).send({ message: 'There is no reward matching that id' });
             } else {
@@ -506,7 +507,7 @@ module.exports = {
                 reward.save(function(err) {
                     if (err) {
                         res.status(500).send({ message: 'An error occured while updating the reward' });
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         res.status(200).send({ message: 'Review added successfully.' });
                         Reward.populate(reward, {
@@ -534,7 +535,7 @@ module.exports = {
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
                 res.status(500).send({ message: 'An error occured while retreiving the reward', error: err });
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (!reward) {
                 res.status(404).send({ message: 'There is no reward matching that id' });
             } else {
@@ -551,7 +552,7 @@ module.exports = {
                 reward.save(function(err) {
                     if (err) {
                         res.status(500).send({ message: 'An error occured while updating the reward' });
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         res.status(200).send({ message: 'Reward Updated' });
                     }
