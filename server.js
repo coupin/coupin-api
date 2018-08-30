@@ -1,32 +1,27 @@
-const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
+var bodyParser = require('body-parser');
+var dotenv = require('dotenv');
 // server module
-const express = require('express');
+var express = require('express');
 //var session = require('express-session');
-const methodOverride = require('method-override');
+var methodOverride = require('method-override');
 
 // Express validatory
-const expressValidator = require('express-validator');
+var expressValidator = require('express-validator');
 // Database module
-const mongoose = require('mongoose');
+var mongoose = require('mongoose');
 // authentication module
-const passport = require('passport');
-const cookieParser = require('cookie-parser');
+var passport = require('passport');
+var cookieParser = require('cookie-parser');
 // For logging all request
-const morgan = require('morgan');
+var morgan = require('morgan');
 // For token validation
-const fs = require('fs-extra');
-const busboy = require('connect-busboy');
-const cors = require('cors');
-// Raven for logging
-const Raven = require('raven');
+var fs = require('fs-extra');
+var busboy = require('connect-busboy');
+var cors = require('cors');
 
-Raven.config('https://d9b81d80ee834f1b9e2169e2152f3f95:73ba5ba410494467aaa97b5932f4fad2@sentry.io/301229').install();
+var myRoutes = require('./app/routes');
 
-const myRoutes = require('./app/routes');
-
-const app = express();
-
+var app = express();
 dotenv.config();
 
 // set our port
@@ -40,7 +35,6 @@ mongoose.connect(process.env.MONGO_URL);
  * get all data of the body parameters
  * parse application/json
  */
-app.use(Raven.requestHandler());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -86,11 +80,6 @@ app.use('/doc', function(req, res) {
 
 // configure our routes
 app.use('/api/v1', myRoutes);
-
-app.use(Raven.errorHandler());
-app.use(function onError(err, req, res, next) {
-  res.status(500).send(res.sentry + '\n');
-});
 
 //start on localhost 3030
 app.listen(port).on('error', function (err) {

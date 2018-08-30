@@ -84,6 +84,7 @@ var rewardSchema = new schema({
     },
     comment: {
       type: String,
+      default: 'Good',
       require: true
     },
     timeStamp: {

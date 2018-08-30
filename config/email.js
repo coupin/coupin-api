@@ -1,9 +1,9 @@
-const dotenv = require('dotenv');
-const nodemailer = require('nodemailer');
+var dotenv = require('dotenv');
+var nodemailer = require('nodemailer');
 
 // Custom
-const config = require('./config');
-const mailgun = config.mailgun;
+var config = require('./config');
+var mailgun = config.mailgun;
 
 module.exports = {
     getUiUrl: function() {
@@ -13,7 +13,7 @@ module.exports = {
     },
     sendEmail: function(to, subject, message, callback){
 
-        const mailOptions = {
+        var mailOptions = {
             from: 'Coupin App Ng <info@coupinapp.com>',
             to: to, //can be a lst of receivers e.g. 'test@test.com, test1@test1.com'
             subject: subject,

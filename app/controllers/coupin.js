@@ -3,9 +3,20 @@ var _ = require('lodash');
 var moment = require('moment');
 var shortCode = require('shortid32');
 
+var Raven = require('./../../config/config').Raven;
 var Booking = require('./../models/bookings');
+var Reward = require('./../models/reward');
+var User = require('./../models/users');
 var emailer = require('../../config/email');
 var messages = require('../../config/messages');
+
+function getVisited(id) {
+  return new Promise(function(res, rej) {
+      User.findById(id).select('favourites visited').exec(function(err, user) {
+          res(user);
+      });
+  });
+}
 
 module.exports = {
   /**
@@ -70,7 +81,7 @@ module.exports = {
       Booking.findById(id, function (err, booking) {
         if (err) {
           res.status(500).send(err);
-          throw new Error(err);
+          Raven.captureException(err);
         } else if (!booking) {
           res.status(404).send({ message: 'No such booking exists' });
         } else {
@@ -80,7 +91,7 @@ module.exports = {
           booking.save(function(err, booking) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 res.status(200).send(booking);
             }
@@ -159,21 +170,23 @@ module.exports = {
         merchantId: req.body.merchantId,
         rewardId: rewards,
         shortCode: code,
-        useNow: useNow
+        useNow: useNow,
+        expiryDate: new Date(req.body.expiryDate)
     });
 
     booking.save(function (err) {
       if (err) {
+        console.log(err);
         res.status(500).send(err);
-        throw new Error(err);
+        Raven.captureException(err);
       } else {
-        Booking
+        Reward
         .populate(booking, { 
             path: 'rewardId.id'
         }, function (err, booking) {
           if (err) {
             res.status(500).send(err);
-            throw new Error(err);
+            Raven.captureException(err);
           } else {
             res.status(200).send(booking);
             // emailer.sendEmail(merchant.email, 'Coupin Created', messages.approved(merchant._id), function(response) {
@@ -203,6 +216,8 @@ module.exports = {
    * @apiSuccess {String} shortCode The generated coupin
    * @apiSuccess {Boolean} useNow To determine whether it is in use
    * @apiSuccess {Boolean} isActive To determine if it has expired
+   * @apiSuccess {Boolean} visited To determine if the place has been visited by the user
+   * @apiSuccess {Boolean} favourite To determine if it is a favourite
    * 
    * @apiSuccessExample Success-Response:
    *  HTTP/1.1 200 OK
@@ -216,7 +231,9 @@ module.exports = {
    *      }],
    *      "shortCode": "GH43C78T",
    *      "useNow": "true",
-   *      "isActive": "true"
+   *      "isActive": "true",
+   *      "visited": true,
+   *      "favourite": false
    *  }
    * 
    * @apiError Unauthorized Invalid token.
@@ -249,6 +266,11 @@ module.exports = {
     var saved = req.body.saved || req.params.saved || req.query.saved || 'false';
     var useNow = (saved === 'false' || saved === false) ? true : false;
 
+    var currentUser;
+    (async function() {
+        currentUser = await getVisited(req.user.id);
+    })();
+
     var query = {
       isActive: active,
       useNow: useNow
@@ -263,9 +285,9 @@ module.exports = {
     }
 
     Booking.find(query)
-      .populate('rewardId.id')
-      .populate('userId', 'name email mobileNumber')
-      .populate('merchantId', 'merchantInfo _id')
+    .populate('userId', 'name email mobileNumber')
+    .populate('merchantId', 'merchantInfo _id')
+    .populate('rewardId.id')
       .limit(7)
       .skip(page * 10)
       .sort({
@@ -274,11 +296,26 @@ module.exports = {
       .exec(function(err, bookings) {
         if (err) {
           res.status(500).send(err);
-          throw new Error(err);
+          Raven.captureException(err);
         } else if (bookings.length === 0) {
             res.status(404).send({message: 'No active bookings.'});
         } else {
-            res.status(200).send(bookings);
+          var info = bookings.map(function(booking) {
+            return {
+              _id: booking._id,
+              userId: booking.userId,
+              merchantId: booking.merchantId,
+              rewardId: booking.rewardId,
+              shortCode: booking.shortCode,
+              useNow: booking.useNow,
+              isActive: booking.isActive,
+              visited: currentUser.visited.indexOf(booking.merchantId._id) > -1,
+              favourite: currentUser.favourites.indexOf(booking.merchantId._id) > -1,
+              createdAt: booking.createdAt
+            };
+          });
+
+          res.status(200).send(info);
         }
       });
   },
@@ -290,7 +327,7 @@ module.exports = {
     Booking.findById(id, function (err, booking) {
       if (err) {
         res.status(500).send(err);
-        throw new Error(err);
+        Raven.captureException(err);
       } else if (!booking) {
         res.status(404).send({ message: 'Coupin deos not exist.' });
       } else {
@@ -310,9 +347,22 @@ module.exports = {
         booking.save(function(err) {
           if (err) {
             res.status(500).send(err);
-            throw new Error(err);
+            Raven.captureException(err);
           } else {
             res.status(200).send(booking);
+
+            User.findById(booking.userId, function(err, user) {
+              if (err) {
+                console.log(err);
+              } else {
+                if (!user.visited) {
+                  user['visited'] = [];
+                }
+
+                user.visited = _.union(user.visited, [booking.merchantId]);
+                user.save();
+              }
+            });
           }
         });
       }
@@ -320,7 +370,7 @@ module.exports = {
   },
   // Verify Short Code and return booking details for merchant
   verify: function(req, res) {
-    var pin = req.params.pin;
+    var pin = req.params.pin.toUpperCase();
 
     Booking.findOne({
       shortCode: pin,
@@ -333,7 +383,7 @@ module.exports = {
     .exec(function(err, booking) {
       if (err) {
         res.status(500).send(error);
-        throw new Error(err);
+        Raven.captureException(err);
       } else if (!booking) {
         res.status(404).send({ error: 'Coupin does not exist.'});
       } else {
@@ -350,6 +400,8 @@ module.exports = {
         if (change) {
           booking.save();
         }
+
+
       }
     });
   }

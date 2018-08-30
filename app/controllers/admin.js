@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var bcrypt = require('bcryptjs');
 
+var Raven = require('./../../config/config').Raven;
 var Prime = require('../models/prime');
 var User = require('./../models/users');
 
@@ -12,7 +13,7 @@ module.exports = {
         User.findById(req.params.id, function(err, user) {
             if(err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if(!user) {
                 res.status(404).send({message: 'No Such User Exists'});
             } else {
@@ -20,7 +21,7 @@ module.exports = {
                 user.save( function(err) {
                     if(err) {
                         res.status(500).send(err);
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         var status = user.isActive ? 'Activated' : 'Deactivated';
                         res.send({message: `${user.email} was ${status} successfully.`});
@@ -58,7 +59,7 @@ module.exports = {
             user.save(function(err) {
                 if (err) {
                     res.status(500).send(err);
-                    throw new Error(err);
+                    Raven.captureException(err);
                 } else {
                     res.status(200).send({message: 'User Created.'});
                 }
@@ -89,7 +90,7 @@ module.exports = {
         User.findById(req.params.id, function(err, user) {
             if(err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else if (!user) {
                 res.status(404).send({message: 'User does not exist.'});
             } else {
@@ -98,7 +99,7 @@ module.exports = {
                 }, function(err, user) {
                     if(err) {
                         res.status(500).send(err);
-                        throw new Error(err);
+                        Raven.captureException(err);
                     } else {
                         res.status(200).send({message: 'Admin has been deleted'});
                     }
@@ -151,7 +152,7 @@ module.exports = {
         Prime.findOne(function(err, prime) {
             if (err) {
                 res.status(500).send(err);
-                throw new Error(err);
+                Raven.captureException(err);
             } else {
                 var index = _.findIndex(prime.hotlist, function(element) {
                     return body.index === element.index;
