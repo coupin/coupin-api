@@ -1,7 +1,8 @@
-const dotenv = require('dotenv');
-const seeder = require('mongoose-seed');
+var dotenv = require('dotenv');
+var seeder = require('mongoose-seed');
 
-const Users = require('./app/models/users');
+var Raven = require('./config/config').Raven;
+var Users = require('./app/models/users');
 
 dotenv.config();
 
@@ -9,22 +10,21 @@ var db = process.env.MONGO_URL;
 // var db = process.env.LOCAL_URL;
 
 // const data = require('./seeds/data.json');
-
 seeder.connect(db, function () {
     // seeder.populateModels(data, function () {
-        Users.findOne({email: 'admin@coupin.com'}, function (err, admin) {
+        Users.findOne({email: 'admin@coupin.com'}, function (err, user) {
             if (err) {
-                console.log(err);
+                Raven.captureException(err);
                 process.exit(0);
-            } else if (!admin) {
-                let admin = new Users();
+            } else if (!user) {
+                var admin = new Users();
                 admin.email = 'admin@coupin.com';
                 admin.password = 'coupinapp';
                 admin.role = 0;
 
                 Users.createCustomer(admin, function (err) {
                     if (err) {
-                        console.log(err);
+                        Raven.captureException(err);
                         process.exit(0);
                     }
 

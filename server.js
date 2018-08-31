@@ -1,4 +1,6 @@
+var _ = require('lodash');
 var bodyParser = require('body-parser');
+var cron = require("node-cron");
 var dotenv = require('dotenv');
 // server module
 var express = require('express');
@@ -20,6 +22,10 @@ var busboy = require('connect-busboy');
 var cors = require('cors');
 
 var myRoutes = require('./app/routes');
+var Raven = require('raven');
+Raven.config('https://d9b81d80ee834f1b9e2169e2152f3f95:73ba5ba410494467aaa97b5932f4fad2@sentry.io/301229').install();
+
+var Users = require('./app/models/users');
 
 var app = express();
 dotenv.config();
@@ -35,10 +41,13 @@ mongoose.connect(process.env.MONGO_URL);
  * get all data of the body parameters
  * parse application/json
  */
+app.use(Raven.requestHandler);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(morgan('dev'));
+
+app.use(Raven.errorHandler());
 
 // Validator
 app.use(expressValidator({
@@ -81,9 +90,64 @@ app.use('/doc', function(req, res) {
 // configure our routes
 app.use('/api/v1', myRoutes);
 
+function sortMerchantRewards() {
+    Users.find({
+        isActive: true,
+        status: 'completed',
+        role: 2
+    })
+    .populate('merchantInfo.rewards', 'endDate isActive startDate')
+    .populate('merchantInfo.pendingRewards', 'endDate isActive startDate')
+    .exec(function(err, merchants) {
+        if (err) {
+            Raven.captureMessage('An error occured while updating merchant\'s rewards. See below for reason.');
+            Raven.captureException(err);
+        } else {
+          var date = new Date();
+          merchants.forEach(function(merchant) {
+            var active = [];
+            var pending = [];
+            var stillActive = [];
+            var expired = [];
+            merchant.merchantInfo.pendingRewards.forEach(function(reward, index) {
+              if (reward.startDate >= date && reward.isActive) {
+                active.push(reward._id);
+              } else {
+                pending.push(index);
+              }
+            });
+
+            merchant.merchantInfo.rewards.forEach(function(reward, index) {
+              if (reward.endDate >= date) {
+                expired.push(reward._id);
+              } else {
+                stillActive.push(index);
+              }
+            });
+
+            merchant.merchantInfo.expiredRewards = expired;
+            merchant.merchantInfo.pendingRewards = pending;
+            merchant.merchantInfo.rewards = _.join(active, stillActive);
+
+            merchant.save(function(err) {
+              Raven.captureException(err);
+            });
+          });
+        }
+    });
+}
+
+cron.schedule("59 23 * * *", function() {
+  sortMerchantRewards();
+});
+
 //start on localhost 3030
 app.listen(port).on('error', function (err) {
   console.log(err);
+});
+
+app.use(function onError(err, req, res) {
+  res.status(500).send(res.sentry);
 });
 
 // confirmation

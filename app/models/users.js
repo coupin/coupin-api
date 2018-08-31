@@ -138,6 +138,14 @@ var userSchema = new schema({
                 default: null
             }
         },
+        expiredRewards: [{
+            type: String,
+            ref: 'Reward'
+        }],
+        pendingRewards: [{
+            type: String,
+            ref: 'Reward'
+        }], 
         rewards: [{
             type: String,
             ref: 'Reward'

@@ -1,7 +1,9 @@
-const cloudinary = require('cloudinary');
-const dotenv = require('dotenv');
-const Raven = require('raven');
-const mailgun = require('mailgun-js');
+'use strict';
+
+var cloudinary = require('cloudinary');
+var dotenv = require('dotenv');
+var Raven = require('raven');
+var mailgun = require('mailgun-js');
 
 dotenv.config();
 mailgun({

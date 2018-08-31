@@ -62,31 +62,13 @@ module.exports = {
                         } else {
                             res.status(200).send(reward);                            
                             Merchant.findById(reward.merchantID, function(err, merchant) {
-                                merchant.merchantInfo.rewards.push(reward._id);
+                                merchant.merchantInfo.pendingRewards.push(reward._id);
                                 merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewardsSize + 1;
                                 merchant.merchantInfo.lastAdded = new Date();
                                 if (moment(merchant.merchantInfo.latestExp).isBefore(reward.endDate)) {
                                     merchant.merchantInfo.latestExp = reward.endDate;
                                 }
                                 merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
-
-                                // Schedule to move to used on expired
-                                schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
-                                    reward.status = 'expired';
-                                    reward.isActive = false;
-                                    reward.save();
-
-                                    merchant.merchantInfo.rewards.forEach(function(element) {
-                                        return element !== reward._id;
-                                    });
-                                    merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewardsSize - 1;
-
-                                    if (!merchant.expired) {
-                                        merchant.expired = [];
-                                    }
-                                    merchant.expired.push(reward._id);
-                                    merchant.save();
-                                }.bind(null, merchant, reward));
 
                                 merchant.save(function(err) {
                                     if (err) {
@@ -152,9 +134,9 @@ module.exports = {
                                 if (err) {
                                     Raven.captureException(err);
                                 } else {
-                                    var rewardsList = merchant.merchantInfo.rewards ? merchant.merchantInfo.rewards : [];
+                                    var rewardsList = merchant.merchantInfo.pendingRewards ? merchant.merchantInfo.pendingRewards : [];
                                     rewardsList.push(reward._id);
-                                    merchant.merchantInfo.rewards = rewardsList;
+                                    merchant.merchantInfo.pendingRewards = rewardsList;
                                     merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewardsSize + 1;
                                     merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
 
@@ -201,51 +183,6 @@ module.exports = {
                 Raven.captureException(err);
             } else {
                 res.status(200).send(reward);
-            }
-        });
-    },
-    save: function (req, res) {
-        var rewardString = req.body.rewardId.replace(/[^a-z0-9]+/g," ");
-        var rewardId = rewardString.split(" ");
-        rewardId = _.without(rewardId, "");
-
-        Booking.findOne({ $and: 
-            [{ 
-                rewardId: rewardId,
-                userId: req.user._id
-            }]
-        }, function (err, booking) {
-            if (err) {
-                res.status(500).send(err);
-                Raven.captureException(err);
-            } if (booking) {
-                res.status(409).send({ message: 'Coupin already exists.' });
-            } else {
-                var booking = new Booking({
-                    userId: req.user._id,
-                    merchantId: req.body.merchantId,
-                    rewardId: rewardId,
-                    useNow: false
-                });
-
-                booking.save(function (err) {
-                    if (err) {
-                        res.status(500).send(err);
-                        Raven.captureException(err);
-                    } else {
-                        Booking
-                        .populate(booking, { 
-                            path: 'rewardId'
-                        }, function (err, booking) {
-                            if (err) {
-                                res.status(500).send(err);
-                                Raven.captureException(err);
-                            } else {
-                                res.status(201).send(booking);
-                            }
-                        });
-                    }
-                });
             }
         });
     },
