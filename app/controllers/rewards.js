@@ -1,7 +1,6 @@
 'use strict';
 var _ = require('lodash');
 var moment = require('moment');
-var schedule = require('node-schedule');
 var Raven = require('./../../config/config').Raven;
 var shortCode = require('shortid32');
 
