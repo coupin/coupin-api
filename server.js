@@ -41,13 +41,10 @@ mongoose.connect(process.env.MONGO_URL);
  * get all data of the body parameters
  * parse application/json
  */
-app.use(Raven.requestHandler());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(morgan('dev'));
-
-app.use(Raven.errorHandler());
 
 // Validator
 app.use(expressValidator({
@@ -139,10 +136,6 @@ function sortMerchantRewards() {
 
 cron.schedule("59 23 * * *", function() {
   sortMerchantRewards();
-});
-
-app.use(function onError(err, req, res) {
-  res.status(500).send(res.sentry);
 });
 
 //start on localhost 3030
