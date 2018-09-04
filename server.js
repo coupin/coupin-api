@@ -122,9 +122,9 @@ function sortMerchantRewards() {
               }
             });
 
-            merchant.merchantInfo.expiredRewards = expired;
-            merchant.merchantInfo.pendingRewards = pending;
-            merchant.merchantInfo.rewards = _.join(active, stillActive);
+            merchant.merchantInfo.expiredRewards = expired.filter(Boolean);
+            merchant.merchantInfo.pendingRewards = pending.filter(Boolean);
+            merchant.merchantInfo.rewards = (_.join(active, stillActive)).filter(Boolean);
 
             merchant.save(function(err) {
               Raven.captureException(err);

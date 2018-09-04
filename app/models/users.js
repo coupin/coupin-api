@@ -150,10 +150,6 @@ var userSchema = new schema({
             type: String,
             ref: 'Reward'
         }],
-        rewardsSize: {
-            type: Number,
-            default: 0
-        },
         rating: {
             value: {
                 default: 0,

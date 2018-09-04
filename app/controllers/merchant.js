@@ -421,8 +421,10 @@ module.exports = {
         var coords = [longitude, latitude];
         
         var query = {
-            'role' : 2,
-            'merchantInfo.rewards.0' : { '$exists' : true }
+            isActive: true,
+            status: 'completed',
+            role : 2,
+            'merchantInfo.rewards.0' : { $exists : true }
         };
 
         if (longitude && latitude && longitude !== NaN && latitude !== NaN) {
