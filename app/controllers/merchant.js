@@ -134,7 +134,7 @@ module.exports = {
                     }
                 }
 
-                merchant.merchantInfo.billing.history.push({
+                merchant.merchantInfo.billing.history.unshift({
                     plan: body.plan,
                     reference: body.reference,
                     expiration: expiration

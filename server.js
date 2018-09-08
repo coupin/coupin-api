@@ -26,6 +26,8 @@ var Raven = require('raven');
 Raven.config('https://d9b81d80ee834f1b9e2169e2152f3f95:73ba5ba410494467aaa97b5932f4fad2@sentry.io/301229').install();
 
 var Users = require('./app/models/users');
+// TODO: Remove
+var Rewards = require('./app/models/reward');
 
 var app = express();
 dotenv.config();
@@ -91,7 +93,19 @@ function sortMerchantRewards() {
     Users.find({
         isActive: true,
         status: 'completed',
-        role: 2
+        role: 2,
+        $or: [
+          {
+            'pendingRewards.0': {
+              $exists: true
+            }
+          },
+          {
+            'rewards.0': {
+              $exists: true
+            }
+          }
+        ]
     })
     .populate('merchantInfo.rewards', 'endDate isActive startDate')
     .populate('merchantInfo.pendingRewards', 'endDate isActive startDate')
@@ -101,30 +115,31 @@ function sortMerchantRewards() {
             Raven.captureException(err);
         } else {
           var date = new Date();
+          date.setHours(0);
+          date.setMinutes(0);
+          date.setSeconds(0);
           merchants.forEach(function(merchant) {
-            var active = [];
-            var pending = [];
-            var stillActive = [];
-            var expired = [];
-            merchant.merchantInfo.pendingRewards.forEach(function(reward, index) {
-              if (reward.startDate >= date && reward.isActive) {
-                active.push(reward._id);
-              } else {
-                pending.push(index);
+            var active = merchant.merchantInfo.rewards || [];
+            var pending = merchant.merchantInfo.pendingRewards || [];
+            var expired = merchant.merchantInfo.expiredRewards || [];
+            
+            active.forEach(function(reward, index) {
+              if (reward.endDate >= date) {
+                expired.push(reward._id);
+                active.splice(index, 1);
               }
             });
 
-            merchant.merchantInfo.rewards.forEach(function(reward, index) {
-              if (reward.endDate >= date) {
-                expired.push(reward._id);
-              } else {
-                stillActive.push(index);
+            pending.forEach(function(reward, index) {
+              if (reward.startDate >= date && reward.isActive) {
+                active.push(reward._id);
+                pending.splice(index, 1);
               }
             });
 
             merchant.merchantInfo.expiredRewards = expired.filter(Boolean);
             merchant.merchantInfo.pendingRewards = pending.filter(Boolean);
-            merchant.merchantInfo.rewards = (_.join(active, stillActive)).filter(Boolean);
+            merchant.merchantInfo.rewards = active.filter(Boolean);
 
             merchant.save(function(err) {
               Raven.captureException(err);
