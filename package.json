@@ -64,6 +64,6 @@
   },
   "scripts": {
     "generate-docs": "apidoc -i app/ -o apiDoc/ -t apiDocTemplate/",
-    "start": "npm run-script generate-docs && node init.js && nodemon server.js"
+    "start": "node init.js && nodemon server.js"
   }
 }
