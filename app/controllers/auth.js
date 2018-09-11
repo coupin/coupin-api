@@ -80,6 +80,57 @@ module.exports = {
     },
 
     /**
+     * @api {post} /auth/forgot-password Forgot Password
+     * @apiName forgotPassword
+     * @apiGroup Auth
+     * 
+     * @apiParam {String} email. Email address associated with email.
+     * 
+     * @apiSuccess {String} message 'Email sent successfully' 
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "message": "Email sent successfully",
+     *  }
+     * 
+     * @apiError UserNotFound no such user exists..
+     * 
+     * @apiErrorExample UserNotFound:
+     *  HTTP/1.1 404 UserNotFound
+     *  {
+     *      "message": "There is no such user."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
+     */
+    forgotPassword: function(req, res) {
+        var email = req.body.email || req.param.email;
+
+        User.findOne({
+            email: email
+        }, function(err, user) {
+            if (err) {
+                res.status(500).send(err);
+                Raven.captureException(err);
+            } else if (!user) {
+                res.status(404).send({message: 'There is no such user'});
+            } else {
+                Emailer.sendEmail('abiso_lawal@yahoo.com', 'Forgot Password', Messages.forgotPassword(user._id, emailer.getUiUrl()), function(response) {
+                    res.status(200).send({ message: 'Email sent successfully.' });
+                    Raven.captureMessage(`Email sent to ${email} at ${(new Date().toDateString())}`);
+                });
+            }
+        });
+    },
+
+    /**
      * @api {post} /auth/register/c Sign up: Mobile
      * @apiName registerCustomer
      * @apiGroup Auth

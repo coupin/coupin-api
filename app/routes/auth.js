@@ -7,6 +7,11 @@ var auth = require('./../middleware/auth');
 var authCtrl = require('./../controllers/auth');
 
 module.exports = function(router) {
+  router.route('/auth/forgot-password')
+    .post(
+      authCtrl.forgotPassword
+    );
+
   router.route('/auth/password/c')
     .post(
       passport.verifyJWT1,
