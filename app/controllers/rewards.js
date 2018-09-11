@@ -348,7 +348,7 @@ module.exports = {
         var query = {};
         var date = new Date();
 
-        if (!req.user.role) {
+        if (req.user.role === 3) {
             query["startDate"] = {
                 $lte: date
             };

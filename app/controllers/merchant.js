@@ -134,7 +134,7 @@ module.exports = {
                     }
                 }
 
-                merchant.merchantInfo.billing.history.push({
+                merchant.merchantInfo.billing.history.unshift({
                     plan: body.plan,
                     reference: body.reference,
                     expiration: expiration
@@ -263,6 +263,7 @@ module.exports = {
         }, function(err, merchants) {
             if (err) {
                 res.status(500).send(err);
+                Raven.captureException(err);
             } else {
                 var response = [];
 
@@ -290,10 +291,19 @@ module.exports = {
     },
 
     getNames: function(req, res) {
-        Merchant.find({
+        var active = req.query.active === 'true';
+        var query = {
             status: 'completed',
             role: 2
-        }, 'merchantInfo.companyName merchantInfo.logo', function(err, rewards) {
+        };
+
+        if (active) {
+            query['merchantInfo.rewards.0'] = { 
+                $exists : true 
+            };
+        }
+
+        Merchant.find(query, 'merchantInfo.companyName merchantInfo.logo', function(err, rewards) {
             if (err) {
                 res.status(500).send(err);
                 Raven.captureException(err);
@@ -766,7 +776,6 @@ module.exports = {
             role: 2
         };
 
-
         Merchant.find(query)
         .limit(limit)
         .skip(page * limit)
@@ -971,8 +980,8 @@ module.exports = {
         })
         .exec(function(err, prime) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                Raven.captureException(err);
             } else {
                 Reward.populate(prime, [{
                     path: 'featured.first.merchantInfo.rewards',
@@ -992,8 +1001,8 @@ module.exports = {
                     select: 'name'
                 }], function(err) {
                     if (err) {
-                        console.log(err);
                         res.status(500).send(err);
+                        Raven.captureException(err);
                     } else {
 
                         prime['visited'] = {
