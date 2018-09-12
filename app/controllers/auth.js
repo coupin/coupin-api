@@ -1,8 +1,10 @@
 var _ = require('lodash');
+var cryptoJs = require('crypto-js');
 var jwt = require('jsonwebtoken');
 var passportJWT = require('passport-jwt');
 
-var Raven = require('./../../config/config').Raven;
+var config = require('./../../config/config');
+var Raven = config.Raven;
 var Emailer = require('../../config/email');
 var Messages = require('../../config/messages');
 var User = require('../models/users');
@@ -14,6 +16,39 @@ var jwtOptions = {
 }
 
 module.exports = {
+    /**
+     * Confirm Encoded String
+     */
+    confirmString: function(req, res) {
+        var encoded = req.query.encoded || req.params.encoded || req.body.encoded;
+
+        if (encoded) {
+            var decrypted = cryptoJs.AES.decrypt(encoded.toString(), config.secret);
+            var id = decrypted.toString(cryptoJs.enc.Utf8)
+            User.count({
+                _id: id
+            }, function(err, count) {
+                if(err) {
+                    res.status(500).send({
+                        message: err
+                    });
+                    Raven.captureException(err);
+                } else if (count > 0) {
+                    res.status(200).send({
+                        id: id,
+                        message: 'confirmed.'
+                    });
+                } else {
+                    res.status(404).send({
+                        message: 'User does not exist.'
+                    });
+                }
+            });
+        } else {
+            res.status(400).send({ message: 'Bad Request.' });
+        }
+    },
+
     /**
      * @api {post} /auth/password/c Change Password
      * @apiName changePassword
@@ -76,6 +111,91 @@ module.exports = {
             });
         } else {
             res.status(401).send({message: 'There is no signed in user'});
+        }
+    },
+
+    /**
+     * @api {post} /auth/forgot-password Forgot Password
+     * @apiName forgotPassword
+     * @apiGroup Auth
+     * 
+     * @apiParam {String} email. Email address associated with email.
+     * 
+     * @apiSuccess {String} message 'Email sent successfully' 
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "message": "Email sent successfully",
+     *  }
+     * 
+     * @apiError UserNotFound no such user exists..
+     * 
+     * @apiErrorExample UserNotFound:
+     *  HTTP/1.1 404 UserNotFound
+     *  {
+     *      "message": "There is no such user."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
+     */
+    forgotPassword: function(req, res) {
+        var email = req.body.email || req.param.email;
+
+        User.findOne({
+            email: email
+        }, function(err, user) {
+            if (err) {
+                res.status(500).send(err);
+                Raven.captureException(err);
+            } else if (!user) {
+                res.status(404).send({message: 'There is no such user'});
+            } else {
+                var encrypted = cryptoJs.AES.encrypt(user._id.toString(), config.secret);
+                Emailer.sendEmail('abiso_lawal@yahoo.com', 'Forgot Password', Messages.forgotPassword(encrypted.toString(), Emailer.getUiUrl()), function(response) {
+                    res.status(200).send({ message: 'Email sent successfully.' });
+                    Raven.captureMessage(`Email sent to ${email} at ${(new Date().toDateString())}`);
+                });
+            }
+        });
+    },
+
+    newPassword: function(req, res) {
+        const id = req.body.id || req.params.id;
+        const password = req.body.password || req.params.password;
+        const encoded = req.query.encoded || req.params.encoded || req.body.encoded;
+
+        if (id && encoded) {
+            var decrypted = cryptoJs.AES.decrypt(encoded.toString(), config.secret);
+            if (decrypted.toString(cryptoJs.enc.Utf8) === id) {
+                User.findById(id, function (err, user) {
+                    if (err) {
+                        res.status(500).send(err);
+                        Raven.captureException(err);
+                    } else if (!user) {
+                        res.status(404).send({message: 'There is no such user'});
+                    } else {
+                        User.updatePassword(user, password, function (err, user) {
+                            if (err) {
+                                res.status(500).send(err);
+                                Raven.captureException(err);
+                            } else {
+                                res.status(200).send({message: 'Password change successful'});
+                            }
+                        }); 
+                    }
+                });
+            } else {
+                res.status(400).send({message: 'Invalid id or encoded string.'});
+            }
+        } else {
+            res.status(400).send({message: 'An id must be supplied with the encoded string.'});
         }
     },
 
