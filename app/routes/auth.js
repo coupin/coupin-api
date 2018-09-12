@@ -8,11 +8,17 @@ var authCtrl = require('./../controllers/auth');
 
 module.exports = function(router) {
   router.route('/auth/forgot-password')
+    .put(
+      authCtrl.confirmString
+    )
     .post(
       authCtrl.forgotPassword
     );
 
   router.route('/auth/password/c')
+    .put(
+      authCtrl.newPassword
+    )
     .post(
       passport.verifyJWT1,
       auth.isCustomer,

@@ -20,5 +20,6 @@ module.exports = {
     apiKey: process.env.MG_API_KEY,
     domain: process.env.MG_TEST_DOMAIN
   }),
-  Raven: Raven
+  Raven: Raven,
+  secret: process.env.SECRET
 };

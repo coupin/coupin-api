@@ -7,8 +7,6 @@ var mailgun = config.mailgun;
 
 module.exports = {
     getUiUrl: function() {
-        console.log('Inside getUiUtl');
-        console.log(process.env.UI_URL);
         return `http://${process.env.UI_URL}`;
     },
     sendEmail: function(to, subject, message, callback){
@@ -24,9 +22,10 @@ module.exports = {
         // send mail with transporter
         mailgun.messages().send(mailOptions, (err, info) => {
             if(err) {
+                config.Raven.captureException(err);
                 return callback({success: false, error: err});
             } else {
-                console.log(info);
+                config.Raven.captureMessage(info);
                 return callback({success: true, message: info});
             }
         });
