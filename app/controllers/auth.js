@@ -282,10 +282,11 @@ module.exports = {
         } else{
             // Create new user
             var customer = new User({
-            name: name,
-            email: email,
-            // network: network,
-            createdDate: Date.now()
+                name: name,
+                email: email,
+                // network: network,
+                createdDate: Date.now(),
+                isActive: true
             });
 
             if (password) {
@@ -306,12 +307,12 @@ module.exports = {
 
             customer.isActive = true;
 
-            User.createCustomer(customer, function(err, customer) {
+            User.createCustomer(customer, function(err, user) {
                 if (err) {
                     res.status(409).send({message: 'User already exists.'});
                     Raven.captureException(err);
                 } else {
-                    var payload = {id: customer.id, name: customer.name, email: customer.email};
+                    var payload = {id: user._id, name: user.name, email: user.email};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
                     //TODO: Remove customer details not necessary
