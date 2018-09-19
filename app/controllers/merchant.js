@@ -660,6 +660,8 @@ module.exports = {
             } else if (merchants.length === 0) {
                 res.status(404).send({ message: 'No new merchants matching your interests.' });
             } else {
+                var favourites = currentUser.favourites ? currentUser.favourites : [];
+                var visited = currentUser.visited ? currentUser.visited : [];
                 var info = merchants.map(function(user) {
                     return {
                         _id: user._id,
@@ -679,8 +681,8 @@ module.exports = {
                             rewards: user.merchantInfo.rewards,
                             rewardsSize: user.merchantInfo.rewards.length,
                         },
-                        visited: currentUser.visited.indexOf(user._id) > -1,
-                        favourite: currentUser.favourites.indexOf(user._id) > -1
+                        visited: visited.indexOf(user._id) > -1,
+                        favourite: favourites.indexOf(user._id) > -1
                     }
                 });
 
