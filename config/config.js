@@ -8,7 +8,7 @@ var mailgun = require('mailgun-js');
 dotenv.config();
 
 
-Raven.config('https://d9b81d80ee834f1b9e2169e2152f3f95:73ba5ba410494467aaa97b5932f4fad2@sentry.io/301229').install();
+Raven.config(process.env.SENTRY).install();
 
 module.exports = {
   cloudinary: cloudinary.config({
