@@ -150,8 +150,6 @@ function sortMerchantRewards() {
     });
 }
 
-sortMerchantRewards();
-
 cron.schedule("59 23 * * *", function() {
   sortMerchantRewards();
 });
