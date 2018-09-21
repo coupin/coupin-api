@@ -133,23 +133,10 @@ module.exports = {
                                 if (err) {
                                     Raven.captureException(err);
                                 } else {
-                                    var rewardsList = merchant.merchantInfo.pendingRewards ? merchant.merchantInfo.pendingRewards : [];
-                                    rewardsList.push(reward._id);
-                                    merchant.merchantInfo.pendingRewards = rewardsList;
-                                    merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewardsSize + 1;
+                                    merchant.merchantInfo.pendingRewards.push(reward._id);
+                                    merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewards.length;
                                     merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
-
-                                    // Schedule to move to used on expired
-                                    schedule.scheduleJob(new Date(reward.endDate), function(merchant, reward) {
-                                        reward.status = 'expired';
-                                        reward.isActive = false;
-                                        reward.save();
-
-                                        merchant.merchantInfo.rewards.forEach(function(element) {
-                                            return element !== reward._id;
-                                        });
-                                        merchant.save();
-                                    }.bind(null, merchant, reward));
+                                    console.log(merchant);
 
                                     merchant.save(function(err) {
                                         if (err) {
@@ -482,8 +469,8 @@ module.exports = {
                     }
                 });
 
-
                 reward.modifiedDate = Date.now();
+                console.log(reward);
 
                 reward.save(function(err) {
                     if (err) {

@@ -96,12 +96,12 @@ function sortMerchantRewards() {
         role: 2,
         $or: [
           {
-            'pendingRewards.0': {
+            'merchantInfo.pendingRewards.0': {
               $exists: true
             }
           },
           {
-            'rewards.0': {
+            'merchantInfo.rewards.0': {
               $exists: true
             }
           }
@@ -122,18 +122,18 @@ function sortMerchantRewards() {
             var active = merchant.merchantInfo.rewards || [];
             var pending = merchant.merchantInfo.pendingRewards || [];
             var expired = merchant.merchantInfo.expiredRewards || [];
-            
-            active.forEach(function(reward, index) {
-              if (reward.endDate >= date) {
-                expired.push(reward._id);
-                active.splice(index, 1);
-              }
-            });
 
             pending.forEach(function(reward, index) {
-              if (reward.startDate >= date && reward.isActive) {
+              if (reward.startDate <= date && reward.isActive && reward.status !== 'draft') {
                 active.push(reward._id);
                 pending.splice(index, 1);
+              }
+            });
+            
+            active.forEach(function(reward, index) {
+              if (reward.endDate < date) {
+                expired.push(reward._id);
+                active.splice(index, 1);
               }
             });
 
@@ -145,9 +145,12 @@ function sortMerchantRewards() {
               Raven.captureException(err);
             });
           });
+          Raven.captureMessage('Done with Update');
         }
     });
 }
+
+sortMerchantRewards();
 
 cron.schedule("59 23 * * *", function() {
   sortMerchantRewards();
