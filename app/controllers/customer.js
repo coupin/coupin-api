@@ -1,3 +1,4 @@
+var Cloudinary = require('cloudinary');
 var Customer = require('../models/users');
 var Reward = require('../models/reward');
 
@@ -573,13 +574,12 @@ module.exports = {
                     favourites: user.favourites,
                     interests: user.interests,
                     city: user.city,
-                    picutre: {
-                        url: user.picture
-                    }
+                    mobileNumber: user.mobileNumber,
+                    picture: user.picture
                 };
               res.status(200).send(data);
               if (deletePicture) {
-                cloudinary.v2.uploader.destroy(formerPicture, {
+                Cloudinary.v2.uploader.destroy(formerPicture, {
                     invalidate: true
                 }, function(err, result) {
                     if (err) {
