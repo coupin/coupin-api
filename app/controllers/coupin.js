@@ -176,7 +176,6 @@ module.exports = {
 
     booking.save(function (err) {
       if (err) {
-        console.log(err);
         res.status(500).send(err);
         Raven.captureException(err);
       } else {
@@ -216,6 +215,7 @@ module.exports = {
    * @apiSuccess {String} shortCode The generated coupin
    * @apiSuccess {Boolean} useNow To determine whether it is in use
    * @apiSuccess {Boolean} isActive To determine if it has expired
+   * @apiSuccess {Boolean} favourite To determine if it is a favourite
    * @apiSuccess {Boolean} visited To determine if the place has been visited by the user
    * @apiSuccess {Boolean} favourite To determine if it is a favourite
    * 
@@ -309,8 +309,8 @@ module.exports = {
               shortCode: booking.shortCode,
               useNow: booking.useNow,
               isActive: booking.isActive,
-              visited: currentUser.visited.indexOf(booking.merchantId._id) > -1,
               favourite: currentUser.favourites.indexOf(booking.merchantId._id) > -1,
+              visited: currentUser.visited.indexOf(booking.merchantId._id) > -1,
               createdAt: booking.createdAt
             };
           });
@@ -321,10 +321,13 @@ module.exports = {
   },
   // Redeem a reward
   redeem: function(req, res) {
+    var blacklist = [];
     var id = req.body.id || req.params.id || req.query.id;
     var rewards = req.body.rewards;
 
-    Booking.findById(id, function (err, booking) {
+    Booking.findById(id)
+    .populate('rewardId.id', 'multiple')
+    .exec(function (err, booking) {
       if (err) {
         res.status(500).send(err);
         Raven.captureException(err);
@@ -332,8 +335,11 @@ module.exports = {
         res.status(404).send({ message: 'Coupin deos not exist.' });
       } else {
         rewards.forEach(function(index) {
-            booking.rewardId[index].status = 'used';
-            booking.rewardId[index].usedOn = new Date();
+          if (booking.rewardId[index].id.multiple.status) {
+            blacklist.push(booking.rewardId(index).id);
+          }
+          booking.rewardId[index].status = 'used';
+          booking.rewardId[index].usedOn = new Date();
         });
 
         var acitveReward = _.find(booking.rewardId, function(object) {
@@ -353,10 +359,18 @@ module.exports = {
 
             User.findById(booking.userId, function(err, user) {
               if (err) {
-                console.log(err);
+                Raven.captureException(err);
               } else {
                 if (!user.visited) {
                   user['visited'] = [];
+                }
+
+                if(blacklist.length > 0) {
+                  if (!Array.isArray(user.blacklist)) {
+                    user.blacklist = [];
+                  }
+
+                  user.blacklist = _.union(user.blacklist, blacklist);
                 }
 
                 user.visited = _.union(user.visited, [booking.merchantId]);
