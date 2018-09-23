@@ -79,6 +79,10 @@ var userSchema = new schema({
         type: String,
         enum: ['entertainment', 'foodndrink', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
     }],
+    blacklist: [{
+        type: String,
+        ref: 'User'
+    }],
     favourites: [{
         type: String,
         ref: 'User'

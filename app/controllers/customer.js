@@ -46,6 +46,7 @@ module.exports = {
      *          "dateOfBirth": "2018-08-22",
      *          "ageRange": "15 - 25",
      *          "sex": "male",
+     *          "blacklist": [],
      *          "favourites": [],
      *          "interests": [],
      *          "city": "lagos",
@@ -93,6 +94,7 @@ module.exports = {
                     ageRange: user.ageRange,
                     sex: user.sex,
                     isActive: user.isActive,
+                    blacklist: user.blacklist || [],
                     favourites: user.favourites,
                     interests: user.interests,
                     city: user.city,
@@ -173,6 +175,7 @@ module.exports = {
      * @apiSuccess {String} ageRange The user's ageRange
      * @apiSuccess {String} sex The user's gender
      * @apiSuccess {Boolean} isActive Tells you if a user is active or not
+     * @apiSuccess {String[]} blacklist String array of blacklisted rewards
      * @apiSuccess {String[]} favourites String array of favourites
      * @apiSuccess {String[]} interests String array of interests
      * @apiSuccess {String} city The city of the user
@@ -188,6 +191,7 @@ module.exports = {
      *     "ageRange": "15 - 25",
      *     "sex": "male",
      *     "isActive": true,
+     *     "blacklist": [],
      *     "favourites": [],
      *     "interests": [],
      *     "city": "lagos",
@@ -241,6 +245,7 @@ module.exports = {
                     ageRange: user.ageRange,
                     sex: user.sex,
                     isActive: user.isActive,
+                    blacklist: user.blacklist || [],
                     favourites: user.favourites,
                     interests: user.interests,
                     city: user.city,
@@ -387,6 +392,7 @@ module.exports = {
      * @apiSuccess {String} ageRange The user's ageRange
      * @apiSuccess {String} sex The user's gender
      * @apiSuccess {Boolean} isActive Tells you if a user is active or not
+     * @apiSuccess {String[]} blacklist String array of blacklisted rewards
      * @apiSuccess {String[]} favourites String array of favourites
      * @apiSuccess {String[]} interests String array of interests
      * @apiSuccess {String} city The city of the user
@@ -402,6 +408,7 @@ module.exports = {
      *     "ageRange": "15 - 25",
      *     "sex": "male",
      *     "isActive": true,
+     *     "blacklist": [],
      *     "favourites": [],
      *     "interests": [],
      *     "city": "lagos",
@@ -446,6 +453,7 @@ module.exports = {
                 ageRange: user.ageRange,
                 sex: user.sex,
                 isActive: user.isActive,
+                blacklist: user.blacklist || [],
                 favourites: user.favourites,
                 interests: user.interests,
                 city: user.city,
@@ -485,6 +493,7 @@ module.exports = {
      * @apiSuccess {String} ageRange The user's ageRange
      * @apiSuccess {String} sex The user's gender
      * @apiSuccess {Boolean} isActive Tells you if a user is active or not
+     * @apiSuccess {String[]} blacklist String array of blacklisted rewards
      * @apiSuccess {String[]} favourites String array of favourites
      * @apiSuccess {String[]} interests String array of interests
      * @apiSuccess {String} city The city of the user
@@ -500,6 +509,7 @@ module.exports = {
      *     "ageRange": "15 - 25",
      *     "sex": "male",
      *     "isActive": true,
+     *     "blacklist": [],
      *     "favourites": [],
      *     "interests": [],
      *     "city": "lagos",
@@ -571,6 +581,7 @@ module.exports = {
                     ageRange: user.ageRange,
                     sex: user.sex,
                     isActive: user.isActive,
+                    blacklist: user.blacklist || [],
                     favourites: user.favourites,
                     interests: user.interests,
                     city: user.city,
