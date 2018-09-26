@@ -98,9 +98,7 @@ module.exports = {
                     favourites: user.favourites,
                     interests: user.interests,
                     city: user.city,
-                    picutre: {
-                        url: user.picture
-                    }
+                    picutre: user.picture
                 };
 
                 res.status(200).send({ 

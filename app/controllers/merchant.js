@@ -629,7 +629,7 @@ module.exports = {
      */
     mostRecent: function(req, res) {
         var limit = req.query.limit || req.body.limit || req.params.limit ||  10;
-        var skip = req.query.page || req.body.page || req.params.page ||  0;
+        var page = req.query.page || req.body.page || req.params.page ||  0;
         var categories = req.user.interests;
 
         var currentUser;
@@ -648,6 +648,7 @@ module.exports = {
         })
         .select('email merchantInfo')
         .sort({lastAdded: 'desc'})
+        .skip(page * limit)
         .limit(limit)
         .populate({
             path: 'merchantInfo.rewards',
