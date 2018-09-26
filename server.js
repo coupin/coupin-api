@@ -150,6 +150,35 @@ function sortMerchantRewards() {
     });
 }
 
+// function tempSortRewards() {
+//   var count = 1;
+//   Users.find({
+//     role: 2
+//   }, function(err, merchants) {
+//     merchants.forEach(function(merchant) {
+//       Rewards.find({
+//         merchantID: merchant._id
+//       }, function(err, rewards) {
+//         merchant.merchantInfo.pendingRewards = [];
+//         merchant.merchantInfo.rewards = [];
+//         merchant.merchantInfo.expiredRewards = [];
+        
+//         if (rewards && rewards.length > 0) {
+//           rewards.forEach(function(reward) {
+//             merchant.merchantInfo.pendingRewards.push(reward._id);
+//           });
+//         }
+        
+//         merchant.save();
+//         console.log(`Done with ${count}`);
+//         count++;
+//       });
+//     });
+//   });
+// }
+
+// tempSortRewards();
+
 cron.schedule("59 23 * * *", function() {
   sortMerchantRewards();
 });
