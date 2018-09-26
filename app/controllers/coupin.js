@@ -278,6 +278,9 @@ module.exports = {
     
     if (req.user.role === 3) {
       query['userId'] = req.user._id;
+      query['expiryDate'] = {
+        $gte: new Date()
+      }
     }
 
     if (req.user.role === 2) {
