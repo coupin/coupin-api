@@ -6,21 +6,21 @@ var Schema = mongoose.Schema;
 var primeSchema = new Schema({
   featured: {
     first: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User'
     },
     second: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User'
     },
     third: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User'
     }
   },
   hotlist: [{
     id: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User',
       require: true
     },

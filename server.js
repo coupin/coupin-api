@@ -137,9 +137,20 @@ function sortMerchantRewards() {
               }
             });
 
-            merchant.merchantInfo.expiredRewards = expired.filter(Boolean);
-            merchant.merchantInfo.pendingRewards = pending.filter(Boolean);
-            merchant.merchantInfo.rewards = active.filter(Boolean);
+            merchant.merchantInfo.rewards = [];
+            merchant.merchantInfo.pendingRewards = [];
+            active.filter(Boolean).forEach(function(temp) {
+              // merchant.merchantInfo.rewards = active.filter(Boolean);
+              merchant.merchantInfo.rewards.push(temp._id);
+            });
+            pending.filter(Boolean).forEach(function(temp) {
+              // merchant.merchantInfo.pendingRewards = pending.filter(Boolean);
+              merchant.merchantInfo.pendingRewards.push(temp._id);
+            });
+            expired.filter(Boolean).forEach(function(temp) {
+              // merchant.merchantInfo.expiredRewards = expired.filter(Boolean);
+              merchant.merchantInfo.expiredRewards.push(temp._id);
+            });
 
             merchant.save(function(err) {
               Raven.captureException(err);
@@ -150,34 +161,35 @@ function sortMerchantRewards() {
     });
 }
 
-// function tempSortRewards() {
-//   var count = 1;
-//   Users.find({
-//     role: 2
-//   }, function(err, merchants) {
-//     merchants.forEach(function(merchant) {
-//       Rewards.find({
-//         merchantID: merchant._id
-//       }, function(err, rewards) {
-//         merchant.merchantInfo.pendingRewards = [];
-//         merchant.merchantInfo.rewards = [];
-//         merchant.merchantInfo.expiredRewards = [];
+function tempSortRewards() {
+  var count = 1;
+  Users.find({
+    role: 2
+  }, function(err, merchants) {
+    merchants.forEach(function(merchant) {
+      Rewards.find({
+        merchantID: merchant._id
+      }, function(err, rewards) {
+        merchant.merchantInfo.pendingRewards = [];
+        merchant.merchantInfo.rewards = [];
+        merchant.merchantInfo.expiredRewards = [];
         
-//         if (rewards && rewards.length > 0) {
-//           rewards.forEach(function(reward) {
-//             merchant.merchantInfo.pendingRewards.push(reward._id);
-//           });
-//         }
+        if (rewards && rewards.length > 0) {
+          rewards.forEach(function(reward) {
+            merchant.merchantInfo.pendingRewards.push(reward._id);
+          });
+        }
         
-//         merchant.save();
-//         console.log(`Done with ${count}`);
-//         count++;
-//       });
-//     });
-//   });
-// }
+        merchant.save();
+        console.log(`Done with ${count}`);
+        count++;
+      });
+    });
+  });
+}
 
 // tempSortRewards();
+sortMerchantRewards();
 
 cron.schedule("59 23 * * *", function() {
   sortMerchantRewards();
