@@ -118,33 +118,40 @@ module.exports = {
                 $ne: process.env.SADMIN
             }
         }, function(err, user) {
-            res.json(user);
+            if (err) {
+                res.status(500).send(err);
+                Raven.captureException(err);
+            } else {
+                res.status(200).send(user);
+            }
         });
     },
 
     /**
      * Admin Login
      */
-    login : function (req, res) {
-        req.logIn(req.user, function (err, user) {
-            if(err)
-                throw err;
-
-            res.redirect('/homepage');
-        });
-    },
+    // login : function (req, res) {
+    //     req.logIn(req.user, function (err, user) {
+    //         if (err) {
+    //             res.status(500).send(err);
+    //             Raven.captureException(err);
+    //         } else {
+    //             res.redirect('/homepage');
+    //         }
+    //     });
+    // },
 
     /**
      * Retrieve admin access page
      */
-    loginPage: function(req, res) {
-        if (req.user) {
-            res.redirect('/homepage');
-        } else {
-            // load the index page
-            res.sendfile('./public/views/index.html');
-        }
-    },
+    // loginPage: function(req, res) {
+    //     if (req.user) {
+    //         res.redirect('/homepage');
+    //     } else {
+    //         // load the index page
+    //         res.sendfile('./public/views/index.html');
+    //     }
+    // },
 
     removeSlide: function(req, res) {
         const body = req.body;
@@ -166,6 +173,7 @@ module.exports = {
                 prime.save(function(err) {
                     if (err) {
                         res.status(500).send(err);
+                        Raven.captureException(err);
                     } else {
                         res.status(200).send({message: 'Done' });
                     }
@@ -198,10 +206,9 @@ module.exports = {
         })
         .exec(function(err, prime) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                Raven.captureException(err);
             } else {
-
                 res.status(200).send(prime);
             }
         });
@@ -215,17 +222,15 @@ module.exports = {
 
         Prime.findOne(function(err, prime) {
             if (err) {
-                console.log(err);
                 res.status(500).send(err);
+                Raven.captureException(err);
             } else {
                 prime = !prime ? new Prime() : prime;
 
                 if (body.isFeatured) {
-                    prime.featured = {
-                        first: body.featured.first._id,
-                        second: body.featured.second._id,
-                        third: body.featured.third._id
-                    };
+                    prime.featured.first.push(body.featured.first._id);
+                    prime.featured.second.push(body.featured.second._id);
+                    prime.featured.third.push(body.featured.third._id);
                     prime.history.push({
                         activity: `${req.user.email} added ${body.featured.first.merchantInfo.companyName}, 
                         ${body.featured.second.merchantInfo.companyName} and ${body.featured.third.merchantInfo.companyName}`
@@ -233,7 +238,7 @@ module.exports = {
                 } else {
                     const slide = body.slide;
                     if (!slide.hasOwnProperty('id') || !slide.hasOwnProperty('url')) {
-                        res.status(400).send({ message: 'Inavlid slide object.' });
+                        res.status(400).send({ message: 'Invalid slide object.' });
                     } else {
                         if (!prime.hotlist) {
                             prime.hotlist = [];
@@ -253,6 +258,7 @@ module.exports = {
                 prime.save(function(err) {
                     if (err) {
                         res.status(500).send(err);
+                        Raven.captureException(err);
                     } else {
                         res.status(200).send({message: 'Done' });
                     }
