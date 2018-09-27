@@ -108,9 +108,7 @@ module.exports = {
    * @apiHeader {String} x-access-token Users unique token
    * 
    * @apiParam {String} saved should be either ('true') or ('false'). If ('true') it generates the code immediately, if false it saves it for later.
-   * @apiParam {String} id id of saved rewards booking
-   * @apiParam {String} id id of saved rewards booking
-   * @apiParam {String} id id of saved rewards booking
+   * @apiParam {String[]} rewardId ids of selected rewards booking
    * 
    * @apiSuccess {String} userId The customer's id 
    * @apiSuccess {String} merchantId The merchant's id 
@@ -153,12 +151,10 @@ module.exports = {
     var rewardId = rewardString.split(" ");
     rewardId = _.without(rewardId, "");
     rewardId.forEach(function(reward) {
-      // if (req.user.blacklist.indexOf(reward) === -1) {
         rewards.push({
           id: reward,
           status: 'pending'
         });
-      // }
     });
 
     var saved = req.body.saved || req.params.saved || req.query.saved || 'false';
