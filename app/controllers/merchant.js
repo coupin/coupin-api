@@ -661,8 +661,8 @@ module.exports = {
             } else if (merchants.length === 0) {
                 res.status(404).send({ message: 'No new merchants matching your interests.' });
             } else {
-                var favourites = currentUser.favourites ? currentUser.favourites : [];
-                var visited = currentUser.visited ? currentUser.visited : [];
+                var favourites = (currentUser && currentUser.favourites) ? currentUser.favourites : [];
+                var visited = (currentUser && currentUser.visited) ? currentUser.visited : [];
                 var info = merchants.map(function(user) {
                     return {
                         _id: user._id,
@@ -982,6 +982,13 @@ module.exports = {
             select: 'email merchantInfo'
         })
         .exec(function(err, prime) {
+            Merchant.findOne({
+                _id: prime.featured.third
+            }, function(err, merchants){
+                console.log(merchants.merchantInfo.rewards);
+                // console.log(merchants.merchantInfo.companyName);
+                // console.log(merchants.merchantInfo.rewards);
+            });
             if (err) {
                 res.status(500).send(err);
                 Raven.captureException(err);
@@ -1002,12 +1009,13 @@ module.exports = {
                     path: 'hotlist.id.merchantInfo.rewards',
                     model: 'Reward',
                     select: 'name'
-                }], function(err) {
+                }], function(err, mega) {
+                    console.log(mega.featured.first);
+                    console.log(mega.featured.first.merchantInfo.rewards);
                     if (err) {
                         res.status(500).send(err);
                         Raven.captureException(err);
                     } else {
-
                         prime['visited'] = {
                             first: currentUser.visited.indexOf(prime.featured.first._id) > -1,
                             second: currentUser.visited.indexOf(prime.featured.second._id) > -1,
