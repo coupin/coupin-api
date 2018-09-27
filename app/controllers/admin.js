@@ -228,9 +228,9 @@ module.exports = {
                 prime = !prime ? new Prime() : prime;
 
                 if (body.isFeatured) {
-                    prime.featured.first.push(body.featured.first._id);
-                    prime.featured.second.push(body.featured.second._id);
-                    prime.featured.third.push(body.featured.third._id);
+                    prime.featured.first = body.featured.first._id;
+                    prime.featured.second = body.featured.second._id;
+                    prime.featured.third = body.featured.third._id;
                     prime.history.push({
                         activity: `${req.user.email} added ${body.featured.first.merchantInfo.companyName}, 
                         ${body.featured.second.merchantInfo.companyName} and ${body.featured.third.merchantInfo.companyName}`
