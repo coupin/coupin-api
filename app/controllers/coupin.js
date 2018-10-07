@@ -146,10 +146,15 @@ module.exports = {
    *  }
    */
   create: function(req, res) {
+    var rewardId;
     var rewards = [];
-    var rewardString = Array.isArray(req.body.rewardId) ? req.body.rewardId : req.body.rewardId.replace(/[^a-z0-9]+/g," ");
-    var rewardId = rewardString.split(" ");
-    rewardId = _.without(rewardId, "");
+    if (Array.isArray(req.body.rewardId)) {
+      rewardId = req.body.rewardId;
+    } else {
+      var rewardString = req.body.rewardId.replace(/[^a-z0-9]+/g," ");
+      rewardId = rewardString.split(" ");
+      rewardId = _.without(rewardId, "");
+    }
     rewardId.forEach(function(reward) {
         rewards.push({
           id: reward,
