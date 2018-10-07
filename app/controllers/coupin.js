@@ -268,7 +268,7 @@ module.exports = {
     var useNow = (saved === 'false' || saved === false) ? true : false;
 
     var currentUser;
-    await (async function() {
+    (async function() {
         currentUser = await getVisited(req.user.id);
     })();
 
