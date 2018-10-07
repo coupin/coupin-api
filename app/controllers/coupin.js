@@ -147,10 +147,7 @@ module.exports = {
    */
   create: function(req, res) {
     var rewards = [];
-    console.log(req.body.rewardId);
-    console.log(Array.isArray(req.body.rewardId));
-    console.log(typeof req.body.rewardId);
-    var rewardString = req.body.rewardId.replace(/[^a-z0-9]+/g," ");
+    var rewardString = Array.isArray(req.body.rewardId) ? req.body.rewardId : req.body.rewardId.replace(/[^a-z0-9]+/g," ");
     var rewardId = rewardString.split(" ");
     rewardId = _.without(rewardId, "");
     rewardId.forEach(function(reward) {
@@ -266,7 +263,7 @@ module.exports = {
     var useNow = (saved === 'false' || saved === false) ? true : false;
 
     var currentUser;
-    (async function() {
+    await (async function() {
         currentUser = await getVisited(req.user.id);
     })();
 
