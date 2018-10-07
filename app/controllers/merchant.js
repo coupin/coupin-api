@@ -915,35 +915,39 @@ module.exports = {
      *          "second": false,
      *          "third": false
      *      },
-     *      "hotlist": [{
-     *          "_id": "String",
-     *          "email": "String",
-     *          "merchantInfo": {
-     *              "companyName": "String",
-     *              "companyDetails": "String",
-     *              "mobileNumber": "String",
-     *              "address": "String",
-     *              "city": "String",
-     *              "location": [longitude, latitude],
-     *              "categories": ["foodndrink", "gadgets", "healthnbeauty"],
-     *              "logo": {
-     *                  "id": "String".
-     *                  "url": "String"
-     *              },
-     *              "banner": {
-     *                  "id": "String".
-     *                  "url": "String"
-     *              },
-     *              "rewards": {
-     *                  Refer to Rewards Model
-     *              },
-     *              "rewardsSize": 0,
-     *              "rating": {
-     *                  "value": 5.
-     *                  "raters": 2
+     *      "hotlist": [
+     *          "id": {
+     *              "_id": "String",
+     *              "email": "String",
+     *              "merchantInfo": {
+     *                  "companyName": "String",
+     *                  "companyDetails": "String",
+     *                  "mobileNumber": "String",
+     *                  "address": "String",
+     *                  "city": "String",
+     *                  "location": [longitude, latitude],
+     *                  "categories": ["foodndrink", "gadgets", "healthnbeauty"],
+     *                  "logo": {
+     *                      "id": "String".
+     *                      "url": "String"
+     *                  },
+     *                  "banner": {
+     *                      "id": "String".
+     *                      "url": "String"
+     *                  },
+     *                  "rewards": {
+     *                      Refer to Rewards Model
+     *                  },
+     *                  "rewardsSize": 0,
+     *                  "rating": {
+     *                      "value": 5.
+     *                      "raters": 2
+     *                  }
      *              }
-     *          }
-     *      }]
+     *          },
+     *          "index": 0,
+     *          "url": "http://exmple.com/url-for-banner-image.png"
+     *    ]
      *  }
      * 
      * @apiError (Error 5xx) ServerError an error occured on the server.
@@ -982,13 +986,6 @@ module.exports = {
             select: 'email merchantInfo'
         })
         .exec(function(err, prime) {
-            Merchant.findOne({
-                _id: prime.featured.third
-            }, function(err, merchants){
-                console.log(merchants.merchantInfo.rewards);
-                // console.log(merchants.merchantInfo.companyName);
-                // console.log(merchants.merchantInfo.rewards);
-            });
             if (err) {
                 res.status(500).send(err);
                 Raven.captureException(err);
@@ -1009,9 +1006,7 @@ module.exports = {
                     path: 'hotlist.id.merchantInfo.rewards',
                     model: 'Reward',
                     select: 'name'
-                }], function(err, mega) {
-                    console.log(mega.featured.first);
-                    console.log(mega.featured.first.merchantInfo.rewards);
+                }], function(err) {
                     if (err) {
                         res.status(500).send(err);
                         Raven.captureException(err);

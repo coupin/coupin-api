@@ -17,8 +17,8 @@ module.exports = {
     api_secret: process.env.CL_API_SECRET
   }),
   mailgun: mailgun({
-    apiKey: process.env.MG_API_KEY,
-    domain: process.env.MG_TEST_DOMAIN
+    apiKey: process.env.MAILGUN_API_KEY,
+    domain: process.env.MAILGUN_DOMAIN
   }),
   Raven: Raven,
   secret: process.env.SECRET
