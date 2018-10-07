@@ -148,6 +148,7 @@ module.exports = {
   create: function(req, res) {
     var rewards = [];
     console.log(req.body.rewardId);
+    console.log(Array.isArray(req.body.rewardId));
     console.log(typeof req.body.rewardId);
     var rewardString = req.body.rewardId.replace(/[^a-z0-9]+/g," ");
     var rewardId = rewardString.split(" ");
