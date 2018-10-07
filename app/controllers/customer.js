@@ -329,7 +329,7 @@ module.exports = {
     retrieveFavourites : function (req, res ) {
         var user = req.user;
         var currentUser;
-        await (async function() {
+        (async function() {
             currentUser = await getVisited(req.user.id);
         })();
 
