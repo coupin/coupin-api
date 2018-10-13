@@ -51,12 +51,10 @@ app.use(morgan('dev'));
 app.use(function(req, res, next) {
   if(!req.secure && process.env.NODE_ENV !== 'development') {
     var secureUrl = 'https://' + req.headers['host'] + req.url;
-    res.writeHead(301, {
-      'Location': secureUrl
-    });
-    res.end();
+    res.redirect(secureUrl);
+  } else {
+    next();
   }
-  next();
 });
 
 /**
