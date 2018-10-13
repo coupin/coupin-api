@@ -48,23 +48,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(morgan('dev'));
 
-// Validator
-app.use(expressValidator({
-  errorFormatter: function(param, msg, value) {
-      var namespace = param.split('.')
-      , root    = namespace.shift()
-      , formParam = root;
-
-    while(namespace.length) {
-      formParam += '[' + namespace.shift() + ']';
-    }
-    return {
-      param : formParam,
-      msg   : msg,
-      value : value
-    };
+app.use(function(req, res, next) {
+  if(!req.secure && process.env.NODE_ENV !== 'development') {
+    var secureUrl = 'https://' + req.headers['host'] + req.url;
+    res.writeHead(301, {
+      'Location': secureUrl
+    });
+    res.end();
   }
-}));
+  next();
+});
 
 /**
  * override with the X-HTTP-Override header in the request.
