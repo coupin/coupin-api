@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var bcrypt = require('bcryptjs');
 
+var Emailer = require('../../config/email');
 var Raven = require('./../../config/config').Raven;
 var Prime = require('../models/prime');
 var User = require('./../models/users');
@@ -265,5 +266,21 @@ module.exports = {
                 });
             }
         });
+    },
+
+    testEmail: function(req, res) {
+        var email = req.body.email;
+        var password = req.body.password;
+
+        if (!email || password !== 'tesEmail') {
+            res.status(404).send({ message: 'Endpoint does not exist.' });
+        } else {
+            Emailer.sendEmail(email, 'Test Email', `This is only for testing the email system`, function(response) {
+                res.status(200).send({
+                    message: 'Email sending was attempted.',
+                    response: response
+                });
+            });
+        }
     }
 }

@@ -41,6 +41,10 @@ module.exports = function(router) {
             AdminCtrl.setHotList
         );
 
+    router.route('/admin/test-email').post(
+        AdminCtrl.testEmail
+    );
+
     // To Delete an Admin 
     router.route('/admin/:id')
         .delete(
