@@ -25,7 +25,6 @@ module.exports = {
                 config.Raven.captureException(err);
                 return callback({success: false, error: err});
             } else {
-                config.Raven.captureMessage(info);
                 return callback({success: true, message: info});
             }
         });
