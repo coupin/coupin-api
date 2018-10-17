@@ -351,6 +351,7 @@ module.exports = {
         var companyName = req.body.companyName;
         var email = req.body.email;
         var mobileNumber = req.body.mobileNumber;
+        var state = req.body.state;
 
         // Form Validator
         req.checkBody('companyName','Company Name field is required').notEmpty();
@@ -372,7 +373,8 @@ module.exports = {
                     companyName : companyName,
                     mobileNumber : mobileNumber,
                     address : address,
-                    city : city
+                    city : city,
+                    state : state
                 },
                 createdDate : Date.now(),
                 status: 'pending',
