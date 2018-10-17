@@ -113,7 +113,8 @@ var userSchema = new schema({
             default: 'lagos'
         },
         state: {
-            type: String
+            type: String,
+            lowercase: true
         },
         location: {
             // Longitude must always come first
