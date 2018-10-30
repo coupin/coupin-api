@@ -189,10 +189,13 @@ module.exports = {
             Raven.captureException(err);
           } else {
             res.status(200).send(booking);
-            // emailer.sendEmail(merchant.email, 'Coupin Created', messages.approved(merchant._id), function(response) {
-            emailer.sendEmail('abiso_lawal@yahoo.com', 'Coupin Created', messages.coupinCreated(booking), function(response) {
+            User.findById(req.body.merchantId)
+            .select('merchantInfo.companyName')
+            .exec(function(err, merchant) {
+              emailer.sendEmail('abiso_lawal@yahoo.com', 'Coupin Created for ' + merchant.merchantInfo.companyName , messages.coupinCreated(booking), function(response) {
                 console.log(response);
-            });
+              });
+            })
           }
         });
       }
@@ -224,7 +227,12 @@ module.exports = {
    *  HTTP/1.1 200 OK
    *  {
    *      "userId": "5b7ab4ce24688b0adcb9f54b",
-   *      "merchantId": "4b7ab4ce24688b0adcb9f54v",
+   *      "merchantId": "{
+   *        _id: "5b7ab4ce24688b0adcb9fhge",
+   *        merchantInfo: {
+   *          Merchant Info
+   *        }
+   *      }",
    *      "rewardId": [{
    *        "id": "2b7ab4ce24688b0adcb9f44v",
    *        "status": "pending"
