@@ -745,22 +745,23 @@ module.exports = {
     notificationUpdates: function(req, res) {
         var dateString = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
         var lastChecked = moment(dateString);
+        var categories = req.user.interests;
         
         if (lastChecked.isValid()) {
-            Reward.find({
+            Reward.count({
                 createdDate:  {
                     $gte: lastChecked.toString()
+                },
+                categories: {
+                    $in: categories
                 }
-            })
-            .select('name')
-            .exec(function(err, rewards) {
+            }, function(err, count) {
                 if (err) {
                     res.status(500).send(err);
                     Raven.captureException(err);
                 } else {
                     res.status(200).send({
-                        total: rewards.length,
-                        rewards: rewards
+                        total: count
                     });
                 }
             });
