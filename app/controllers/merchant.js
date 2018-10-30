@@ -703,19 +703,11 @@ module.exports = {
      * @apiParam {Date} lastChecked Last time the user checked for an update. Can be in string format.
      * 
      * @apiSuccess {Number} total The total number of rewards created since the last time checked.
-     * @apiSuccess {Object[]} rewards An array of the rewards. The objects only hold names
      * 
      * @apiSuccessExample Success-Response:
      *  HTTP/1.1 200 OK
      *  {
-     *     "total": 1,
-     *     "rewards": [{
-     *          "id": "5b7ab4ce24688b0adcb9f542",
-     *          "name": "Hot Burgers for 2"
-     *     }, {
-     *          "id": "8b7ab4ce24688b0adcb9f544",
-     *          "name": "Hot dog as long as the eyes can see"
-     *     }]
+     *     "total": 1
      *  }
      * 
      * @apiError BadRequest Bad request data.
