@@ -165,6 +165,7 @@ module.exports = {
     var saved = req.body.saved || req.params.saved || req.query.saved || 'false';
     var useNow = (saved === 'false' || saved === false) ? true : false;
     var code = useNow ? shortCode.generate() : null;
+    var expires = new Date(req.body.expiryDate);
 
     var booking = new Booking({
         userId: req.user._id,
@@ -172,7 +173,7 @@ module.exports = {
         rewardId: rewards,
         shortCode: code,
         useNow: useNow,
-        expiryDate: new Date(req.body.expiryDate)
+        expiryDate: expires
     });
 
     booking.save(function (err) {
@@ -277,7 +278,7 @@ module.exports = {
 
     var currentUser;
     (async function() {
-        currentUser = await getVisited(req.user.id);
+        currentUser = await getVisited(req.user._id);
     })();
 
     var query = {
