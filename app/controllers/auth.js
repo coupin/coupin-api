@@ -158,7 +158,7 @@ module.exports = {
                 res.status(404).send({message: 'There is no such user'});
             } else {
                 var encrypted = cryptoJs.AES.encrypt(user._id.toString(), config.secret);
-                Emailer.sendEmail('abiso_lawal@yahoo.com', 'Forgot Password', Messages.forgotPassword(encrypted.toString(), Emailer.getUiUrl()), function(response) {
+                Emailer.sendEmail(user.email, 'Forgot Password', Messages.forgotPassword(encrypted.toString(), Emailer.getUiUrl()), function(response) {
                     res.status(200).send({ message: 'Email sent successfully.' });
                     Raven.captureMessage(`Email sent to ${email} at ${(new Date().toDateString())}`);
                 });

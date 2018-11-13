@@ -193,7 +193,7 @@ module.exports = {
             User.findById(req.body.merchantId)
             .select('merchantInfo.companyName')
             .exec(function(err, merchant) {
-              emailer.sendEmail('abiso_lawal@yahoo.com', 'Coupin Created for ' + merchant.merchantInfo.companyName , messages.coupinCreated(booking), function(response) {
+              emailer.sendEmail(req.user.email, 'Coupin Created for ' + merchant.merchantInfo.companyName , messages.coupinCreated(booking), function(response) {
                 console.log(response);
               });
             })
