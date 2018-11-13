@@ -157,6 +157,63 @@ module.exports = {
     },
 
     /**
+     * @api {post} /customer/feedback Send admin customers feedback
+     * @apiName feedback
+     * @apiGroup Customer
+     * 
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiParam {String} coupinCode Optional String
+     * @apiParam {String} merchantName Optional String
+     * @apiParam {String} message Required. Message to us
+     * 
+     * @apiSuccess {String} message A message saying the email has been queued.
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *     "message": "Queued. Thank You."
+     *  }
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
+     */
+    requestSupport: function (req, res) {
+        var data = {
+            coupinCode: req.body.coupinCode || 'N/A',
+            customer: {
+                email: req.user.email,
+                name: req.user.name
+            },
+            merchantName: req.body.merchantName || 'N/A',
+            message: req.body.message
+        };
+
+        emailer.sendEmail(process.env.ADMINEMAIL, 'FeedBack/Suggestions ', messages.feedback(data), function(response) {
+            if (response.success) {
+                res.status(200).send(response.message.message);
+            } else {
+                Raven.captureException(response.message.message);
+                res.status(500).send(response.message.message);
+            }
+        });
+    },
+
+    /**
      * @api {put} /customer/:id Remove a merchant from favourites
      * @apiName removeFavourites
      * @apiGroup Customer

@@ -34,6 +34,13 @@ module.exports = function(router) {
       auth.isCustomer,
       CustomerCtrl.addToFavourites
     );
+
+  router.route('/customer/feedback')
+    .post(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      CustomerCtrl.requestSupport
+    );
       
   router.route('/customer/:id')
     .put(

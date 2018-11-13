@@ -16,7 +16,13 @@ module.exports = {
             to: to, //can be a lst of receivers e.g. 'test@test.com, test1@test1.com'
             subject: subject,
             cc: process.env.ADMINEMAIL,
-            html: '<h1>Hello There</h1><br/>' + message + '<br/>From we at Coupin App'
+            html: `
+            <style>
+                .test {
+                color: #5E5EE5;
+                }
+            </style>
+            <h1>Hello There</h1><br/>${message}<br/>From we at Coupin App`
         };
 
         // send mail with transporter

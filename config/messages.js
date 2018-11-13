@@ -7,18 +7,20 @@ module.exports = {
   },
   completedEmail: function(data) {
     return `
-    <style>
-      .test: {
-        color: #5E5EE5;
-      }
-    </style>
     <h1>Congratulations!</h1>
     <h3 class="test"> ${data.name} you have completed your registration! Please log in to start adding rewards right away </h3>
-    `
+    `;
   },
   coupinCreated: function(booking) {
       return '<h4> Your Coupin was created successfully. below is the information needed:</h4><br/>'
       + `<h2>Your Code is ${booking.shortCode}</h2>`;
+  },
+  feedback: function(data) {
+    return `
+    <p>A customer, ${data.customer.name} with email ${data.customer.email}, has left a feedback/suggestion. See details below: </p>
+    <h3>Coupin Code: ${data.coupinCode}</h3>
+    <h3>Merchant Name: ${data.merchantName}</h3>
+    <h4 class="test">Message: ${data.message}</h4>`;
   },
   forgotPassword: function(id, url) {
     return `
@@ -26,7 +28,7 @@ module.exports = {
       Please click on the link <a href="${url}/auth/forgot-password/${id}">${url}/auth/forgot-password/${id}</a> to reset your password<br/><br/>
       If you have any questions, please feel free to message us at info@coupinapp.com<br/><br/>
       Best Regards,</br>The Coupin App Family.
-    `
+    `;
   },
   registered: function(name) {
     return `<h4> Hello There, </h4><br/>
