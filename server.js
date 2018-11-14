@@ -22,8 +22,7 @@ var busboy = require('connect-busboy');
 var cors = require('cors');
 
 var myRoutes = require('./app/routes');
-var Raven = require('raven');
-Raven.config('https://d9b81d80ee834f1b9e2169e2152f3f95:73ba5ba410494467aaa97b5932f4fad2@sentry.io/301229').install();
+var Raven = require('./config/config').Raven;
 
 var Users = require('./app/models/users');
 // TODO: Remove
@@ -31,6 +30,8 @@ var Rewards = require('./app/models/reward');
 
 var app = express();
 dotenv.config();
+
+Raven.captureException('Testing');
 
 // set our port
 var port = process.env.PORT || 5030;

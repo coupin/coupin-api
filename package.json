@@ -6,6 +6,7 @@
     "npm": "5.2.0"
   },
   "dependencies": {
+    "@sentry/node": "^4.3.0",
     "bcryptjs": "^2.3.0",
     "body-parser": "~1.4.2",
     "cloudinary": "^1.9.0",
@@ -38,7 +39,6 @@
     "passport-jwt": "^3.0.0",
     "passport-local": "*",
     "passport-twitter": "^1.0.4",
-    "raven": "^2.4.2",
     "shortid32": "^0.1.1"
   },
   "apidoc": {

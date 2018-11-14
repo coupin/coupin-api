@@ -2,13 +2,15 @@
 
 var cloudinary = require('cloudinary');
 var dotenv = require('dotenv');
-var Raven = require('raven');
+var Raven = require('@sentry/node');
 var mailgun = require('mailgun-js');
 
 dotenv.config();
 
 
-Raven.config(process.env.SENTRY).install();
+Raven.init({
+  dsn: process.env.SENTRY
+});
 
 module.exports = {
   cloudinary: cloudinary.config({
