@@ -53,10 +53,10 @@ module.exports = function(router) {
       MerchantCtrl.adminReview
     );
 
-  router.route('/merchant/:query/search')
+  router.route('/merchant/search/:query')
     .post(
-      passport.verifyJWT1,
-      auth.isCustomer,
+      // passport.verifyJWT1,
+      // auth.isCustomer,
       MerchantCtrl.search
     );
 

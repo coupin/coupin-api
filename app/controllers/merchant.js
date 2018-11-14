@@ -1018,14 +1018,14 @@ module.exports = {
     },
 
     /**
-     * @api {post} /merchant/:query/search Search through merchants
+     * @api {post} /merchant/search/:query Search through merchants
      * @apiName search
      * @apiGroup Merchant
      * 
      * 
      * @apiHeader {String} x-access-token Users unique token
      * 
-     * @apiParam {String} query The search term to use to search. Can be a string or a String array (Optional)
+     * @apiParam {String} query The search term to use to search. String; Strings with spaces inbtwn should replace them with & e.g. "/search/an&example" (Optional)
      * @apiParam {String[]} categories An array of categories for the filters (Optional)
      * @apiParam {Number} distance The distance to search through. 3km should be sent as '3' and so on (Optional)
      * @apiParam {Number} limit The number of merchants to return (Optional)
@@ -1111,8 +1111,9 @@ module.exports = {
      */
     search: function (req, res) {
         var query = req.params.query || req.body.query || req.params.query || [' '];
+
         if (!Array.isArray(query)) {
-            query = query.split(' ');
+            query = query.split('&');
         }
 
         var currentUser;
@@ -1120,7 +1121,7 @@ module.exports = {
             currentUser = await getVisited(req.user.id);
         })();
 
-        var categories = JSON.parse(req.body.categories) || [];
+        var categories = req.body.categories ? JSON.parse(req.body.categories) : [];
         var limit = req.body.limit || req.query.limit || req.params.limit || 7;
         var page = req.body.page || req.query.page || req.params.page || 0;
 
@@ -1185,6 +1186,7 @@ module.exports = {
             } else if (merchants.length === 0) {
                 res.status(404).send({message: 'No Merchants under that name was found'});
             } else {
+                console.log(merchants);
                 var counter = 0;
                 var max = merchants.length - 1;
                 var result = [];
@@ -1207,9 +1209,9 @@ module.exports = {
                         reward: user.merchantInfo.rewards[0],
                         rewards: user.merchantInfo.rewards,
                         count: user.merchantInfo.rewards.length,
-                        category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)],
-                        visited: currentUser.visited.indexOf(user._id) > -1,
-                        favourite: currentUser.favourites.indexOf(user._id) > -1
+                        // category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)],
+                        // visited: currentUser.visited.indexOf(user._id) > -1,
+                        // favourite: currentUser.favourites.indexOf(user._id) > -1
                     }
                     
                     result.push(info);
