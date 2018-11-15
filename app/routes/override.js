@@ -7,12 +7,9 @@ const booking = require('./../models/bookings');
 // Controllers
 const MerchantCtrl = require('./../controllers/merchant');
 var Raven = require('./../../config/config').Raven;
-var Users = require('./app/models/users');
+var Users = require('./../models/users');
 
 module.exports = function(router) {
-  // router.route('/override/merchant')
-  //   .post(MerchantCtrl.adminCreate);
-
   // router.route('/override/code/delete').post(function(req, res) {
   //   booking.remove({}, function(err) {
   //     if (err) {
