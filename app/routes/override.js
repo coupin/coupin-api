@@ -10,6 +10,20 @@ var Rewards = require('./../models/reward');
 var Raven = require('./../../config/config').Raven;
 var Users = require('./../models/users');
 
+function dateCheck(dateStr1, dateStr2, isGreater) {
+  var date1 = new Date(dateStr1)
+  var date2 = new Date(dateStr2)
+  if (isGreater) {
+    return date1.getFullYear() >= date2.getFullYear() &&
+    date1.getMonth() >= date2.getMonth() &&
+    date1.getDate() >= date2.getDate();
+  } else {
+    return date1.getFullYear() <= date2.getFullYear() &&
+    date1.getMonth() <= date2.getMonth() &&
+    date1.getDate() <= date2.getDate();
+  }
+}
+
 module.exports = function(router) {
   // router.route('/override/code/delete').post(function(req, res) {
   //   booking.remove({}, function(err) {
@@ -84,7 +98,7 @@ module.exports = function(router) {
             Raven.captureException(err);
         } else {
           var date = new Date();
-          date.setHours(0);
+          date.setHours(1);
           date.setMinutes(0);
           date.setSeconds(0);
           merchants.forEach(function(merchant) {
@@ -93,14 +107,14 @@ module.exports = function(router) {
             var expired = merchant.merchantInfo.expiredRewards || [];
 
             pending.forEach(function(reward, index) {
-              if (moment(reward.startDate).isSameOrBefore(date) && reward.isActive && reward.status !== 'draft') {
+              if (dateCheck(reward.startDate, date.toString(), false) && reward.isActive && reward.status !== 'draft') {
                 active.push(reward._id);
                 pending.splice(index, 1);
               }
             });
             
             active.forEach(function(reward, index) {
-              if (moment(reward.endDate).isAfter(date)) {
+              if (dateCheck(reward.endDate, date.toString(), true)) {
                 expired.push(reward._id);
                 active.splice(index, 1);
               }

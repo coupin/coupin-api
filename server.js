@@ -80,6 +80,20 @@ app.use('/doc', function(req, res) {
 // configure our routes
 app.use('/api/v1', myRoutes);
 
+function dateCheck(dateStr1, dateStr2, isGreater) {
+  var date1 = new Date(dateStr1)
+  var date2 = new Date(dateStr2)
+  if (isGreater) {
+    return date1.getFullYear() >= date2.getFullYear() &&
+    date1.getMonth() >= date2.getMonth() &&
+    date1.getDate() >= date2.getDate();
+  } else {
+    return date1.getFullYear() <= date2.getFullYear() &&
+    date1.getMonth() <= date2.getMonth() &&
+    date1.getDate() <= date2.getDate();
+  }
+}
+
 function sortMerchantRewards() {
     Users.find({
         isActive: true,
@@ -106,7 +120,7 @@ function sortMerchantRewards() {
             Raven.captureException(err);
         } else {
           var date = new Date();
-          date.setHours(0);
+          date.setHours(1);
           date.setMinutes(0);
           date.setSeconds(0);
           merchants.forEach(function(merchant) {
@@ -115,14 +129,14 @@ function sortMerchantRewards() {
             var expired = merchant.merchantInfo.expiredRewards || [];
 
             pending.forEach(function(reward, index) {
-              if (moment(reward.startDate).isSameOrBefore(date) && reward.isActive && reward.status !== 'draft') {
+              if (dateCheck(reward.startDate, date.toString(), false) && reward.isActive && reward.status !== 'draft') {
                 active.push(reward._id);
                 pending.splice(index, 1);
               }
             });
             
             active.forEach(function(reward, index) {
-              if (moment(reward.endDate).isAfter(date)) {
+              if (dateCheck(reward.endDate, date.toString(), true)) {
                 expired.push(reward._id);
                 active.splice(index, 1);
               }
