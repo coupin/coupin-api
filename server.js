@@ -16,6 +16,7 @@ var passport = require('passport');
 var cookieParser = require('cookie-parser');
 // For logging all request
 var morgan = require('morgan');
+var moment = require('moment');
 // For token validation
 var fs = require('fs-extra');
 var busboy = require('connect-busboy');
@@ -114,14 +115,14 @@ function sortMerchantRewards() {
             var expired = merchant.merchantInfo.expiredRewards || [];
 
             pending.forEach(function(reward, index) {
-              if (reward.startDate <= date && reward.isActive && reward.status !== 'draft') {
+              if (moment(reward.startDate).isSameOrBefore(date) && reward.isActive && reward.status !== 'draft') {
                 active.push(reward._id);
                 pending.splice(index, 1);
               }
             });
             
             active.forEach(function(reward, index) {
-              if (reward.endDate < date) {
+              if (moment(reward.endDate).isAfter(date)) {
                 expired.push(reward._id);
                 active.splice(index, 1);
               }
