@@ -10,7 +10,7 @@ const adminRoutes = require('./routes/admin');
 const authRoutes = require('./routes/auth');
 const coupinRoutes = require('./routes/coupin');
 const merchantRoutes = require('./routes/merchant');
-// const overrideRoutes = require('./routes/override');
+const overrideRoutes = require('./routes/override');
 const rewardRoutes = require('./routes/rewards');
 const userRoutes = require('./routes/customer');
 
@@ -21,7 +21,7 @@ adminRoutes(router);
 authRoutes(router);
 coupinRoutes(router);
 merchantRoutes(router);
-// overrideRoutes(router);
+overrideRoutes(router);
 rewardRoutes(router);
 userRoutes(router);
 
