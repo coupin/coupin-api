@@ -6,7 +6,7 @@ const booking = require('./../models/bookings');
 
 // Controllers
 const MerchantCtrl = require('./../controllers/merchant');
-var Raven = require('./config/config').Raven;
+var Raven = require('./../../config/config').Raven;
 var Users = require('./app/models/users');
 
 module.exports = function(router) {
