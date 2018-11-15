@@ -6,7 +6,7 @@ const booking = require('./../models/bookings');
 
 // Controllers
 const MerchantCtrl = require('./../controllers/merchant');
-var Rewards = require('./app/models/reward');
+var Rewards = require('./../models/reward');
 var Raven = require('./../../config/config').Raven;
 var Users = require('./../models/users');
 
