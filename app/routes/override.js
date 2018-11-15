@@ -6,6 +6,7 @@ const booking = require('./../models/bookings');
 
 // Controllers
 const MerchantCtrl = require('./../controllers/merchant');
+var Rewards = require('./app/models/reward');
 var Raven = require('./../../config/config').Raven;
 var Users = require('./../models/users');
 
@@ -19,7 +20,40 @@ module.exports = function(router) {
   //     res.status(200).send("Done!");
   //   });
   // });
-  router.route('/override/merchant/update', function(req, res) {
+  router.route('/override/rewards/reset').post(function(req, res) {
+    var body = req.body;
+  
+    if (req.body.password !== process.env.UPDATE_PASS) {
+      res.status(404).send({ message: 'Not Found' });
+    } else {
+      var count = 1;
+      Users.find({
+        role: 2
+      }, function(err, merchants) {
+        merchants.forEach(function(merchant) {
+          Rewards.find({
+            merchantID: merchant._id
+          }, function(err, rewards) {
+            merchant.merchantInfo.pendingRewards = [];
+            merchant.merchantInfo.rewards = [];
+            merchant.merchantInfo.expiredRewards = [];
+            
+            if (rewards && rewards.length > 0) {
+              rewards.forEach(function(reward) {
+                merchant.merchantInfo.pendingRewards.push(reward._id);
+              });
+            }
+            
+            merchant.save();
+            count++;
+          });
+        });
+        res.status(200).send({ message: 'Done Resetting.' });
+      });
+    }
+  });
+
+  router.route('/override/merchant/update').post(function(req, res) {
     var body = req.body;
 
     if (req.body.password !== process.env.UPDATE_PASS) {
@@ -94,6 +128,7 @@ module.exports = function(router) {
               Raven.captureException(err);
             });
           });
+          res.status(200).send({ message: 'Done.' });
           Raven.captureMessage('Done with Update');
         }
       });
