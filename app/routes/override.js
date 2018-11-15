@@ -19,7 +19,7 @@ module.exports = function(router) {
   //     res.status(200).send("Done!");
   //   });
   // });
-  router.route('/override/merchant/update', function(req, res) {
+  router.route('/override/merchant/update').post(function(req, res) {
     var body = req.body;
 
     if (req.body.password !== process.env.UPDATE_PASS) {
