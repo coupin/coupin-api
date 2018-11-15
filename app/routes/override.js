@@ -94,6 +94,7 @@ module.exports = function(router) {
               Raven.captureException(err);
             });
           });
+          res.status(200).send({ message: 'Done' });
           Raven.captureMessage('Done with Update');
         }
       });
