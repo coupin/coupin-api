@@ -1186,7 +1186,6 @@ module.exports = {
             } else if (merchants.length === 0) {
                 res.status(404).send({message: 'No Merchants under that name was found'});
             } else {
-                console.log(merchants);
                 var counter = 0;
                 var max = merchants.length - 1;
                 var result = [];
