@@ -631,11 +631,7 @@ module.exports = {
         var limit = req.query.limit || req.body.limit || req.params.limit ||  10;
         var page = req.query.page || req.body.page || req.params.page ||  0;
         var categories = req.user.interests;
-
-        var currentUser;
-        (async function() {
-            currentUser = await getVisited(req.user.id);
-        })();
+        var currentUser = req.user;
 
         Merchant.find({
             'merchantInfo.categories': {
@@ -736,7 +732,7 @@ module.exports = {
      */
     notificationUpdates: function(req, res) {
         var dateString = req.body.lastChecked || req.params.lastChecked || req.query.lastChecked;
-        var lastChecked = moment(dateString);
+        var lastChecked = new Date(dateString);
         var categories = req.user.interests;
         
         if (lastChecked.isValid()) {
@@ -952,10 +948,7 @@ module.exports = {
      *  }
      */
     retrieveHotList: function(req, res) {
-        var currentUser;
-        (async function() {
-            currentUser = await getVisited(req.user.id);
-        })();
+        var currentUser = req.user;
 
         Prime.findOne({})
         .populate({
@@ -1116,10 +1109,7 @@ module.exports = {
             query = query.split('&');
         }
 
-        var currentUser;
-        (async function() {
-            currentUser = await getVisited(req.user.id);
-        })();
+        var currentUser = req.user;
 
         var categories = req.body.categories ? JSON.parse(req.body.categories) : [];
         var limit = req.body.limit || req.query.limit || req.params.limit || 7;
@@ -1208,9 +1198,9 @@ module.exports = {
                         reward: user.merchantInfo.rewards[0],
                         rewards: user.merchantInfo.rewards,
                         count: user.merchantInfo.rewards.length,
-                        // category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)],
-                        // visited: currentUser.visited.indexOf(user._id) > -1,
-                        // favourite: currentUser.favourites.indexOf(user._id) > -1
+                        category: user.merchantInfo.categories[Math.floor(Math.random() * user.merchantInfo.categories.length)],
+                        visited: currentUser.visited.indexOf(user._id) > -1,
+                        favourite: currentUser.favourites.indexOf(user._id) > -1
                     }
                     
                     result.push(info);

@@ -303,7 +303,9 @@ module.exports = {
             }
 
             if (picture) {
-                customer['picture'] = picture;
+                customer['picture'] = {
+                    url: picture
+                };
             }
 
             customer.isActive = true;
@@ -478,6 +480,7 @@ module.exports = {
             blacklist: user.blacklist || [],
             favourites: user.favourites,
             interests: user.interests,
+            visited: user.visited,
             city: user.city,
             picture: user.picture
         };
