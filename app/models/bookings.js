@@ -30,7 +30,8 @@ var bookingSchema = new schema({
         }
     }],
     shortCode: {
-        type: String
+        type: String,
+        default: null
     },
     useNow: {
         type: Boolean,

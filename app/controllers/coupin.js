@@ -175,9 +175,10 @@ module.exports = {
         useNow: useNow,
         expiryDate: expires
     });
-
+console.log(booking);
     booking.save(function (err) {
       if (err) {
+        console.log(err);
         res.status(500).send(err);
         Raven.captureException(err);
       } else {
