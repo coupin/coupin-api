@@ -127,21 +127,31 @@ function sortMerchantRewards() {
             var active = merchant.merchantInfo.rewards || [];
             var pending = merchant.merchantInfo.pendingRewards || [];
             var expired = merchant.merchantInfo.expiredRewards || [];
+            var indexes = [];
 
             pending.forEach(function(reward, index) {
-              if (dateCheck(reward.startDate, date.toString(), false) && reward.isActive && reward.status !== 'draft') {
-                active.push(reward._id);
-                pending.splice(index, 1);
-              }
-            });
-            
-            active.forEach(function(reward, index) {
-              if (dateCheck(reward.endDate, date.toString(), true)) {
-                expired.push(reward._id);
-                active.splice(index, 1);
+              if (dateCheck(reward.startDate, date.toString(), false) && reward.isActive && reward.status === 'active') {
+                active.push(reward);
+                indexes.push(index);
               }
             });
 
+            for (var z = indexes.length - 1; z >= 0; z--) {
+              pending.splice(indexes[z], 1);
+            };
+
+            indexes = [];
+            active.forEach(function(reward, index) {
+              if (dateCheck(reward.endDate, date.toString(), false)) {
+                expired.push(reward);
+                indexes.push(index);
+              }
+            });
+            for (var z = indexes.length - 1; z >= 0; z--) {
+              active.splice(indexes[z], 1);
+            };
+
+            merchant.merchantInfo.expiredRewards = [];
             merchant.merchantInfo.rewards = [];
             merchant.merchantInfo.pendingRewards = [];
             active.filter(Boolean).forEach(function(temp) {

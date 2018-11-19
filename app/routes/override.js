@@ -11,16 +11,18 @@ var Raven = require('./../../config/config').Raven;
 var Users = require('./../models/users');
 
 function dateCheck(dateStr1, dateStr2, isGreater) {
-  var date1 = new Date(dateStr1)
-  var date2 = new Date(dateStr2)
+  var date1 = new Date(dateStr1);
+  var date2 = new Date(dateStr2);
+  var sameMonth = date1.getMonth() === date2.getMonth();
+
   if (isGreater) {
     return date1.getFullYear() >= date2.getFullYear() &&
     date1.getMonth() >= date2.getMonth() &&
-    date1.getDate() >= date2.getDate();
+    (sameMonth ? date1.getDate() >= date2.getDate() : true);
   } else {
     return date1.getFullYear() <= date2.getFullYear() &&
     date1.getMonth() <= date2.getMonth() &&
-    date1.getDate() <= date2.getDate();
+    (sameMonth ? date1.getDate() <= date2.getDate() : true);
   }
 }
 
@@ -90,8 +92,8 @@ module.exports = function(router) {
           }
         ]
       })
-      .populate('merchantInfo.rewards', 'endDate isActive startDate')
-      .populate('merchantInfo.pendingRewards', 'endDate isActive startDate')
+      .populate('merchantInfo.rewards', 'endDate isActive startDate status')
+      .populate('merchantInfo.pendingRewards', 'endDate isActive startDate status')
       .exec(function(err, merchants) {
         if (err) {
             Raven.captureMessage('An error occured while updating merchant\'s rewards. See below for reason.');
@@ -105,21 +107,31 @@ module.exports = function(router) {
             var active = merchant.merchantInfo.rewards || [];
             var pending = merchant.merchantInfo.pendingRewards || [];
             var expired = merchant.merchantInfo.expiredRewards || [];
+            var indexes = [];
 
             pending.forEach(function(reward, index) {
-              if (dateCheck(reward.startDate, date.toString(), false) && reward.isActive && reward.status !== 'draft') {
-                active.push(reward._id);
-                pending.splice(index, 1);
-              }
-            });
-            
-            active.forEach(function(reward, index) {
-              if (dateCheck(reward.endDate, date.toString(), true)) {
-                expired.push(reward._id);
-                active.splice(index, 1);
+              if (dateCheck(reward.startDate, date.toString(), false) && reward.isActive && reward.status === 'active') {
+                active.push(reward);
+                indexes.push(index);
               }
             });
 
+            for (var z = indexes.length - 1; z >= 0; z--) {
+              pending.splice(indexes[z], 1);
+            };
+
+            indexes = [];
+            active.forEach(function(reward, index) {
+              if (dateCheck(reward.endDate, date.toString(), false)) {
+                expired.push(reward);
+                indexes.push(index);
+              }
+            });
+            for (var z = indexes.length - 1; z >= 0; z--) {
+              active.splice(indexes[z], 1);
+            };
+
+            merchant.merchantInfo.expiredRewards = [];
             merchant.merchantInfo.rewards = [];
             merchant.merchantInfo.pendingRewards = [];
             active.filter(Boolean).forEach(function(temp) {
@@ -139,7 +151,9 @@ module.exports = function(router) {
             });
 
             merchant.save(function(err) {
-              Raven.captureException(err);
+              if (err) {
+                Raven.captureException(err);
+              }
             });
           });
           res.status(200).send({ message: 'Done.' });
