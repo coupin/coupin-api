@@ -175,7 +175,7 @@ module.exports = {
         useNow: useNow,
         expiryDate: expires
     });
-console.log(booking);
+
     booking.save(function (err) {
       if (err) {
         console.log(err);
@@ -194,9 +194,11 @@ console.log(booking);
             User.findById(req.body.merchantId)
             .select('merchantInfo.companyName')
             .exec(function(err, merchant) {
-              emailer.sendEmail(req.user.email, 'Coupin Created for ' + merchant.merchantInfo.companyName , messages.coupinCreated(booking), function(response) {
-                console.log(response);
-              });
+              if (useNow) {
+                emailer.sendEmail(req.user.email, 'Coupin Created for ' + merchant.merchantInfo.companyName , messages.coupinCreated(booking), function(response) {
+                  console.log(response);
+                });
+              }
             })
           }
         });
@@ -277,10 +279,7 @@ console.log(booking);
     var saved = req.body.saved || req.params.saved || req.query.saved || 'false';
     var useNow = (saved === 'false' || saved === false) ? true : false;
 
-    var currentUser;
-    (async function() {
-        currentUser = await getVisited(req.user._id);
-    })();
+    var currentUser = req.user;
 
     var query = {
       isActive: active,

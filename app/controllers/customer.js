@@ -384,13 +384,9 @@ module.exports = {
      *  }
      */
     retrieveFavourites : function (req, res ) {
-        var user = req.user;
-        var currentUser;
-        (async function() {
-            currentUser = await getVisited(req.user.id);
-        })();
+        var currentUser = req.user;
 
-        Customer.populate(user, {
+        Customer.populate(currentUser, {
             path: 'favourites',
             model: 'User',
             populate: {
@@ -405,6 +401,7 @@ module.exports = {
                 var response = [];
                 for (var i = 0; i < userPop.favourites.length; i++) {
                     var merchant = userPop.favourites[i];
+                    console.log(merchant);
                     response.push({
                         _id: merchant._id,
                         name: merchant.merchantInfo.companyName,
