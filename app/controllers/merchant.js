@@ -735,7 +735,7 @@ module.exports = {
         var lastChecked = new Date(dateString);
         var categories = req.user.interests;
         
-        if (lastChecked.isValid()) {
+        if (!isNaN(Date.parse(lastChecked))) {
             Reward.count({
                 createdDate:  {
                     $gte: lastChecked.toString()
