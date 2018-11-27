@@ -36,7 +36,8 @@ dotenv.config();
 var port = process.env.PORT || 5030;
 
 // connect to db
-mongoose.connect(process.env.MONGO_URL);
+// mongoose.connect(process.env.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL_STAGING);
 // mongoose.connect(process.env.LOCAL_URL);
 
 /**
@@ -81,16 +82,18 @@ app.use('/doc', function(req, res) {
 app.use('/api/v1', myRoutes);
 
 function dateCheck(dateStr1, dateStr2, isGreater) {
-  var date1 = new Date(dateStr1)
-  var date2 = new Date(dateStr2)
+  var date1 = new Date(dateStr1);
+  var date2 = new Date(dateStr2);
+  var sameMonth = date1.getMonth() === date2.getMonth();
+
   if (isGreater) {
     return date1.getFullYear() >= date2.getFullYear() &&
     date1.getMonth() >= date2.getMonth() &&
-    date1.getDate() >= date2.getDate();
+    (sameMonth ? date1.getDate() >= date2.getDate() : true);
   } else {
     return date1.getFullYear() <= date2.getFullYear() &&
     date1.getMonth() <= date2.getMonth() &&
-    date1.getDate() <= date2.getDate();
+    (sameMonth ? date1.getDate() <= date2.getDate() : true);
   }
 }
 

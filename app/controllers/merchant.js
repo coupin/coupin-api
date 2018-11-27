@@ -404,7 +404,7 @@ module.exports = {
      */
     markerInfo: function (req, res) {
         var categories = req.body.categories ? JSON.parse(req.body.categories) : [];
-        var limit = req.query.limit || req.body.limit || req.params.limit ||  4;
+        var limit = req.query.limit || req.body.limit || req.params.limit ||  5;
         var skip = req.query.page || req.body.page || req.params.page ||  0;
         var longitude = req.query.longitude || req.body.longitude || req.params.longitude;
         var latitude = req.query.latitude || req.body.latitude || req.params.latitude;
