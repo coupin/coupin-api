@@ -27,15 +27,6 @@ function dateCheck(dateStr1, dateStr2, isGreater) {
 }
 
 module.exports = function(router) {
-  // router.route('/override/code/delete').post(function(req, res) {
-  //   booking.remove({}, function(err) {
-  //     if (err) {
-  //       console.log(err);
-  //     }
-
-  //     res.status(200).send("Done!");
-  //   });
-  // });
   router.route('/override/rewards/reset').post(function(req, res) {
     var body = req.body;
   

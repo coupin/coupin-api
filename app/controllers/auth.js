@@ -21,6 +21,7 @@ module.exports = {
      */
     confirmString: function(req, res) {
         var encoded = req.query.encoded || req.params.encoded || req.body.encoded;
+        encoded = encoded.replace(/\s/g, '+');
 
         if (encoded) {
             var decrypted = cryptoJs.AES.decrypt(encoded.toString(), config.secret);
