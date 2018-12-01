@@ -25,7 +25,7 @@ module.exports = {
   forgotPassword: function(id, url) {
     return `
     <h4> It seems you have forgotten your password. If it really was you, please click on the link below:</h4><br/>
-      Please click on the link <a href="${url}/auth/forgot-password/${id}">${url}/auth/forgot-password/${id}</a> to reset your password<br/><br/>
+      Please click on the link <a href="${url}/auth/forgot-password?query=${id}">${url}/auth/forgot-password?query=${id}</a> to reset your password<br/><br/>
       If you have any questions, please feel free to message us at info@coupinapp.com<br/><br/>
       Best Regards,</br>The Coupin App Family.
     `;
