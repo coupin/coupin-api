@@ -6,7 +6,7 @@ var Users = require('./app/models/users');
 
 dotenv.config();
 
-var db = process.env.MONGO_URL;
+var db = process.env.MONGODB_URI;
 // var db = process.env.LOCAL_URL;
 
 // const data = require('./seeds/data.json');
