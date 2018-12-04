@@ -180,7 +180,7 @@ function sortMerchantRewards() {
     });
 }
 
-cron.schedule("59 23 * * *", function() {
+cron.schedule("01 00 * * *", function() {
   sortMerchantRewards();
 });
 
