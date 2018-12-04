@@ -190,7 +190,7 @@ module.exports = {
                         res.status(500).send(err);
                     } else {
                         res.status(200).send({message: `Reward successfully ${status}`});
-                        if (status === 'active' && today.isAfter(reward.startDate) && today.isBefore(reward.endDate)) {
+                        if (status === 'active' && today.isSameOrAfter(reward.startDate) && today.isBefore(reward.endDate)) {
                             Merchant.findById(reward.merchantID, function(err, merchant) {
                                 var index = merchant.merchantInfo.pendingRewards.indexOf(id);
                                 merchant.merchantInfo.pendingRewards.splice(index, 1);
