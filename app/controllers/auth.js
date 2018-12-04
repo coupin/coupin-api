@@ -25,7 +25,7 @@ module.exports = {
 
         if (encoded) {
             var decrypted = cryptoJs.AES.decrypt(encoded.toString(), config.secret);
-            var id = decrypted.toString(cryptoJs.enc.Utf8)
+            var id = decrypted.toString(cryptoJs.enc.Utf8);
             User.count({
                 _id: id
             }, function(err, count) {
