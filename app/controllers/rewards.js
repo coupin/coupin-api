@@ -173,7 +173,10 @@ module.exports = {
         });
     },
     toggleStatus: function(req, res) {
-        Reward.findById(req.params.id, function (err, reward) {
+        var id = req.params.id;
+        var today = moment(new Date());
+
+        Reward.findById(id, function (err, reward) {
             if (err) {
                 res.status(500).send(err);
             } else if (!reward) {
@@ -187,6 +190,14 @@ module.exports = {
                         res.status(500).send(err);
                     } else {
                         res.status(200).send({message: `Reward successfully ${status}`});
+                        if (status === 'active' && today.isAfter(reward.startDate) && today.isBefore(reward.endDate)) {
+                            Merchant.findById(reward.merchantID, function(err, merchant) {
+                                var index = merchant.merchantInfo.pendingRewards.indexOf(id);
+                                merchant.merchantInfo.pendingRewards.splice(index, 1);
+                                merchant.merchantInfo.rewards.push(id);
+                                merchant.save();
+                            });
+                        }
                     }
                 });
             }
