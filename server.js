@@ -16,18 +16,13 @@ var passport = require('passport');
 var cookieParser = require('cookie-parser');
 // For logging all request
 var morgan = require('morgan');
-var moment = require('moment');
 // For token validation
 var fs = require('fs-extra');
 var busboy = require('connect-busboy');
 var cors = require('cors');
 
 var myRoutes = require('./app/routes');
-var Raven = require('./config/config').Raven;
-
-var Users = require('./app/models/users');
-// TODO: Remove
-var Rewards = require('./app/models/reward');
+var helper = require('./app/helpers');
 
 var app = express();
 dotenv.config();
@@ -36,8 +31,8 @@ dotenv.config();
 var port = process.env.PORT || 5030;
 
 // connect to db
-// mongoose.connect(process.env.MONGO_URL);
-mongoose.connect(process.env.MONGO_URL_STAGING);
+mongoose.connect(process.env.MONGO_URL);
+// mongoose.connect(process.env.MONGO_URL_STAGING);
 // mongoose.connect(process.env.LOCAL_URL);
 
 /**
@@ -81,109 +76,8 @@ app.use('/doc', function(req, res) {
 // configure our routes
 app.use('/api/v1', myRoutes);
 
-function dateCheck(dateStr1, dateStr2, isGreater) {
-  var date1 = new Date(dateStr1);
-  var date2 = new Date(dateStr2);
-  var sameMonth = date1.getMonth() === date2.getMonth();
-
-  if (isGreater) {
-    return date1.getFullYear() >= date2.getFullYear() &&
-    date1.getMonth() >= date2.getMonth() &&
-    (sameMonth ? date1.getDate() >= date2.getDate() : true);
-  } else {
-    return date1.getFullYear() <= date2.getFullYear() &&
-    date1.getMonth() <= date2.getMonth() &&
-    (sameMonth ? date1.getDate() <= date2.getDate() : true);
-  }
-}
-
-function sortMerchantRewards() {
-    Users.find({
-        isActive: true,
-        status: 'completed',
-        role: 2,
-        $or: [
-          {
-            'merchantInfo.pendingRewards.0': {
-              $exists: true
-            }
-          },
-          {
-            'merchantInfo.rewards.0': {
-              $exists: true
-            }
-          }
-        ]
-    })
-    .populate('merchantInfo.rewards', 'endDate isActive startDate')
-    .populate('merchantInfo.pendingRewards', 'endDate isActive startDate')
-    .exec(function(err, merchants) {
-        if (err) {
-            Raven.captureMessage('An error occured while updating merchant\'s rewards. See below for reason.');
-            Raven.captureException(err);
-        } else {
-          var date = new Date();
-          date.setHours(1);
-          date.setMinutes(0);
-          date.setSeconds(0);
-          merchants.forEach(function(merchant) {
-            var active = merchant.merchantInfo.rewards || [];
-            var pending = merchant.merchantInfo.pendingRewards || [];
-            var expired = merchant.merchantInfo.expiredRewards || [];
-            var indexes = [];
-
-            pending.forEach(function(reward, index) {
-              if (dateCheck(reward.startDate, date.toString(), false) && reward.isActive && reward.status === 'active') {
-                active.push(reward);
-                indexes.push(index);
-              }
-            });
-
-            for (var z = indexes.length - 1; z >= 0; z--) {
-              pending.splice(indexes[z], 1);
-            };
-
-            indexes = [];
-            active.forEach(function(reward, index) {
-              if (dateCheck(reward.endDate, date.toString(), false)) {
-                expired.push(reward);
-                indexes.push(index);
-              }
-            });
-            for (var z = indexes.length - 1; z >= 0; z--) {
-              active.splice(indexes[z], 1);
-            };
-
-            merchant.merchantInfo.expiredRewards = [];
-            merchant.merchantInfo.rewards = [];
-            merchant.merchantInfo.pendingRewards = [];
-            active.filter(Boolean).forEach(function(temp) {
-              if (temp && temp !== null) {
-                merchant.merchantInfo.rewards.push(temp._id);
-              }
-            });
-            pending.filter(Boolean).forEach(function(temp) {
-              if (temp && temp !== null) {
-                merchant.merchantInfo.pendingRewards.push(temp._id);
-              }
-            });
-            expired.filter(Boolean).forEach(function(temp) {
-              if (temp && temp !== null) {
-                merchant.merchantInfo.expiredRewards.push(temp._id);
-              }
-            });
-
-            merchant.save(function(err) {
-              Raven.captureException(err);
-            });
-          });
-          Raven.captureMessage('Done with Update');
-        }
-    });
-}
-
 cron.schedule("01 00 * * *", function() {
-  sortMerchantRewards();
+  helper.sortMerchantRewards();
 });
 
 //start on localhost 3030

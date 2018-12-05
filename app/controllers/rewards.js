@@ -61,6 +61,7 @@ module.exports = {
                         } else {
                             res.status(200).send(reward);                            
                             Merchant.findById(reward.merchantID, function(err, merchant) {
+                                //TODO: 
                                 merchant.merchantInfo.pendingRewards.push(reward._id);
                                 merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewardsSize + 1;
                                 merchant.merchantInfo.lastAdded = new Date();
@@ -104,6 +105,8 @@ module.exports = {
                 } else if (reward) {
                     res.status(409).send({message: 'There is already a reward with that name'});
                 } else {
+                    console.log(req.body.startDate);
+                    console.log(req.body.endDate);
                     // Get information of reward
                     var newReward = {
                         name : req.body.name,
@@ -136,7 +139,6 @@ module.exports = {
                                     merchant.merchantInfo.pendingRewards.push(reward._id);
                                     merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewards.length;
                                     merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
-                                    console.log(merchant);
 
                                     merchant.save(function(err) {
                                         if (err) {
