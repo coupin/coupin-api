@@ -997,13 +997,13 @@ module.exports = {
                         res.status(500).send(err);
                         Raven.captureException(err);
                     } else {
-                        prime['visited'] = {
+                        var visited = {
                             first: currentUser.visited.indexOf(prime.featured.first._id) > -1,
                             second: currentUser.visited.indexOf(prime.featured.second._id) > -1,
                             third: currentUser.visited.indexOf(prime.featured.third._id) > -1
                         };
 
-                        res.status(200).send(prime);
+                        res.status(200).send({...prime, ...visited});
                     }
                 });
             }
