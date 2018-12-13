@@ -1003,7 +1003,7 @@ module.exports = {
                             third: currentUser.visited.indexOf(prime.featured.third._id) > -1
                         };
 
-                        res.status(200).send({...prime, ...visited});
+                        res.status(200).send(prime);
                     }
                 });
             }
