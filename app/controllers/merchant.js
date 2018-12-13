@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var moment = require('moment');
 
 var Raven = require('./../../config/config').Raven;
@@ -1003,7 +1004,15 @@ module.exports = {
                             third: currentUser.visited.indexOf(prime.featured.third._id) > -1
                         };
 
-                        res.status(200).send(prime);
+                        var response = {
+                            _id: prime._id,
+                            history: prime.history,
+                            hotlist: prime.hotlist,
+                            featured: prime.featured,
+                            visited: visited
+                        };
+
+                        res.status(200).send(response);
                     }
                 });
             }
