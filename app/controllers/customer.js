@@ -386,14 +386,14 @@ module.exports = {
     retrieveFavourites : function (req, res ) {
         var currentUser = req.user;
 
-        Customer.populate(currentUser, {
+        Customer.findById(currentUser._id).select('favourites').populate({
             path: 'favourites',
             model: 'User',
             populate: {
                 path: 'merchantInfo.rewards',
                 model: 'Reward'
             }
-        }, function (err, userPop) {
+        }).exec(function (err, userPop) {
             if (err) {
                 res.status(500).send(err);
                 Raven.captureException(err);
@@ -401,7 +401,6 @@ module.exports = {
                 var response = [];
                 for (var i = 0; i < userPop.favourites.length; i++) {
                     var merchant = userPop.favourites[i];
-                    console.log(merchant);
                     response.push({
                         _id: merchant._id,
                         name: merchant.merchantInfo.companyName,
