@@ -76,7 +76,7 @@ app.use('/doc', function(req, res) {
 // configure our routes
 app.use('/api/v1', myRoutes);
 
-cron.schedule("01 00 * * *", function() {
+cron.schedule("0 10 1 * * *", function() {
   helper.sortMerchantRewards();
 });
 
