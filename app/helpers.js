@@ -1,8 +1,10 @@
 var moment = require('moment');
-var Raven = require('../config/config').Raven;
 
-var Users = require('../app/models/users');
-var Rewards = require('../app/models/reward');
+var Emailer = require('./../config/email');
+var Messages = require('./../config/messages');
+var Raven = require('./../config/config').Raven;
+var Rewards = require('./models/reward');
+var Users = require('./models/users');
 
 module.exports = {
   resetRewards: function(cb) {
@@ -26,6 +28,45 @@ module.exports = {
           merchant.save();
         });
       });
+      cb(true);
+    });
+  },
+  sortRewards: function(cb) {
+    Rewards.find({
+      status: 'active'
+    }, function(err, rewards) {
+      if (rewards.length > 0) {
+        var date = new Date();
+
+        rewards.forEach(function(reward) {
+          if (moment(date).isAfter(reward.endDate)) {
+            reward.status = 'expired';
+            reward.save();
+          }
+
+          if (moment(date).days(2).isSame(reward.endDate)) {
+            Users.populate(reward, {
+              path: 'merchantID',
+              model: 'User',
+              select: 'email merchantInfo.companyName'
+            }, function(err, reward) {
+              if (err) {
+                return;
+              } else {
+                Emailer.sendEmail(reward.merchantID.email, `${reward.name} Expiring Soon`, Messages.rewardExpiring(
+                  reward.merchantID.merchantInfo.companyName,
+                  reward.name,
+                  moment(reward.endDate).format("dddd, MMMM Do YYYY")
+                  ), function(response) {
+                    console.log(response);
+                  });
+              }
+            });
+          }
+        });
+      }
+
+      Raven.captureMessage('Done with Reward sorting');
       cb(true);
     });
   },

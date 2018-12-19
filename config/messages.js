@@ -40,6 +40,10 @@ module.exports = {
         <br/>The Rejection Reason was: <br/>${msg}<br/><br/>
         Best Regards,</br>The Coupin App Family.`;
   },
+  rewardExpiring: function(merchantName, name, dateStr) {
+    return `<h4> Hello There, ${merchantName}</h4><br/>
+    <p>This is to let you know that your reward, ${name}, will be expiring within the next 2 days on ${dateStr}.</p>`;
+  },
   reviewed: function(name, status) {
     return `<h4> Your Reward, ${reward.name}, has been ${status}:(</h4><br/>
       If review requested, please login to make any changes required. If no changes and it has been approved, it can now be seen on the Coupin app.<br/><br/>
