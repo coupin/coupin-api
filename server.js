@@ -75,7 +75,9 @@ app.use('/doc', function(req, res) {
 app.use('/api/v1', myRoutes);
 
 cron.schedule("0 10 1 * * *", function() {
-  helper.sortMerchantRewards();
+  helper.sortRewards(function() {
+    helper.sortMerchantRewards();
+  });
 });
 
 //start on localhost 3030

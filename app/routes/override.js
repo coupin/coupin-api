@@ -46,6 +46,22 @@ module.exports = function(router) {
     }
   });
 
+  router.route('/override/rewards/update').post(function(req, res) {
+    var body = req.body;
+
+    if (req.body.password !== process.env.UPDATE_PASS) {
+      res.status(404).send({ message: 'Not Found' });
+    } else {
+      helper.sortRewards(function(success) {
+        if (!success) {
+          res.status(404).send({ message: 'Not Found' });
+        } else {
+          res.status(200).send({ message: 'Done.' });
+        }
+      });
+    }
+  });
+
   router.route('/override/merchant/update').post(function(req, res) {
     var body = req.body;
 
