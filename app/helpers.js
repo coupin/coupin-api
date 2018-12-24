@@ -88,8 +88,8 @@ module.exports = {
           }
         ]
     })
-    .populate('merchantInfo.rewards', 'endDate isActive startDate')
-    .populate('merchantInfo.pendingRewards', 'endDate isActive startDate')
+    .populate('merchantInfo.rewards', 'endDate isActive startDate status')
+    .populate('merchantInfo.pendingRewards', 'endDate isActive startDate status')
     .exec(function(err, merchants) {
         if (err) {
             Raven.captureMessage('An error occured while updating merchant\'s rewards. See below for reason.');
