@@ -24,6 +24,10 @@ var bookingSchema = new schema({
             enum: ['pending', 'used', 'expired'],
             default: 'pending'
         },
+        singleUse: {
+            type: Boolean,
+            default: false
+        },
         usedOn: {
             type: Date,
             default: null

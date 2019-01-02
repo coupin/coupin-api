@@ -31,8 +31,8 @@ dotenv.config();
 var port = process.env.PORT || 5030;
 
 // connect to db
-mongoose.connect(process.env.MONGO_URL);
-// mongoose.connect(process.env.MONGO_URL_STAGING);
+// mongoose.connect(process.env.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL_STAGING);
 // mongoose.connect(process.env.LOCAL_URL);
 
 /**

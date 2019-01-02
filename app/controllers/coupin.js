@@ -146,7 +146,8 @@ module.exports = {
    *  }
    */
   create: function(req, res) {
-    var rewardId;
+    var blacklist, rewardId;
+    var save = false;
     var rewards = [];
     if (Array.isArray(req.body.rewardId)) {
       rewardId = req.body.rewardId;
@@ -155,9 +156,23 @@ module.exports = {
       rewardId = rewardString.split(" ");
       rewardId = _.without(rewardId, "");
     }
+
+    if (Array.isArray(req.body.blacklist)) {
+      blacklist = req.body.blacklist;
+    } else if (!req.body.blacklist) {
+      blacklist = [];
+    } else {
+      var blacklistString = req.body.blacklist.replace(/[^a-z0-9]+/g," ");
+      blacklist = blacklistString.split(" ");
+      blacklist = _.without(blacklist, "");
+    }
+
+    save = blacklist.length > 0;
+    
     rewardId.forEach(function(reward) {
         rewards.push({
           id: reward,
+          singleUse: blacklist.indexOf(reward) > -1,
           status: 'pending'
         });
     });
@@ -178,7 +193,6 @@ module.exports = {
 
     booking.save(function (err) {
       if (err) {
-        console.log(err);
         res.status(500).send(err);
         Raven.captureException(err);
       } else {
@@ -191,6 +205,10 @@ module.exports = {
             Raven.captureException(err);
           } else {
             res.status(200).send(booking);
+            if (save) {
+              req.user.blacklist = blacklist;
+              req.user.save();
+            }
             User.findById(req.body.merchantId)
             .select('merchantInfo.companyName')
             .exec(function(err, merchant) {
