@@ -151,7 +151,24 @@ module.exports = {
             res.status(500).send(err);
             Raven.captureException(err);
         } else {
-            res.status(200).send({ message: 'Interests Created' });
+            var user = req.user;
+            var data = {
+                _id: user._id,
+                email: user.email,
+                name: user.name,
+                dateOfBirth: user.dateOfBirth,
+                ageRange: user.ageRange,
+                sex: user.sex,
+                isActive: user.isActive,
+                blacklist: user.blacklist || [],
+                favourites: user.favourites,
+                interests: user.interests,
+                city: user.city,
+                picutre: {
+                    url: user.picture
+                }
+            };
+            res.status(200).send(data);
         }
         });
     },

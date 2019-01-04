@@ -455,6 +455,7 @@ module.exports = {
                 $in: categories
             }
         }
+        console.log(query);
 
         Merchant.find(query)
         .limit(limit)
