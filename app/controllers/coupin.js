@@ -77,27 +77,34 @@ module.exports = {
    *  }
    */
   activate: function(req, res) {
+    var blacklist = req.user.blacklist;
     var id = req.body.id || req.params.id || req.query.id;
-      Booking.findById(id, function (err, booking) {
-        if (err) {
-          res.status(500).send(err);
-          Raven.captureException(err);
-        } else if (!booking) {
-          res.status(404).send({ message: 'No such booking exists' });
-        } else {
-          booking.shortCode = shortCode.generate();
-          booking.useNow = true;
 
-          booking.save(function(err, booking) {
-            if (err) {
-                res.status(500).send(err);
-                Raven.captureException(err);
-            } else {
-                res.status(200).send(booking);
-            }
-          });
-        }
-      });
+    Booking.findById(id, function (err, booking) {
+      if (err) {
+        res.status(500).send(err);
+        Raven.captureException(err);
+      } else if (!booking) {
+        res.status(404).send({ message: 'No such booking exists' });
+      } else {
+        booking.rewardId.forEach(function(reward) {
+          if (blacklist.indexOf(reward.id) > -1) {
+            reward.status = 'used';
+          }
+        });
+        booking.shortCode = shortCode.generate();
+        booking.useNow = true;
+
+        booking.save(function(err, booking) {
+          if (err) {
+              res.status(500).send(err);
+              Raven.captureException(err);
+          } else {
+              res.status(200).send(booking);
+          }
+        });
+      }
+    });
   },
   
   /**
@@ -352,7 +359,7 @@ module.exports = {
   },
   // Redeem a reward
   redeem: function(req, res) {
-    var blacklist = [];
+    var blacklist = req.user.blacklist || [];
     var id = req.body.id || req.params.id || req.query.id;
     var rewards = req.body.rewards;
 
