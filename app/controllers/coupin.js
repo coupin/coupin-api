@@ -346,6 +346,7 @@ module.exports = {
               rewardId: booking.rewardId,
               shortCode: booking.shortCode,
               useNow: booking.useNow,
+              expiryDate: booking.expiryDate,
               isActive: booking.isActive,
               favourite: currentUser.favourites.indexOf(booking.merchantId._id) > -1,
               visited: currentUser.visited.indexOf(booking.merchantId._id) > -1,
