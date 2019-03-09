@@ -664,6 +664,14 @@ module.exports = {
         } else if (!user) {
           res.status(404).send({ message: 'User does not exist.' });
         } else {
+            if (!user.notification) {
+                user.notification = {
+                    token: '',
+                    notify: true,
+                    days: 'weekdays'
+                }
+            }
+
           ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'ageRange', 'notify', 'days'].forEach(
             function (key) {
               if (body[key]) {
