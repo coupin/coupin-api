@@ -206,6 +206,18 @@ var userSchema = new schema({
     completedDate: {
         type: Date
     },
+    notification: {
+        token: String,
+        notify: {
+            type: Boolean,
+            default: true
+        },
+        days: {
+            type: String,
+            default: 'weekdays',
+            enum: ['weekends', 'weekdays']
+        }
+    },
     createdDate: {
         type: Date,
         default: new Date()

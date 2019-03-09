@@ -41,6 +41,13 @@ module.exports = function(router) {
       auth.isCustomer,
       CustomerCtrl.requestSupport
     );
+
+  router.route('/customer/notifications/:id')
+    .post(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      CustomerCtrl.setToken
+    );
       
   router.route('/customer/:id')
     .put(
@@ -48,5 +55,4 @@ module.exports = function(router) {
       auth.isCustomer,
       CustomerCtrl.updateUser
     );
-
 };

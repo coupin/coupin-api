@@ -50,9 +50,13 @@ module.exports = {
      *          "favourites": [],
      *          "interests": [],
      *          "city": "lagos",
-     *          "picutre": {
+     *          "picture": {
      *              "url": null
-     *          }":
+     *          },
+     *          "notification": {
+     *              "token": null
+     *              "days": "weekdays"
+     *          }
      *       }
      *  }
      * 
@@ -98,7 +102,8 @@ module.exports = {
                     favourites: user.favourites,
                     interests: user.interests,
                     city: user.city,
-                    picutre: user.picture
+                    picture: user.picture,
+                    notification: user.notification
                 };
 
                 res.status(200).send({ 
@@ -119,12 +124,12 @@ module.exports = {
      * 
      * @apiParam {String[]} interests An array containing the users interests
      * 
-     * @apiSuccess {String} message A message stating that the interest has been added
+     * @apiSuccess {User} data Updated user information
      * 
      * @apiSuccessExample Success-Response:
      *  HTTP/1.1 200 OK
      *  {
-     *     "message": "Interests Created"
+     *     "data": 
      *  }
      * 
      * @apiError Unauthorized Invalid token.
@@ -164,9 +169,10 @@ module.exports = {
                 favourites: user.favourites,
                 interests: user.interests,
                 city: user.city,
-                picutre: {
+                picture: {
                     url: user.picture
-                }
+                },
+                notification: user.notification
             };
             res.status(200).send(data);
         }
@@ -251,7 +257,7 @@ module.exports = {
      * @apiSuccess {String[]} favourites String array of favourites
      * @apiSuccess {String[]} interests String array of interests
      * @apiSuccess {String} city The city of the user
-     * @apiSuccess {Object} picutre An object containing url {String} url of image
+     * @apiSuccess {Object} picture An object containing url {String} url of image
      * 
      * @apiSuccessExample Success-Response:
      *  HTTP/1.1 200 OK
@@ -267,8 +273,12 @@ module.exports = {
      *     "favourites": [],
      *     "interests": [],
      *     "city": "lagos",
-     *     "picutre": {
+     *     "picture": {
      *         "url": null
+     *     },
+     *     "notification": {
+     *         "token": "k3kkjh34",
+     *         "days": "weekdays"
      *     }
      *  }
      * 
@@ -321,9 +331,10 @@ module.exports = {
                     favourites: user.favourites,
                     interests: user.interests,
                     city: user.city,
-                    picutre: {
+                    picture: {
                         url: user.picture
-                    }
+                    },
+                    notification: user.notification
                 };
 
                 res.status(200).send(data);
@@ -443,6 +454,40 @@ module.exports = {
             }
         });
     },
+
+    setToken : function (req, res) {
+        var id = req.params.id || req.query.id || req.body.id;
+        var body = req.body;
+        console.log(body.token);
+
+        if (!body.token) {
+            res.status(400).send({
+                message: 'Token cannot be empty.'
+            })
+        } else {
+            Customer.findById(id, function (err, user) {
+                if (err) {
+                    res.status(500).send(err);
+                    Raven.captureException(err);
+                } else if (!user) {
+                    res.status(404).send({ message: 'User does not exist.' });
+                } else {
+                    user.notification.token = body.token;
+                    user.modifiedDate = new Date();
+
+                    user.save(function(err) {
+                        if (err) {
+                            res.status(500).send(err);
+                            Raven.captureException(err);
+                        } else {
+                            res.status(200).send({ message: 'Token updated.' });
+                        }
+                    });
+                }
+            });
+        }
+    },
+    
     /**
      * @api {put} /customer/category Update the user's interests/categories
      * @apiName updateInterests
@@ -464,7 +509,7 @@ module.exports = {
      * @apiSuccess {String[]} favourites String array of favourites
      * @apiSuccess {String[]} interests String array of interests
      * @apiSuccess {String} city The city of the user
-     * @apiSuccess {Object} picutre An object containing url {String} url of image
+     * @apiSuccess {Object} picture An object containing url {String} url of image
      * 
      * @apiSuccessExample Success-Response:
      *  HTTP/1.1 200 OK
@@ -480,7 +525,7 @@ module.exports = {
      *     "favourites": [],
      *     "interests": [],
      *     "city": "lagos",
-     *     "picutre": {
+     *     "picture": {
      *         "url": null
      *     }
      *  }
@@ -525,7 +570,7 @@ module.exports = {
                 favourites: user.favourites,
                 interests: user.interests,
                 city: user.city,
-                picutre: {
+                picture: {
                     url: user.picture
                 }
             };
@@ -552,7 +597,7 @@ module.exports = {
      * @apiParam {String[]} favourites String array of favourites (Optional)
      * @apiParam {String[]} interests String array of interests (Optional)
      * @apiParam {String} city The city of the user (Optional)
-     * @apiParam {Object} picutre An object containing url {String} url of image (Optional)
+     * @apiParam {Object} picture An object containing url {String} url of image (Optional)
      * 
      * @apiSuccess {String} _id The id of customer
      * @apiSuccess {String} email The email of the 
@@ -565,7 +610,7 @@ module.exports = {
      * @apiSuccess {String[]} favourites String array of favourites
      * @apiSuccess {String[]} interests String array of interests
      * @apiSuccess {String} city The city of the user
-     * @apiSuccess {Object} picutre An object containing url {String} url of image
+     * @apiSuccess {Object} picture An object containing url {String} url of image
      * 
      * @apiSuccessExample Success-Response:
      *  HTTP/1.1 200 OK
@@ -581,8 +626,12 @@ module.exports = {
      *     "favourites": [],
      *     "interests": [],
      *     "city": "lagos",
-     *     "picutre": {
+     *     "picture": {
      *         "url": null
+     *     },
+     *     "notification": {
+     *         "token": "33iu2hiu3h2",
+     *         "days": "weekday"
      *     }
      *  }
      * 
@@ -615,10 +664,22 @@ module.exports = {
         } else if (!user) {
           res.status(404).send({ message: 'User does not exist.' });
         } else {
-          ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'ageRange'].forEach(
-            function (value) {
-              if (body[value]) {
-                user[value] = body[value];
+            if (!user.notification) {
+                user.notification = {
+                    token: '',
+                    notify: true,
+                    days: 'weekdays'
+                }
+            }
+
+          ['name', 'email', 'address', 'mobileNumber', 'network', 'dateOfBirth', 'sex', 'ageRange', 'notify', 'days'].forEach(
+            function (key) {
+              if (body[key]) {
+                  if (key === 'notify' || key === 'days') {
+                    user.notification[key] = body[key];
+                  } else {
+                    user[key] = body[key];
+                  }
               }
             });
 
@@ -654,7 +715,8 @@ module.exports = {
                     interests: user.interests,
                     city: user.city,
                     mobileNumber: user.mobileNumber,
-                    picture: user.picture
+                    picture: user.picture,
+                    notification: user.notification
                 };
               res.status(200).send(data);
               if (deletePicture) {

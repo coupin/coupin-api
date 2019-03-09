@@ -3,6 +3,7 @@ var moment = require('moment');
 var Emailer = require('./../config/email');
 var Messages = require('./../config/messages');
 var Raven = require('./../config/config').Raven;
+var Notification = require('./../config/notifications');
 var Rewards = require('./models/reward');
 var Users = require('./models/users');
 
@@ -29,6 +30,57 @@ module.exports = {
         });
       });
       cb(true);
+    });
+  },
+  getUpdateCount: function(cb) {
+    var lastChecked = moment(new Date()).subtract(7, 'd').toDate();
+    
+    Rewards.count({
+        createdDate:  {
+            $gte: lastChecked.toString()
+        }
+    }, function(err, count) {
+        if (err) {
+            cb(null);
+            Raven.captureException(err);
+        } else {
+          cb({
+            total: count
+          });
+        }
+    });
+  },
+  sendNotifications: function(total, isWeekend, cb) {
+    var days = isWeekend ? 'weekends' : 'weekdays';
+    var title, msg;
+
+    if (total > 0) {
+      title = 'New Coupins!!!';
+      msg = `There are ${total} new coupins of interest around you.`;
+    } else {
+      title = 'New Coupins!!!';
+      msg = 'Keep wathcing this space for new and upcoming rewards..';
+    }
+
+    Users.find({
+      'notification.notify': true,
+      'notification.days': days
+    }, function(err, users) {
+      if(err) {
+        cb(false);
+        Raven.captureException(err);
+      } else {
+        var tokens = [];
+
+        users.forEach(function(user) {
+          tokens.push(user.notification.token);
+        });
+
+        Notification.sendMessage(title, msg, tokens, {
+          navigateTo: 'hot'
+        });
+        cb(true);
+      }
     });
   },
   sortRewards: function(cb) {
