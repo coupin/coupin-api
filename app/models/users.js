@@ -207,7 +207,10 @@ var userSchema = new schema({
         type: Date
     },
     notification: {
-        token: String,
+        token: {
+            type: String,
+            default: null
+        },
         notify: {
             type: Boolean,
             default: true
