@@ -2,11 +2,14 @@
 
 var cloudinary = require('cloudinary');
 var dotenv = require('dotenv');
-var Raven = require('@sentry/node');
+var gcm = require('node-gcm');
 var mailgun = require('mailgun-js');
+var Raven = require('@sentry/node');
 
 dotenv.config();
 
+
+var sender = new gcm.Sender(process.env.GCM_SERVER_KEY);
 
 Raven.init({
   dsn: process.env.SENTRY
@@ -23,5 +26,6 @@ module.exports = {
     domain: process.env.MAILGUN_DOMAIN
   }),
   Raven: Raven,
-  secret: process.env.SECRET
+  secret: process.env.SECRET,
+  GCMSender: sender
 };

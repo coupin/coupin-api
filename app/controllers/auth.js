@@ -236,7 +236,11 @@ module.exports = {
      *          "city": "lagos",
      *          "picutre": {
      *              "url": null
-     *          }":
+     *          },
+     *          "notification": {
+     *              "token": "277fg2f74gf87fg"
+     *              "days": "weekends"
+     *          }
      *       }
      *  }
      * 
@@ -334,7 +338,8 @@ module.exports = {
                         city: user.city,
                         picutre: {
                             url: user.picture
-                        }
+                        },
+                        notification: user.notification
                     };
 
                     res.status(200).send({
@@ -432,7 +437,11 @@ module.exports = {
      *          "city": "lagos",
      *          "picutre": {
      *              "url": null
-     *          }":
+     *          },
+     *          "notification": {
+     *              "token": "3uiu2hiu32hu32",
+     *              "days": "weekends"
+     *          }
      *       }
      *  }
      * 
@@ -483,7 +492,8 @@ module.exports = {
             interests: user.interests,
             visited: user.visited,
             city: user.city,
-            picture: user.picture
+            picture: user.picture,
+            notification: user.notification
         };
 
         res.status(200).send({
