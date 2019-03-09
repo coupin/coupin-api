@@ -322,6 +322,11 @@ module.exports = {
                 } else {
                     var payload = {id: user._id, name: user.name, email: user.email};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                    var defaultNotification = {
+                        token: null,
+                        notify: true,
+                        days: 'weekdays'
+                    };
 
                     //TODO: Remove customer details not necessary
                     var data = {
@@ -339,7 +344,7 @@ module.exports = {
                         picutre: {
                             url: user.picture
                         },
-                        notification: user.notification
+                        notification: user.notification || defaultNotification
                     };
 
                     res.status(200).send({
@@ -478,6 +483,12 @@ module.exports = {
             mobileNumber: user.mobileNumber
         };
         var token = jwt.sign(payload, jwtOptions.secretOrKey);
+        var defaultNotification = {
+            token: null,
+            notify: true,
+            days: 'weekdays'
+        };
+
         var data = {
             _id: user._id,
             email: user.email,
@@ -493,7 +504,7 @@ module.exports = {
             visited: user.visited,
             city: user.city,
             picture: user.picture,
-            notification: user.notification
+            notification: user.notification || defaultNotification
         };
 
         res.status(200).send({
