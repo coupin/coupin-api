@@ -1,4 +1,3 @@
-var Cloudinary = require('cloudinary');
 var Customer = require('../models/users');
 var Reward = require('../models/reward');
 
@@ -7,7 +6,6 @@ var config = require('../../config/config');
 var emailer = require('../../config/email');
 var messages = require('../../config/messages');
 
-var cloudinary = config.cloudinary;
 var Raven = config.Raven;
 
 function getVisited(id) {
@@ -719,15 +717,6 @@ module.exports = {
                     notification: user.notification
                 };
               res.status(200).send(data);
-              if (deletePicture) {
-                Cloudinary.v2.uploader.destroy(formerPicture, {
-                    invalidate: true
-                }, function(err, result) {
-                    if (err) {
-                        Raven.captureException(err);
-                    }
-                });
-              }
             }
           });
         }
