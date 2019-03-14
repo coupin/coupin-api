@@ -134,6 +134,10 @@ function(req, email, password, done){
         if(!user) 
             return done(null, false, {success : false, message: "No such user exists"});
 
+        //If no user is found return the signupMessage
+        if(!user.password) 
+            return done(null, false, {success : false, message: "Invalid login."});
+
         // id user is found but password is wrong
         if(!User.isValid(password, user.password)) {
             return done(null, false, {success : false, message: 'Wrong Password'});

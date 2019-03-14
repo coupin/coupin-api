@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const cloudinary = require('cloudinary');
 
 // Get passport
 const passport = require('./middleware/passport');
@@ -24,13 +23,6 @@ merchantRoutes(router);
 overrideRoutes(router);
 rewardRoutes(router);
 userRoutes(router);
-
-router.post('/signature', function(req, res) {
-    var params = req.body || req.params || req.query;
-    var signature = cloudinary.utils.api_sign_request(params, 'F4SmP0wD7kQonfuybQjixWFYzP0');
-
-    res.status(200).send(signature);
-});
 
 router.get('/mobile/version', function(req, res) {
     res.status(200).send(process.env.MOBILE_VERSION);
