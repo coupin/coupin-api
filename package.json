@@ -68,6 +68,6 @@
   "scripts": {
     "preinstall": "npm install apidoc -g",
     "generate-docs": "apidoc -i app/ -o apiDoc/ -t apiDocTemplate/",
-    "start": "node init.js && nodemon server.js"
+    "start": "node init.js && node server.js"
   }
 }
