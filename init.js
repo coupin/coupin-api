@@ -1,3 +1,4 @@
+var chalk = require('chalk');
 var dotenv = require('dotenv');
 var seeder = require('mongoose-seed');
 
@@ -27,9 +28,11 @@ seeder.connect(db, function () {
                     process.exit(0);
                 }
 
+                console.log(chalk.blue.bold('Done with creating the customer'));
                 process.exit(0);
             });
         } else {
+            console.log(chalk.blue.bold('Customer already exists.'));
             process.exit(0);
         }
     });
