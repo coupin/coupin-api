@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var moment = require('moment');
 
 var Emailer = require('./../config/email');
@@ -35,34 +36,47 @@ module.exports = {
   getUpdateCount: function(cb) {
     var lastChecked = moment(new Date()).subtract(7, 'd').toDate();
     
-    Rewards.count({
+    Rewards
+    .find({
         createdDate:  {
             $gte: lastChecked.toString()
         }
-    }, function(err, count) {
-        if (err) {
-            cb(null);
-            Raven.captureException(err);
-        } else {
-          cb({
-            total: count
-          });
-        }
+    })
+    .select('categories')
+    .exec(function(err, rewards) {
+      var categories = [];
+
+      rewards.forEach(function(reward) {
+        categories = _.union(reward.categories, categories);
+      });
+
+      if (err) {
+          cb(null);
+          Raven.captureException(err);
+      } else {
+        cb({
+          categories: categories,
+          total: rewards.length
+        });
+      }
     });
   },
-  sendNotifications: function(total, isWeekend, cb) {
+  sendNotifications: function(res, isWeekend, cb) {
     var days = isWeekend ? 'weekends' : 'weekdays';
     var title, msg;
 
     if (total > 0) {
       title = 'New Coupins!!!';
-      msg = `There are ${total} new coupins of interest around you.`;
+      msg = `There are ${res.total} new coupins of interest around you.`;
     } else {
       title = 'New Coupins!!!';
       msg = 'Keep wathcing this space for new and upcoming rewards..';
     }
 
     Users.find({
+      'interests': {
+        $in: res.categories
+      },
       'notification.notify': true,
       'notification.days': days
     }, function(err, users) {
