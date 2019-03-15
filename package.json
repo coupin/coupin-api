@@ -24,6 +24,7 @@
     "lodash": "^4.17.11",
     "mailgun-js": "^0.17.0",
     "method-override": "~2.0.2",
+    "mime": "^2.4.0",
     "moment": "^2.19.1",
     "mongoose": "^4.9.10",
     "mongoose-seed": "^0.6.0",
