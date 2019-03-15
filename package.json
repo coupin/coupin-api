@@ -69,7 +69,7 @@
     "nodemon": "^1.18.10"
   },
   "scripts": {
-    "preinstall": "npm install",
+    "preinstall": "rm -rf node_modules/",
     "generate-docs": "apidoc -i app/ -o apiDoc/ -t apiDocTemplate/",
     "start": "node init.js && node server.js"
   }
