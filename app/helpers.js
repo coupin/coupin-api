@@ -182,7 +182,7 @@ module.exports = {
 
             indexes = [];
             active.forEach(function(reward, index) {
-              if (today.isAfter(reward.endDate)) {
+              if (today.isSameOrAfter(reward.endDate)) {
                 expired.push(reward);
                 indexes.push(index);
               }
