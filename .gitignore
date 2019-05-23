@@ -3,3 +3,5 @@ public/libs
 *.env
 .vscode
 *.DS_Store
+apiDoc
+.env

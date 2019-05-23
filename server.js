@@ -82,7 +82,7 @@ cron.schedule('0 10 1 * * *', function() {
 
 cron.schedule('0 11 * * 1', function() {
   helper.getUpdateCount(function(res) {
-    helper.sendNotifications(res.total, false, function(isSuccessful) {
+    helper.sendNotifications(res, false, function(isSuccessful) {
       var date = new Date();
       console.log('Notifications sent at: ' + date.toISOString());
     });
@@ -91,7 +91,7 @@ cron.schedule('0 11 * * 1', function() {
 
 cron.schedule('0 11 * * 5', function() {
   helper.getUpdateCount(function(res) {
-    helper.sendNotifications(res.total, true, function(isSuccessful) {
+    helper.sendNotifications(res, true, function(isSuccessful) {
       var date = new Date();
       console.log('Notifications sent at: ' + date.toISOString());
     });
