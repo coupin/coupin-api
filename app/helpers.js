@@ -65,7 +65,7 @@ module.exports = {
     var days = isWeekend ? 'weekends' : 'weekdays';
     var title, msg;
 
-    if (total > 0) {
+    if (res.total > 0) {
       title = 'New Coupins!!!';
       msg = `There are ${res.total} new coupins of interest around you.`;
     } else {
