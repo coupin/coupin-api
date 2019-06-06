@@ -364,6 +364,8 @@ module.exports = {
         
         if (req.query.status && req.query.status !== 'all') {
             query['status'] = req.query.status;
+        } else {
+            query['status'] = 'active';
         }
 
         Reward.find(query)
