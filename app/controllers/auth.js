@@ -378,7 +378,7 @@ module.exports = {
         var errors = req.validationErrors();
 
         if (errors) {
-            res,status(400).send({message: errors[0].msg });
+            res.status(400).send({message: errors[0].msg });
         } else {
             var merchant = new User({
                 email : email,
