@@ -375,7 +375,7 @@ module.exports = {
       } else {
         rewards.forEach(function(index) {
           if (booking.rewardId[index].id.multiple.status) {
-            blacklist.push(booking.rewardId(index).id);
+            blacklist.push(booking.rewardId[index].id);
           }
           booking.rewardId[index].status = 'used';
           booking.rewardId[index].usedOn = new Date();
