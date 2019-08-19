@@ -59,7 +59,7 @@ function(req, email, password, done){
             return done(null, user);
         }
 
-        return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
+        return done(null, false, {success : false, message: 'User is currently inactive, please contact ${process.env.CARE_EMAIL}'})
         
     });
 }));
@@ -87,7 +87,7 @@ function(req, email, password, done){
         ) {
             return done(null, user);
         } else {
-            return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
+            return done(null, false, {success : false, message: `User is currently inactive, please contact ${process.env.CARE_EMAIL}`})
         }
         
     });
@@ -109,7 +109,7 @@ function(req, email, password, done){
         } else if(user.role === 0 || user.isActive) {
             return done(null, user);
         } else {
-            return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'});
+            return done(null, false, {success : false, message: `User is currently inactive, please contact ${process.env.CARE_EMAIL}`});
         }
         
     });
@@ -150,7 +150,7 @@ function(req, email, password, done){
             return done(null, user);
         }
 
-        return done(null, false, {success : false, message: 'User is currently inactive, please contact info@coupinapp.com'})
+        return done(null, false, {success : false, message: `User is currently inactive, please contact ${process.env.CARE_EMAIL}`})
         
     });
 }));

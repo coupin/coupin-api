@@ -2,7 +2,7 @@ module.exports = {
   approved: function(id, url) {
       return `<h4> We are excited to have you as part of the team</h4><br/>
       Please click on the link <a href="${url}/merchant/${id}/confirm">${url}/merchant/${id}/confirm</a> to activate your account<br/><br/>
-      If you have any questions, please feel free to message us at info@coupinapp.com<br/><br/>
+      If you have any questions, please feel free to message us at ${process.env.CARE_EMAIL}<br/><br/>
       Best Regards,</br>The Coupin App Family.`;
   },
   completedEmail: function(data) {
@@ -26,7 +26,7 @@ module.exports = {
     return `
     <h4> It seems you have forgotten your password. If it really was you, please click on the link below:</h4><br/>
       Please click on the link <a href="${url}/auth/forgot-password?query=${id}">${url}/auth/forgot-password?query=${id}</a> to reset your password<br/><br/>
-      If you have any questions, please feel free to message us at info@coupinapp.com<br/><br/>
+      If you have any questions, please feel free to message us at ${process.env.CARE_EMAIL}<br/><br/>
       Best Regards,</br>The Coupin App Family.
     `;
   },
@@ -36,7 +36,7 @@ module.exports = {
   },
   rejected: function(msg) {
     return `<h4> We are sorry to let you know that your application has been rejected :(</h4><br/>
-        Please send addition information at info@coupinapp.com, to help us in verifying your business.<br/><br/>
+        Please send addition information at ${process.env.CARE_EMAIL}, to help us in verifying your business.<br/><br/>
         <br/>The Rejection Reason was: <br/>${msg}<br/><br/>
         Best Regards,</br>The Coupin App Family.`;
   },

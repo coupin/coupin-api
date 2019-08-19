@@ -224,7 +224,7 @@ module.exports = {
             message: req.body.message
         };
 
-        emailer.sendEmail(process.env.ADMINEMAIL, 'FeedBack/Suggestions ', messages.feedback(data), function(response) {
+        emailer.sendEmail(process.env.CARE_EMAIL, 'FeedBack/Suggestions ', messages.feedback(data), function(response) {
             if (response.success) {
                 res.status(200).send(response.message.message);
             } else {

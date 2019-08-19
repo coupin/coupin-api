@@ -12,7 +12,7 @@ module.exports = {
     sendEmail: function(to, subject, message, callback){
 
         var mailOptions = {
-            from: 'Coupin App Ng <info@coupinapp.com>',
+            from: `Coupin App Ng <${process.env.CARE_EMAIL}>`,
             to: to, //can be a lst of receivers e.g. 'test@test.com, test1@test1.com'
             subject: subject,
             cc: process.env.ADMINEMAIL,

@@ -39,6 +39,9 @@ module.exports = {
                         companyName: body.companyName,
                         companyDetails: body.companyDetails,
                         address: body.address,
+                        billing: {
+                            history: []
+                        },
                         city: body.city,
                         mobileNumber: body.mobileNumber,
                         location: [body.longitude, body.latitude],
@@ -51,6 +54,14 @@ module.exports = {
                     isActive: true,
                     role: 2
                 });
+
+                if (moment(new Date()).isBefore('2020-04-01')) {
+                    merchant.merchantInfo.billing.history.unshift({
+                        plan: 'monthly',
+                        reference: 'coupin-promo-first-timer',
+                        expiration: expiration
+                    });
+                }
 
                 Merchant.createCustomer(merchant, function (err) {
                     if (err) {
@@ -112,6 +123,7 @@ module.exports = {
     billing: function(req, res) {
         var body = req.body;
         var id = req.params.id || req.query.id || req.body.id;
+        var isFirstTime = false;
 
         Merchant.findById(id, function(err, merchant) {
             if (err) {
@@ -123,21 +135,26 @@ module.exports = {
                 merchant.merchantInfo.billing.plan = body.plan;
                 if (!merchant.merchantInfo.billing.history) {
                     merchant.merchantInfo.billing.history = [];
+                    isFirstTime = true;
                 }
                 var expiration = null;
-                if (body.plan !== 'payAsYouGo') {
-                    if (body.plan === 'monthly') {
-                        expiration = moment(new Date()).add(1, 'months').toDate();
-                    } else if (body.plan === 'yearly') {
-                        expiration = moment(new Date()).add(1, 'years').toDate();
-                    } else {
-                        expiration = null;
+                if (isFirstTime && moment(new Date()).isBefore('2020-04-01')) {
+                    expiration = moment(new Date()).add(2, 'months').toDate();
+                } else {
+                    if (body.plan !== 'payAsYouGo') {
+                        if (body.plan === 'monthly') {
+                            expiration = moment(new Date()).add(1, 'months').toDate();
+                        } else if (body.plan === 'yearly') {
+                            expiration = moment(new Date()).add(1, 'years').toDate();
+                        } else {
+                            expiration = null;
+                        }
                     }
                 }
 
                 merchant.merchantInfo.billing.history.unshift({
-                    plan: body.plan,
-                    reference: body.reference,
+                    plan: isFirstTime ? 'monthly' : body.plan,
+                    reference: isFirstTime ? 'coupin-promo-first-timer' : body.reference,
                     expiration: expiration
                 });
 
