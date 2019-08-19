@@ -12,7 +12,8 @@ var db = process.env.MONGO_URL;
 
 // const data = require('./seeds/data.json');
 seeder.connect(db, function () {
-    Users.findOne({email: 'admin@coupin.com'}, function (err, user) {
+    // TODO: change this in the future
+    Users.findOne({email: process.env.ADMINEMAIL}, function (err, user) {
         if (err) {
             Raven.captureException(err);
             process.exit(0);
