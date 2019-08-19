@@ -27,12 +27,17 @@ var helper = require('./app/helpers');
 var app = express();
 dotenv.config();
 
+var env = process.env.NODE_ENV || 'development';
+
 // set our port
 var port = process.env.PORT || 5030;
 
 // connect to db
-// mongoose.connect(process.env.MONGO_URL);
-mongoose.connect(process.env.MONGO_URL_STAGING);
+if (env === 'staging') {
+  mongoose.connect(process.env.MONGO_URL_STAGING);
+} else {
+  mongoose.connect(process.env.MONGO_URL);
+}
 // mongoose.connect(process.env.LOCAL_URL);
 
 /**
