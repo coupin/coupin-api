@@ -12,6 +12,7 @@ const merchantRoutes = require('./routes/merchant');
 const overrideRoutes = require('./routes/override');
 const rewardRoutes = require('./routes/rewards');
 const userRoutes = require('./routes/customer');
+const paymentRoutes = require('./routes/payment');
 
 // For Test
 const MerchantCtrl = require('./controllers/merchant');
@@ -23,6 +24,7 @@ merchantRoutes(router);
 overrideRoutes(router);
 rewardRoutes(router);
 userRoutes(router);
+paymentRoutes(router);
 
 router.get('/mobile/version', function(req, res) {
     res.status(200).send(process.env.MOBILE_VERSION);
