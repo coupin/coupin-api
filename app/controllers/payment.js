@@ -21,6 +21,7 @@ module.exports = {
      * Example data for body
      * 
      * {
+     *  callbackUrl: 'url'
      *  amount: 10000, // amount in naira
      *  email: email@email.ie
      *  type: ['billing', 'reward']
@@ -92,6 +93,7 @@ module.exports = {
 
       // data to send to paystack
       var postData = JSON.stringify({
+        callback_url: body.callbackUrl,
         email: body.email,
         amount: body.amount * 100,
         ref: reference,
