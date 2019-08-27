@@ -1,0 +1,111 @@
+{
+  "addons": [
+    "algoliasearch",
+    "mailgun",
+    "mongolab",
+    "sentry"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "ADMINEMAIL": {
+      "required": true
+    },
+    "ALGOLIASEARCH_API_KEY": {
+      "required": true
+    },
+    "ALGOLIASEARCH_API_KEY_SEARCH": {
+      "required": true
+    },
+    "ALGOLIASEARCH_APPLICATION_ID": {
+      "required": true
+    },
+    "CARE_EMAIL": {
+      "required": true
+    },
+    "CL_API_KEY": {
+      "required": true
+    },
+    "CL_API_SECRET": {
+      "required": true
+    },
+    "CL_CLOUD_NAME": {
+      "required": true
+    },
+    "GCM_SENDER_ID": {
+      "required": true
+    },
+    "GCM_SERVER_KEY": {
+      "required": true
+    },
+    "MAILGUN_API_KEY": {
+      "required": true
+    },
+    "MAILGUN_DOMAIN": {
+      "required": true
+    },
+    "MAILGUN_PUBLIC_KEY": {
+      "required": true
+    },
+    "MAILGUN_SMTP_LOGIN": {
+      "required": true
+    },
+    "MAILGUN_SMTP_PASSWORD": {
+      "required": true
+    },
+    "MAILGUN_SMTP_PORT": {
+      "required": true
+    },
+    "MAILGUN_SMTP_SERVER": {
+      "required": true
+    },
+    "MG_API_KEY": {
+      "required": true
+    },
+    "MG_TEST_DOMAIN": {
+      "required": true
+    },
+    "MOBILE_VERSION": {
+      "required": true
+    },
+    "MONGO_URL": {
+      "required": true
+    },
+    "MONGODB_URI": {
+      "required": true
+    },
+    "PAYSTACK_PUBLIC_KEY": {
+      "required": true
+    },
+    "PAYSTACK_SECRET_KEY": {
+      "required": true
+    },
+    "PAYSTACK_URL": {
+      "required": true
+    },
+    "SADMIN": {
+      "required": true
+    },
+    "SECRET": {
+      "required": true
+    },
+    "SENTRY_DSN": {
+      "required": true
+    },
+    "UI_URL": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "coupin-api",
+  "scripts": {
+  },
+  "stack": "cedar-14"
+}
