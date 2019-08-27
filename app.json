@@ -1,9 +1,5 @@
 {
-  "addons": [
-    "algoliasearch",
-    "mailgun",
-    "mongolab"
-  ],
+  "addons": [],
   "buildpacks": [
     {
       "url": "heroku/nodejs"

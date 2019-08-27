@@ -200,7 +200,7 @@ module.exports = {
           // Save the merchant billing information
           var isFirstTime = false;
 
-          Merchant.findById(merchantId).exec().then(function (merchant) {
+          var merchantPromise = Merchant.findById(merchantId).exec().then(function (merchant) {
             if (!merchant) {
               Raven.captureException({ 
                 err: '',
@@ -245,51 +245,55 @@ module.exports = {
               merchantId: merchantId,
               type: 'Merchant billing update',
             });
-          }).then(function (merchant) {
-              if (merchant && paymentType === 'reward') {
-                // if type is reward then initiate the reward update
-                return Reward.findById(rewardId).exec();
-              }
-          }, function (err) {
-            // Handle error while trying to save merchant billing and history
-            Raven.captureException({ 
-              err: err,
-              message: 'Error updating Merchant billing history and history', 
-              merchantId: merchantId,
-              type: 'Merchant billing update',
-            });
-          }).then(function (reward) {
-            // do stuff to reward
-            if (!reward) {
+          })
+
+          if (paymentType === 'reward') {
+            merchantPromise.then(function (merchant) {
+                if (merchant) {
+                  // if type is reward then initiate the reward update
+                  return Reward.findById(rewardId).exec();
+                }
+            }, function (err) {
+              // Handle error while trying to save merchant billing and history
               Raven.captureException({ 
-                err: '',
-                message: 'Reward does not exist.', 
+                err: err,
+                message: 'Error updating Merchant billing history and history', 
+                merchantId: merchantId,
+                type: 'Merchant billing update',
+              });
+            }).then(function (reward) {
+              // do stuff to reward
+              if (!reward) {
+                Raven.captureException({ 
+                  err: '',
+                  message: 'Reward does not exist.', 
+                  rewardId: rewardId,
+                  type: 'Reward Payment update',
+                });
+              } else {
+                reward.status = 'isPending';
+                reward.isActive = true;
+                reward.modifiedDate = Date.now();
+                return reward.save();
+              }
+            }, function (err) {
+              // Handle error while to retrieve
+              Raven.captureException({ 
+                err: err,
+                message: 'Error retrieving reward information', 
                 rewardId: rewardId,
                 type: 'Reward Payment update',
               });
-            } else {
-              reward.status = 'isPending';
-              reward.isActive = true;
-              reward.modifiedDate = Date.now();
-              return reward.save();
-            }
-          }, function (err) {
-            // Handle error while to retrieve
-            Raven.captureException({ 
-              err: err,
-              message: 'Error retrieving reward information', 
-              rewardId: rewardId,
-              type: 'Reward Payment update',
-            });
-          }).then(function () {},
-            function (err) {
-              Raven.captureException({ 
-                err: err,
-                message: 'Error updating Reward details', 
-                rewardId: rewardId,
-                type: 'Reward status update',
-              });
-            })
+            }).then(function () {},
+              function (err) {
+                Raven.captureException({ 
+                  err: err,
+                  message: 'Error updating Reward details', 
+                  rewardId: rewardId,
+                  type: 'Reward status update',
+                });
+              })
+          }
         }
       }
     }
