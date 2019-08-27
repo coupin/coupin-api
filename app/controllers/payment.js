@@ -233,7 +233,6 @@ module.exports = {
                 expiration: expiration
               });
 
-              console.log('came here 4')
               return merchant.save();
             }
           }, function (err) {
