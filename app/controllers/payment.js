@@ -235,6 +235,13 @@ module.exports = {
                 expiration: expiration
               });
 
+              // This is an new addition
+              if (merchant.status !== 'completed') {
+                merchant.isActive = true;
+                merchant.status = 'completed';
+                merchant.completedDate = new Date();
+              }
+
               return merchant.save();
             }
           }, function (err) {
