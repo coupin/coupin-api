@@ -186,25 +186,25 @@ module.exports = {
         // get the data from the the
         var password = req.body.password;
         var banner = req.body.banner;
-        var billing = req.body.billing;
+        // var billing = req.body.billing;
         var companyDetails = req.body.companyDetails;
         var logo = req.body.logo;
         var state = req.body.state;
-        var expiryDate = moment(billing.date);
+        // var expiryDate = moment(billing.date);
         var expiration = null;
 
-        if (billing.plan === 'monthly') {
-            expiration = expiryDate.add(1, 'months').toDate();
-        } else if (billing.plan === 'yearly') {
-            expiration = expiryDate.add(1, 'years').toDate();
-        }
+        // if (billing.plan === 'monthly') {
+        //     expiration = expiryDate.add(1, 'months').toDate();
+        // } else if (billing.plan === 'yearly') {
+        //     expiration = expiryDate.add(1, 'years').toDate();
+        // }
 
         // Form Validator
         req.checkBody('companyDetails', 'Company Details field is required').notEmpty();
         req.checkBody('password','Password field is required').notEmpty();
         req.checkBody('password2', 'Please confirm password').notEmpty();
         req.checkBody('password2', 'Passwords are not the same').equals(req.body.password);
-        req.checkBody('billing', 'Billing info is required').notEmpty();
+        // req.checkBody('billing', 'Billing info is required').notEmpty();
         req.checkBody('logo', 'Logo is required').notEmpty();
         req.checkBody('banner', 'Banner is required').notEmpty();
 
@@ -224,19 +224,19 @@ module.exports = {
                     merchant.merchantInfo.companyDetails = companyDetails;
                     merchant.merchantInfo.logo = logo;
                     merchant.merchantInfo.banner = banner;
-                    merchant.merchantInfo.billing = {
-                        plan : billing.plan,
-                        history : [{
-                            plan: billing.plan,
-                            date: new Date(billing.date),
-                            reference: billing.reference,
-                            expiration: expiration
-                        }]
-                    };
                     merchant.merchantInfo.state = state;
-                    merchant.isActive = true;
-                    merchant.status = 'completed';
-                    merchant.completedDate = new Date();
+                    // merchant.merchantInfo.billing = {
+                    //     plan : billing.plan,
+                    //     history : [{
+                    //         plan: billing.plan,
+                    //         date: new Date(billing.date),
+                    //         reference: billing.reference,
+                    //         expiration: expiration
+                    //     }]
+                    // };
+                    // merchant.isActive = true;
+                    // merchant.status = 'completed';
+                    // merchant.completedDate = new Date();
 
                     Merchant.createCustomer(merchant, function(err) {
                         if (err) {
