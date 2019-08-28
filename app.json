@@ -1,10 +1,5 @@
 {
-  "addons": [
-    "algoliasearch",
-    "mailgun",
-    "mongolab",
-    "sentry"
-  ],
+  "addons": [],
   "buildpacks": [
     {
       "url": "heroku/nodejs"
@@ -90,9 +85,6 @@
       "required": true
     },
     "SECRET": {
-      "required": true
-    },
-    "SENTRY_DSN": {
       "required": true
     },
     "UI_URL": {
