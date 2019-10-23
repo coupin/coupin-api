@@ -55,8 +55,8 @@ module.exports = {
     },
     getStats: function (req, res) {
         // var duration = req.query.duration || 30;
-        var startDate = req.query.start || moment().subtract(30, 'day');
-        var endDate = req.query.end || moment();
+        var startDate = req.query.start || moment().subtract(30, 'day').valueOf();
+        var endDate = req.query.end || moment().valueOf();
         var id = req.params.id || req.user.id;
         var rewardOpt = {};
         var generatedCoupinOpt = {};
@@ -72,14 +72,14 @@ module.exports = {
         };
 
         generatedCoupinOpt['merchantId'] = id;
-        generatedCoupinOpt['createdDate'] = {
+        generatedCoupinOpt['createdAt'] = {
             $gte:  new Date(parseInt(startDate)),
             $lte: new Date(parseInt(endDate)),
         };
 
         redeemedCoupinOpt['merchantId'] = id;
         redeemedCoupinOpt['rewardId.status'] = 'used';
-        redeemedCoupinOpt['createdDate'] = {
+        redeemedCoupinOpt['createdAt'] = {
             $gte:  new Date(parseInt(startDate)),
             $lte: new Date(parseInt(endDate)),
         };
@@ -88,10 +88,10 @@ module.exports = {
             Reward.count(rewardOpt).exec(),
             Booking.count(generatedCoupinOpt).exec(),
             Booking.count(redeemedCoupinOpt).exec()
-        ]).then(([activeRewardCount, generatedCpupins, redeemedCoupins]) => {
+        ]).then(([activeRewardCount, generatedCoupins, redeemedCoupins]) => {
             res.status(200).json({
                 active: activeRewardCount,
-                generated: generatedCpupins,
+                generated: generatedCoupins,
                 redeemed: redeemedCoupins,
             });
         }).catch((err) => {
@@ -99,4 +99,25 @@ module.exports = {
             Raven.captureException(err);
         })
     },
+    getOverallCoupinStat: function (req, res) {
+        var id = req.params.id || req.user.id;
+        var generatedCoupinOpt = {};
+        var redeemedCoupinOpt = {};
+
+        redeemedCoupinOpt['merchantId'] = generatedCoupinOpt['merchantId'] = id;
+        redeemedCoupinOpt['rewardId.status'] = 'used';
+
+        Promise.all([
+            Booking.count(generatedCoupinOpt).exec(),
+            Booking.count(redeemedCoupinOpt).exec()
+        ]).then((result) => {
+            res.status(200).json({
+                generated: result[0],
+                redeemed: result[1],
+            });
+        }).catch((err) => {
+            res.status(500).send(err);
+            Raven.captureException(err);
+        })
+    }
 };

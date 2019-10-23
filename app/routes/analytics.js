@@ -22,4 +22,11 @@ module.exports = function(router) {
         auth.isMerchant,
         AnalyticsCtrl.getStats
       );
+
+    router.route('/analytics/get-coupin-stats')
+      .get(
+        auth.authenticate,
+        auth.isMerchant,
+        AnalyticsCtrl.getOverallCoupinStat
+      );
 };
