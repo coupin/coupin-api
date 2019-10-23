@@ -16,97 +16,42 @@ module.exports = {
         var page = req.query.page || 1;
         var merchantId = req.params.id || req.user.id;
         var rewardLimit = 10;
-        var opt = {};
-
-        // set merchant id
-        opt['merchantID'] = merchantId;
-        // opt['createdDate'] = {
-        //     $gte: moment(startDate),
-        //     $lte: moment(endDate),
-        // };
 
         Booking.mapReduce({
             map: function () {
-                var self = this
-                this.rewardId.forEach(function (_rewardId) {
-                    emit(ObjectId(_rewardId.id), {
-                        usedOn: _rewardId.usedOn,
-                        status: _rewardId.status,
-                        rewardId: _rewardId.id,
-                        coupinId: self._id,
-                    })
-                })
+                var self = this;
+                this.rewardId.forEach(function (reward) { reward.id = ObjectId(reward.id) })
+                emit(self._id, self);
             },
             reduce: function (key, value) {
-                return {
-                    coupins: value,
-                    coupinCount: value.length || 0
-                };
+                return { value: value };
             },
             out: { replace: 'coupins' },
             verbose: true,
             resolveToObject: true,
-            query:{ merchantId: merchantId },
-
         }).then(function (result) {
             var model = result.model;
 
-            return Promise.all([
-                model.aggregate([
-                    {
-                        $lookup: {
-                            from: 'rewards',
-                            localField: '_id',
-                            foreignField: '_id',
-                            as: 'reward'
-                        }
-                    },
-                    { $unwind: "$reward" },
-                    {
-                        $project: {
-                            'value': 1,
-                            'reward.name': 1,
-                            'reward.startDate': 1,
-                            'reward.endDate': 1,
-                            'reward.createdDate': 1,
-                        }
-                    },
-                    { $skip: (rewardLimit * (page - 1)) },
-                    { $limit: rewardLimit }
-                ]),
-                Reward.count(opt).exec(),
+            return model.aggregate([
+                { $replaceRoot: { newRoot: '$value' } },
+                { $match: { merchantId: merchantId } },
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$rewardId' } },
+                { $group: { _id: '$rewardId.id', bookings: { $addToSet: '$$ROOT' }, generatedCoupin: { $sum: 1 }, redeemedCoupin: { $sum: { $switch: { branches: [{ case: { $eq: ['$rewardId.status', 'used'] }, then: 1 }], default: 0 } } } } },
+                { $lookup: { from: 'rewards', localField: '_id', foreignField: '_id', as: 'reward' } },
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$reward' } },
+                { $match: { 'reward.startDate': { '$gte': new Date(parseInt(startDate)), '$lte': new Date(parseInt(endDate)) }, 'reward.status': 'active' } },
+                { $skip: (rewardLimit * (page - 1)) },
+                { $limit: rewardLimit }
             ])
         }).then(function (_result) {
-            var rewards = _result[0];
-            var rewardCount = _result[1];
-
             res.status(200).json({
-                rewards: rewards,
-                rewardCount: rewardCount,
+                rewards: _result,
             });
         }).catch(function (err) {
             console.log(err)
             res.status(500).send(err);
             Raven.captureException(err);
         })
-
-        // Promise.all([
-        // Reward.find(opt)
-        //     .select('name createdDate startDate endDate')
-        //     .limit(rewardLimit)
-        //     .skip(10 * (page - 1))
-        //     .exec(),
-        // Reward.count(opt).exec()
-        // ]).then(([rewards, rewardCount]) => {
-        //     res.status(200).json({
-        //         rewards,
-        //         rewardCount,
-        //     });
-        // })
-        // .catch(function (err) {
-        //     res.status(500).send(err);
-        //     Raven.captureException(err);
-        // });
     },
     getStats: function (req, res) {
         // var duration = req.query.duration || 30;
@@ -119,25 +64,25 @@ module.exports = {
 
         // set merchant id
         rewardOpt['merchantID'] = id;
-        // rewardOpt['status'] = 'active';
+        rewardOpt['status'] = 'active';
         // rewardOpt['isActive'] = true;
-        // rewardOpt['createdDate'] = {
-        //     $gte: startDate,
-        //     $lte: endDate,
-        // };
+        rewardOpt['createdDate'] = {
+            $gte:  new Date(parseInt(startDate)),
+            $lte: new Date(parseInt(endDate)),
+        };
 
         generatedCoupinOpt['merchantId'] = id;
-        // generatedCoupinOpt['createdDate'] = {
-        //     $gte: startDate,
-        //     $lte: endDate,
-        // };
+        generatedCoupinOpt['createdDate'] = {
+            $gte:  new Date(parseInt(startDate)),
+            $lte: new Date(parseInt(endDate)),
+        };
 
         redeemedCoupinOpt['merchantId'] = id;
         redeemedCoupinOpt['rewardId.status'] = 'used';
-        // redeemedCoupinOpt['createdDate'] = {
-        //     $gte: startDate,
-        //     $lte: endDate,
-        // };
+        redeemedCoupinOpt['createdDate'] = {
+            $gte:  new Date(parseInt(startDate)),
+            $lte: new Date(parseInt(endDate)),
+        };
 
         Promise.all([
             Reward.count(rewardOpt).exec(),
