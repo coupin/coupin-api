@@ -186,7 +186,7 @@ module.exports = {
         // get the data from the the
         var password = req.body.password;
         var banner = req.body.banner;
-        // var billing = req.body.billing;
+        var billing = req.body.billing;
         var companyDetails = req.body.companyDetails;
         var logo = req.body.logo;
         var state = req.body.state;
@@ -237,6 +237,20 @@ module.exports = {
                     // merchant.isActive = true;
                     // merchant.status = 'completed';
                     // merchant.completedDate = new Date();
+                    if ((billing.plan === 'trial' || billing.plan === 'payAsYouGo') && merchant.status !== 'completed') {
+                        merchant.isActive = true;
+                        merchant.status = 'completed';
+                        merchant.completedDate = new Date();
+                        merchant.merchantInfo.billing = {
+                            plan : billing.plan,
+                            history : [{
+                                plan: billing.plan,
+                                date: new Date(billing.date),
+                                reference: billing.reference,
+                                expiration: expiration
+                            }]
+                        };
+                    }
 
                     Merchant.createCustomer(merchant, function(err) {
                         if (err) {
