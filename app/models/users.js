@@ -168,13 +168,13 @@ var userSchema = new schema({
         billing: {
             plan: {
                 type: String,
-                enum: ['payAsYouGo', 'monthly', 'yearly'],
+                enum: ['payAsYouGo', 'monthly', 'yearly', 'trial'],
                 default: 'payAsYouGo'
             },
             history: [{
                 plan: {
                     type: String,
-                    enum: ['payAsYouGo', 'monthly', 'yearly'],
+                    enum: ['payAsYouGo', 'monthly', 'yearly', 'trial'],
                     require: true
                 },
                 date: {

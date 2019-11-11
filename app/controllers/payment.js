@@ -215,9 +215,9 @@ module.exports = {
                 isFirstTime = true;
               }
               var expiration = null;
-              if (isFirstTime && moment(new Date()).isBefore('2020-04-01')) {
-                expiration = moment(new Date()).add(2, 'months').toDate();
-              } else {
+              // if (isFirstTime && moment(new Date()).isBefore('2020-04-01')) {
+              //   expiration = moment(new Date()).add(2, 'months').toDate();
+              // } else {
                 if (merchantBillingType !== 'payAsYouGo') {
                   if (merchantBillingType === 'monthly') {
                     expiration = moment(new Date()).add(1, 'months').toDate();
@@ -227,11 +227,12 @@ module.exports = {
                     expiration = null;
                   }
                 }
-              }
+              // }
 
               merchant.merchantInfo.billing.history.unshift({
                 plan: isFirstTime ? 'monthly' : merchantBillingType,
-                reference: isFirstTime ? 'coupin-promo-first-timer' : reference,
+                reference: reference,
+                // reference: isFirstTime ? 'coupin-promo-first-timer' : reference,
                 expiration: expiration
               });
 

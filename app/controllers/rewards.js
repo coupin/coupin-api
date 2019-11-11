@@ -405,6 +405,7 @@ module.exports = {
         })
         .limit(10)
         .skip(page * limit)
+        .populate('merchantID', 'merchantInfo.companyName')
         .exec(function(err, rewards) {
             if (err) {
                 res.status(500).send(err);
