@@ -7,6 +7,7 @@ var Raven = require('./../config/config').Raven;
 var Notification = require('./../config/notifications');
 var Rewards = require('./models/reward');
 var Users = require('./models/users');
+var ConfigModel = require('./models/config');
 
 module.exports = {
   resetRewards: function(cb) {
@@ -217,6 +218,41 @@ module.exports = {
           Raven.captureMessage('Done with Update');
           cb(true);
         }
+    });
+  },
+  getConfig: function (cb) {
+    ConfigModel.find({}, function (err, config) {
+      if (err) {
+        Raven.captureMessage('An error coccured while trying to get config');
+        Raven.captureException(err);
+        cb(false)
+      } else {
+        if (config.length > 0) {
+          cb(config[0])
+        } else {
+          cb({});
+        }
+      }
+    });
+  },
+  disabledTrialPeriod: function (configId, cb) {
+    trialPeriodStatus = false;
+    trialPeriodDuration = 0;
+
+    ConfigModel.update({ _id: configId }, {
+      trialPeriod: {
+        enabled: false,
+        endDate: null,
+        duration: 0,
+      },
+    }, function (err, data) {
+      if (err) {
+        Raven.captureMessage('An error coccured while trying to disable trial period');
+        Raven.captureException(err);
+        cb(false);
+      } else {
+        cb(true);
+      }
     });
   }
 };

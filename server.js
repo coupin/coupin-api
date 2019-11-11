@@ -20,6 +20,7 @@ var morgan = require('morgan');
 var fs = require('fs-extra');
 var busboy = require('connect-busboy');
 var cors = require('cors');
+var moment = require('moment');
 
 var myRoutes = require('./app/routes');
 var helper = require('./app/helpers');
@@ -102,6 +103,26 @@ cron.schedule('0 11 * * 5', function() {
       var date = new Date();
       console.log('Notifications sent at: ' + date.toISOString());
     });
+  });
+});
+
+cron.schedule('0 0 * * *', function() {
+  helper.getConfig(function (config) {
+    if (config) {
+      var trialPeriod = config.trialPeriod || {};
+  
+      if (trialPeriod.enabled && moment(trialPeriod.endDate).isSameOrBefore(moment())) {
+        helper.disabledTrialPeriod(config._id, function (res) {
+          if (res) {
+            console.log('Trial period disabled at : ' + date.toISOString());
+          } else {
+            console.log('Failed to disable trial period: ' + date.toISOString());
+          }
+        });
+      }
+    } else {
+      console.log('Failed to disable trial period: ' + date.toISOString());
+    }
   });
 });
 
