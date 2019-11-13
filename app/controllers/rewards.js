@@ -243,6 +243,7 @@ module.exports = {
 
         Reward.find(opt)
         .limit(10)
+        .sort({ createdDate: -1  })
         .skip(10 * page)
         .exec(function(err, rewards) {
             if (err) {
