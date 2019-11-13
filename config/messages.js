@@ -45,7 +45,7 @@ module.exports = {
     <p>This is to let you know that your reward, ${name}, will be expiring within the next 2 days on ${dateStr}.</p>`;
   },
   reviewed: function(name, status) {
-    return `<h4> Your Reward, ${reward.name}, has been ${status}:(</h4><br/>
+    return `<h4> Your Reward, ${name}, has been ${status}:(</h4><br/>
       If review requested, please login to make any changes required. If no changes and it has been approved, it can now be seen on the Coupin app.<br/><br/>
       <br/><b>Please log on to see comment.</b><br/><br/>
       Best Regards,</br>The Coupin App Family.`;
