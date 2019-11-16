@@ -29,4 +29,18 @@ module.exports = function(router) {
         auth.isMerchant,
         AnalyticsCtrl.getOverallCoupinStat
       );
+
+    router.route('/analytics/reward/:id/gender-distribution')
+        .get(
+          auth.authenticate,
+          auth.isMerchant,
+          AnalyticsCtrl.getRewardBookingGenderDistribution
+        );
+
+    router.route('/analytics/reward/:id/age-distribution')
+        .get(
+          auth.authenticate,
+          auth.isMerchant,
+          AnalyticsCtrl.getRewardBookingAgeDistribution
+        )
 };
