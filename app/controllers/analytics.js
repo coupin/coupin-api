@@ -171,4 +171,52 @@ module.exports = {
             Raven.captureException(err);
         });
     },
+    getRewardBookingAgeDistribution: function (req, res) {
+        var rewardId = req.params.id;
+
+        Booking.mapReduce({
+            map: function () {
+                this.userId = ObjectId(this.userId)
+                emit(this._id, this);
+            },
+            reduce: function (key, value) { return { value } },
+            out: { replace: 'modifiedBookingsForUsers' },
+            verbose: true,
+            resolveToObject: true,
+        }).then(function (result) {
+            var model = result.model;
+
+            return model.aggregate([
+                { $replaceRoot: { newRoot: '$value' } },
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$rewardId' } },
+                { $match: { "rewardId.id": rewardId } },
+                { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'user' } },
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$user' } },
+                { $group: { _id: '$user.ageRange', generatedCoupin: { $sum: 1 }, redeemedCoupin: { $sum: { $switch: { branches: [{ case: { $eq: ['$rewardId.status', 'used'] }, then: 1 }], default: 0 } } } } },
+            ]);
+        }).then(function (_result) {
+            console.log(_result)
+
+            var redeemed = [];
+            var generated = [];
+
+            ['under 15', '15 - 25', '25 - 35', '35 - 45', 'above 45'].forEach(function (age) {
+                var val = _result.find(function (r) { return r._id === age }) || { _id: age, generatedCoupin: 0, redeemedCoupin: 0 };
+                redeemed.unshift(val.redeemedCoupin);
+                generated.unshift(val.generatedCoupin);
+            });
+
+            res.status(200).json([{
+                name: 'Redeemed',
+                data: redeemed
+              }, {
+                name: 'Generated',
+                data: generated
+              }]);
+        }).catch(function (err) {
+            console.log(err)
+            res.status(500).send(err);
+            Raven.captureException(err);
+        });
+    }
 };
