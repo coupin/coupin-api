@@ -154,14 +154,17 @@ module.exports = {
 
             console.log(totalGenerated)
 
-            var yt = _result.map(function(r) {
+            var data = _result.map(function(value) {
+                var generatedvalue = 100 * (value.generatedCoupin / totalGenerated);
+                var redeemedvalue = 100 * (value.redeemedCoupin / totalRedeemed);
+
                 return {
-                    name: r._id || 'uncategorised',
-                    data: [100 * (r.generatedCoupin / totalGenerated), 100 * (r.redeemedCoupin / totalRedeemed)],
+                    name: value._id || 'uncategorised',
+                    data: [parseFloat(generatedvalue.toFixed(2)), parseFloat(redeemedvalue.toFixed(2))],
                 };
             });
 
-            res.status(200).json(yt);
+            res.status(200).json(data);
         }).catch(function (err) {
             console.log(err)
             res.status(500).send(err);
