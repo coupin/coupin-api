@@ -14,6 +14,7 @@ const rewardRoutes = require('./routes/rewards');
 const userRoutes = require('./routes/customer');
 const paymentRoutes = require('./routes/payment');
 const configRoutes = require('./routes/config');
+const analyticsRoutes = require('./routes/analytics');
 
 // For Test
 const MerchantCtrl = require('./controllers/merchant');
@@ -27,6 +28,7 @@ rewardRoutes(router);
 userRoutes(router);
 paymentRoutes(router);
 configRoutes(router);
+analyticsRoutes(router);
 
 router.get('/mobile/version', function(req, res) {
     res.status(200).send(process.env.MOBILE_VERSION);
