@@ -72,6 +72,7 @@
     "preinstall": "rm -rf node_modules/",
     "generate-docs": "apidoc -i app/ -o apiDoc/ -t apiDocTemplate/",
     "postinstall": "npm run generate-docs",
-    "start": "node init.js && node server.js"
+    "start": "node init.js && node server.js",
+    "start:dev": "node init.js && nodemon server.js"
   }
 }
