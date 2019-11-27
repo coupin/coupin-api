@@ -43,4 +43,11 @@ module.exports = function(router) {
           auth.isMerchant,
           AnalyticsCtrl.getRewardBookingAgeDistribution
         )
+
+    router.route('/analytics/reward/:id/generated-redeemed-coupin')
+        .get(
+          auth.authenticate,
+          auth.isMerchant,
+          AnalyticsCtrl.getGeneratedVsRedeemedCoupin
+        )
 };

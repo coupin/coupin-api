@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var moment = require('moment');
 var shortCode = require('shortid32');
+var _ = require('lodash');
 
 var Raven = require('../../config/config').Raven;
 var Booking = require('../models/bookings');
@@ -148,13 +149,11 @@ module.exports = {
                 return acc + parseInt(r.generatedCoupin, 10);
             }, 0);
 
-            var totalRedeemed= _result.reduce(function (acc, r) {
+            var totalRedeemed = _result.reduce(function (acc, r) {
                 return acc + parseInt(r.redeemedCoupin, 10);
             }, 0);
 
-            console.log(totalGenerated)
-
-            var data = _result.map(function(value) {
+            var data = _result.map(function (value) {
                 var generatedvalue = 100 * (value.generatedCoupin / totalGenerated);
                 var redeemedvalue = 100 * (value.redeemedCoupin / totalRedeemed);
 
@@ -209,10 +208,66 @@ module.exports = {
             res.status(200).json([{
                 name: 'Redeemed',
                 data: redeemed
-              }, {
+            }, {
                 name: 'Generated',
                 data: generated
-              }]);
+            }]);
+        }).catch(function (err) {
+            console.log(err)
+            res.status(500).send(err);
+            Raven.captureException(err);
+        });
+    },
+    getGeneratedVsRedeemedCoupin: function (req, res) {
+        var rewardId = req.params.id;
+
+        Promise.all([
+            Reward.findById(rewardId), 
+            Booking.aggregate([
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$rewardId' } },
+                { $match: { 'rewardId.id': rewardId } },
+                { $addFields: { yearMonthDay: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, } },
+                { $group: { _id: '$yearMonthDay', bookings: { $addToSet: '$$ROOT' }, generatedCoupin: { $sum: 1 }, redeemedCoupin: { $sum: { $switch: { branches: [{ case: { $eq: ['$rewardId.status', 'used'] }, then: 1 }], default: 0 } } } } },
+            ])
+        ]).then(function (result) {
+            var reward = result[0];
+            var aggResult = result[1];
+            var labels = [];
+
+            var generated = []
+            var redeemed = []
+
+            // generate the labels needed for the data so we can have
+            // evenly spaced data on the frontend
+            var lastValue = moment(reward.startDate).valueOf();
+            labels.push(lastValue);
+            while(moment(reward.endDate).diff(moment(lastValue)) > 0) {
+                lastValue = moment(lastValue).add(1, 'days');
+                labels.push(lastValue.valueOf());
+            }
+
+            labels.forEach(function (time) {
+                var val = _.find(aggResult, function(o) { return moment(o._id).isSame(moment(time)) || moment(o._id).diff(moment(time), 'days') === 0; });
+
+                if (val) {
+                    generated.push([new Date(val._id).getTime(), val.generatedCoupin || 0]);
+                    redeemed.push([new Date(val._id).getTime(), val.redeemedCoupin || 0]);
+                } else {
+                    generated.push([time, 0]);
+                    redeemed.push([time, 0]);
+                }
+            });
+
+            res.json([
+                {
+                    name: "Redeemed Coupin",
+                    data: redeemed
+                },
+                {
+                    name: "Generated Coupin",
+                    data: generated
+                },
+            ])
         }).catch(function (err) {
             console.log(err)
             res.status(500).send(err);
