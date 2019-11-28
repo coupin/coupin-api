@@ -30,6 +30,14 @@ module.exports = function(router) {
         AnalyticsCtrl.getOverallCoupinStat
       );
 
+    
+    router.route('/analytics/reward/:id')
+      .get(
+        auth.authenticate,
+        auth.isMerchant,
+        AnalyticsCtrl.getSingleReward
+      )
+
     router.route('/analytics/reward/:id/gender-distribution')
         .get(
           auth.authenticate,

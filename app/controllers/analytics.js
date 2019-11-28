@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var moment = require('moment');
 var shortCode = require('shortid32');
-var _ = require('lodash');
+var mongoose = require('mongoose');
 
 var Raven = require('../../config/config').Raven;
 var Booking = require('../models/bookings');
@@ -48,6 +48,44 @@ module.exports = {
             res.status(200).json({
                 rewards: _result,
             });
+        }).catch(function (err) {
+            console.log(err)
+            res.status(500).send(err);
+            Raven.captureException(err);
+        })
+    },
+    getSingleReward: function (req, res) {
+        var rewardId = req.params.id;
+        var startDate = req.query.start || moment().subtract(30, 'day');
+        var endDate = req.query.end || moment();
+        var page = req.query.page || 1;
+        var merchantId = req.params.id || req.user.id;
+        var rewardLimit = 10;
+
+        Booking.mapReduce({
+            map: function () {
+                var self = this;
+                this.rewardId.forEach(function (reward) { reward.id = ObjectId(reward.id) })
+                emit(self._id, self);
+            },
+            reduce: function (key, value) { return { value: value }; },
+            out: { replace: 'modifiedBookingsRewards' },
+            verbose: true,
+            resolveToObject: true,
+        }).then(function (result) {
+            var model = result.model;
+
+            return model.aggregate([
+                { $replaceRoot: { newRoot: '$value' } },
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$rewardId' } },
+                { $match: { "rewardId.id": mongoose.Types.ObjectId(rewardId) } },
+                { $group: { _id: '$rewardId.id', bookings: { $addToSet: '$$ROOT' }, generatedCoupin: { $sum: 1 }, redeemedCoupin: { $sum: { $switch: { branches: [{ case: { $eq: ['$rewardId.status', 'used'] }, then: 1 }], default: 0 } } } } },
+                { $lookup: { from: 'rewards', localField: '_id', foreignField: '_id', as: 'reward' } },
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$reward' } },
+                { $project: { _id: 1, generatedCoupin: 1, redeemedCoupin: 1, 'name': '$reward.name', 'startDate': '$reward.startDate', 'endDate': '$reward.endDate' } }
+            ])
+        }).then(function (_result) {
+            res.status(200).json(_result[0] || {});
         }).catch(function (err) {
             console.log(err)
             res.status(500).send(err);
