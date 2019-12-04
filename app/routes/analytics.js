@@ -30,6 +30,14 @@ module.exports = function(router) {
         AnalyticsCtrl.getOverallCoupinStat
       );
 
+    
+    router.route('/analytics/reward/:id')
+      .get(
+        auth.authenticate,
+        auth.isMerchant,
+        AnalyticsCtrl.getSingleReward
+      )
+
     router.route('/analytics/reward/:id/gender-distribution')
         .get(
           auth.authenticate,
@@ -42,5 +50,12 @@ module.exports = function(router) {
           auth.authenticate,
           auth.isMerchant,
           AnalyticsCtrl.getRewardBookingAgeDistribution
+        )
+
+    router.route('/analytics/reward/:id/generated-redeemed-coupin')
+        .get(
+          auth.authenticate,
+          auth.isMerchant,
+          AnalyticsCtrl.getGeneratedVsRedeemedCoupin
         )
 };
