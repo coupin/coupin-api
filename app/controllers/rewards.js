@@ -212,6 +212,7 @@ module.exports = {
     read: function(req, res) {
         var id = req.params.id || req.user.id;
         var query = req.params.query || req.query.query;
+        var status = req.query.status;
         var opt = {};
         var page = req.params.page || req.query.page || 1;
         page -= 1;
@@ -240,6 +241,18 @@ module.exports = {
                 }
             ];
         };
+
+        if (status) {
+            if (!opt['$and']) {
+                opt['$and'] = [];
+            }
+
+            opt['$and'].push({
+                $or: [{
+                    status: status
+                }]
+            })
+        }
 
         Reward.find(opt)
         .limit(10)
