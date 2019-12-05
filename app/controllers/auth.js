@@ -532,7 +532,8 @@ module.exports = {
             isActive: true, 
             merchantInfo: req.user.merchantInfo,
             picture: req.user.picture,
-            isSuper: req.user.role === 0
+            isSuper: req.user.role === 0,
+            role: req.user.role,
         };
         
         res.status(200).send({token, user});
