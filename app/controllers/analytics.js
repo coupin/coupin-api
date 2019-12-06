@@ -40,7 +40,7 @@ module.exports = {
                 { $group: { _id: '$rewardId.id', bookings: { $addToSet: '$$ROOT' }, generatedCoupin: { $sum: 1 }, redeemedCoupin: { $sum: { $switch: { branches: [{ case: { $eq: ['$rewardId.status', 'used'] }, then: 1 }], default: 0 } } } } },
                 { $lookup: { from: 'rewards', localField: '_id', foreignField: '_id', as: 'reward' } },
                 { $unwind: { preserveNullAndEmptyArrays: true, path: '$reward' } },
-                { $match: { 'reward.startDate': { '$gte': new Date(parseInt(startDate)), '$lte': new Date(parseInt(endDate)) }, 'reward.status': 'active' } },
+                { $match: { 'reward.startDate': { '$gte': new Date(parseInt(startDate)), '$lte': new Date(parseInt(endDate)) }/* , 'reward.status': 'active' */ } },
                 { $skip: (rewardLimit * (page - 1)) },
                 { $limit: rewardLimit }
             ])
