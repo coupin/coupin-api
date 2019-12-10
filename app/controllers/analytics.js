@@ -1,14 +1,47 @@
 var _ = require('lodash');
 var moment = require('moment');
-var shortCode = require('shortid32');
 var mongoose = require('mongoose');
 
 var Raven = require('../../config/config').Raven;
 var Booking = require('../models/bookings');
 var Reward = require('../models/reward');
 var User = require('../models/users');
-var emailer = require('../../config/email');
-var messages = require('../../config/messages');
+var pdf =  require('./../../config/pdf');
+
+function getRewardList(merchantId, startDate, endDate, rewardLimit, page) {
+    var aggArr = [
+        { $replaceRoot: { newRoot: '$value' } },
+        { $match: { merchantId: merchantId } },
+        { $unwind: { preserveNullAndEmptyArrays: true, path: '$rewardId' } },
+        { $group: { _id: '$rewardId.id', bookings: { $addToSet: '$$ROOT' }, generatedCoupin: { $sum: 1 }, redeemedCoupin: { $sum: { $switch: { branches: [{ case: { $eq: ['$rewardId.status', 'used'] }, then: 1 }], default: 0 } } } } },
+        { $lookup: { from: 'rewards', localField: '_id', foreignField: '_id', as: 'reward' } },
+        { $unwind: { preserveNullAndEmptyArrays: true, path: '$reward' } },
+        { $match: { 'reward.startDate': { '$gte': new Date(parseInt(startDate)), '$lte': new Date(parseInt(endDate)) }/* , 'reward.status': 'active' */ } },
+    ];
+
+    if (rewardLimit) {
+        var skip = page || 1;
+        aggArr.push({ $skip: (rewardLimit * (skip - 1)) });
+        aggArr.push({ $limit: rewardLimit });
+    }
+
+    return Booking.mapReduce({
+        map: function () {
+            var self = this;
+            this.rewardId.forEach(function (reward) { reward.id = ObjectId(reward.id) })
+            emit(self._id, self);
+        },
+        reduce: function (key, value) {
+            return { value: value };
+        },
+        out: { replace: 'coupins' },
+        verbose: true,
+        resolveToObject: true,
+    }).then(function (result) {
+        var model = result.model;
+        return model.aggregate(aggArr);
+    });
+}
 
 module.exports = {
     getRewards: function (req, res) {
@@ -18,33 +51,7 @@ module.exports = {
         var merchantId = req.params.id || req.user.id;
         var rewardLimit = 10;
 
-        Booking.mapReduce({
-            map: function () {
-                var self = this;
-                this.rewardId.forEach(function (reward) { reward.id = ObjectId(reward.id) })
-                emit(self._id, self);
-            },
-            reduce: function (key, value) {
-                return { value: value };
-            },
-            out: { replace: 'coupins' },
-            verbose: true,
-            resolveToObject: true,
-        }).then(function (result) {
-            var model = result.model;
-
-            return model.aggregate([
-                { $replaceRoot: { newRoot: '$value' } },
-                { $match: { merchantId: merchantId } },
-                { $unwind: { preserveNullAndEmptyArrays: true, path: '$rewardId' } },
-                { $group: { _id: '$rewardId.id', bookings: { $addToSet: '$$ROOT' }, generatedCoupin: { $sum: 1 }, redeemedCoupin: { $sum: { $switch: { branches: [{ case: { $eq: ['$rewardId.status', 'used'] }, then: 1 }], default: 0 } } } } },
-                { $lookup: { from: 'rewards', localField: '_id', foreignField: '_id', as: 'reward' } },
-                { $unwind: { preserveNullAndEmptyArrays: true, path: '$reward' } },
-                { $match: { 'reward.startDate': { '$gte': new Date(parseInt(startDate)), '$lte': new Date(parseInt(endDate)) }/* , 'reward.status': 'active' */ } },
-                { $skip: (rewardLimit * (page - 1)) },
-                { $limit: rewardLimit }
-            ])
-        }).then(function (_result) {
+        getRewardList(merchantId, startDate, endDate, rewardLimit, page).then(function (_result) {
             res.status(200).json({
                 rewards: _result,
             });
@@ -52,7 +59,7 @@ module.exports = {
             console.log(err)
             res.status(500).send(err);
             Raven.captureException(err);
-        })
+        });
     },
     getSingleReward: function (req, res) {
         var rewardId = req.params.id;
@@ -260,7 +267,7 @@ module.exports = {
         var rewardId = req.params.id;
 
         Promise.all([
-            Reward.findById(rewardId), 
+            Reward.findById(rewardId),
             Booking.aggregate([
                 { $unwind: { preserveNullAndEmptyArrays: true, path: '$rewardId' } },
                 { $match: { 'rewardId.id': rewardId } },
@@ -279,13 +286,13 @@ module.exports = {
             // evenly spaced data on the frontend
             var lastValue = moment(reward.startDate).valueOf();
             labels.push(lastValue);
-            while(moment(reward.endDate).diff(moment(lastValue)) > 0) {
+            while (moment(reward.endDate).diff(moment(lastValue)) > 0) {
                 lastValue = moment(lastValue).add(1, 'days');
                 labels.push(lastValue.valueOf());
             }
 
             labels.forEach(function (time) {
-                var val = _.find(aggResult, function(o) { return moment(o._id).isSame(moment(time)) || moment(o._id).diff(moment(time), 'days') === 0; });
+                var val = _.find(aggResult, function (o) { return moment(o._id).isSame(moment(time)) || moment(o._id).diff(moment(time), 'days') === 0; });
 
                 if (val) {
                     generated.push([new Date(val._id).getTime(), val.generatedCoupin || 0]);
@@ -311,5 +318,65 @@ module.exports = {
             res.status(500).send(err);
             Raven.captureException(err);
         });
-    }
+    },
+    getAllRewardsPdf: function (req, res) {
+        var startDate = req.query.start || moment().subtract(30, 'day');
+        var endDate = req.query.end || moment();
+        var merchantId = req.params.id || req.user.id;
+
+        Promise.all([
+            getRewardList(merchantId, startDate, endDate),
+            User.findById(merchantId)
+        ]).then(function (_result) {
+            var rewards = _result[0];
+            var merchant = _result[1];
+            var pdfObject = {
+                merchantName: merchant.merchantInfo.companyName,
+                address: merchant.merchantInfo.address,
+                city: merchant.merchantInfo.city,
+                state: merchant.merchantInfo.state,
+                rewards: rewards,
+                startDate: moment(parseInt(startDate, 10)).format('ll'),
+                endDate: moment(parseInt(endDate, 10)).format('ll'),
+            };
+
+            // create the pdf here
+            pdf.generatePdf('', pdfObject, function (err, _res) {
+                if (err) {
+                    res.status(500).send('Error creating the pdf, please try again later');
+                } else {
+                    var doc = JSON.parse(_res);
+                    res.send({
+                        documentId: doc.document.id,
+                        status: doc.document.status,
+                    });
+                }
+            });
+        }).catch(function (err) {
+            console.log(err)
+            res.status(500).send(err);
+            Raven.captureException(err);
+        })
+    },
+    checkPdfStatus: function (req, res) {
+        var documentId = req.query.documentId;
+
+        if (!documentId) {
+            res.status(400).send('documentId is required');
+            return;
+        }
+
+        pdf.checkPdf(documentId, function (err, _res) {
+            if (err) {
+                res.status(500).send('Error creating the pdf, please try again later');
+            } else {
+                var doc = JSON.parse(_res);
+                res.send({
+                    documentId: doc.document.id,
+                    status: doc.document.status,
+                    downloadUrl: doc.document.download_url,
+                });
+            }
+        });
+    },
 };
