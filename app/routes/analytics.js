@@ -58,4 +58,18 @@ module.exports = function(router) {
           auth.isMerchant,
           AnalyticsCtrl.getGeneratedVsRedeemedCoupin
         )
+
+    router.route('/analytics/pdf/all-rewards')
+        .get(
+          auth.authenticate,
+          auth.isMerchant,
+          AnalyticsCtrl.getAllRewardsPdf
+        )
+
+    router.route('/pdf/status')
+        .get(
+          auth.authenticate,
+          auth.isMerchant,
+          AnalyticsCtrl.checkPdfStatus
+        )
 };
