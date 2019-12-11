@@ -43,7 +43,7 @@ module.exports = function(router) {
           auth.authenticate,
           auth.isMerchant,
           AnalyticsCtrl.getRewardBookingGenderDistribution
-        );
+      );
 
     router.route('/analytics/reward/:id/age-distribution')
         .get(
@@ -64,6 +64,13 @@ module.exports = function(router) {
           auth.authenticate,
           auth.isMerchant,
           AnalyticsCtrl.getAllRewardsPdf
+        )
+
+    router.route('/analytics/pdf/reward/:id')
+        .get(
+          auth.authenticate,
+          auth.isMerchant,
+          AnalyticsCtrl.getRewardPdf
         )
 
     router.route('/pdf/status')
