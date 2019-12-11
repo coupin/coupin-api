@@ -6,6 +6,11 @@ var Raven = require('./config.js').Raven;
 
 var url = 'https://api.pdfmonkey.io/api/v1/documents';
 
+var pdfTemplateId = {
+  singleReward: 'ca80b705-5a2b-4644-803f-0c0f5980f739',
+  allRewards: '75ADE016-C42F-46CF-8437-A76CE440992C',
+}
+
 module.exports = {
   checkPdf: function (documentId, cb) {
     var req = https.request({
@@ -46,7 +51,7 @@ module.exports = {
   generatePdf: function (template, data, cb) {
     var payload = JSON.stringify({
       document: {
-        document_template_id: '75ADE016-C42F-46CF-8437-A76CE440992C',
+        document_template_id: pdfTemplateId[template],
         payload: data,
         status: 'pending',
       },
