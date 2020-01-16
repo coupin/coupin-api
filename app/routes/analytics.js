@@ -79,4 +79,11 @@ module.exports = function(router) {
           auth.isMerchant,
           AnalyticsCtrl.checkPdfStatus
         )
+
+    router.route('/analytics/excel/all-rewards')
+        .get(
+          auth.authenticate,
+          auth.isMerchant,
+          AnalyticsCtrl.getAllRewardExcel
+        )
 };
