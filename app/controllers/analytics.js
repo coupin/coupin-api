@@ -1,12 +1,14 @@
 var _ = require('lodash');
 var moment = require('moment');
 var mongoose = require('mongoose');
+var stream = require('stream');
 
 var Raven = require('../../config/config').Raven;
 var Booking = require('../models/bookings');
 var Reward = require('../models/reward');
 var User = require('../models/users');
-var pdf =  require('./../../config/pdf');
+var pdf = require('./../../config/pdf');
+var excelReport = require('./../../config/excel');
 
 function getRewardList(merchantId, startDate, endDate, rewardLimit, page) {
     var aggArr = [
@@ -49,7 +51,7 @@ function getGenderDist(rewardId) {
             this.userId = ObjectId(this.userId)
             emit(this._id, this);
         },
-        reduce: function (key, value) { return { value } },
+        reduce: function (key, value) { return { value: value } },
         out: { replace: 'modifiedBookingsForUsers' },
         verbose: true,
         resolveToObject: true,
@@ -73,7 +75,7 @@ function getAgeDist(rewardId) {
             this.userId = ObjectId(this.userId)
             emit(this._id, this);
         },
-        reduce: function (key, value) { return { value } },
+        reduce: function (key, value) { return { value: value } },
         out: { replace: 'modifiedBookingsForUsers' },
         verbose: true,
         resolveToObject: true,
@@ -232,13 +234,13 @@ module.exports = {
         getAgeDist(rewardId).then(function (_result) {
             var redeemed = [];
             var generated = [];
-    
+
             ['under 15', '15 - 25', '25 - 35', '35 - 45', 'above 45'].forEach(function (age) {
                 var val = _result.find(function (r) { return r._id === age }) || { _id: age, generatedCoupin: 0, redeemedCoupin: 0 };
                 redeemed.unshift(val.redeemedCoupin);
                 generated.unshift(val.generatedCoupin);
             });
-    
+
             res.json([{
                 name: 'Redeemed',
                 data: redeemed
@@ -413,6 +415,146 @@ module.exports = {
             }
         });
     },
+    getAllRewardExcel: function (req, res) {
+        var startDate = req.query.start || moment().subtract(30, 'day');
+        var endDate = req.query.end || moment();
+        var merchantId = req.params.id || req.user.id;
+
+        Booking.mapReduce({
+            map: function () {
+                var self = this;
+                this.rewardId.forEach(function (reward) { reward.id = ObjectId(reward.id) });
+                this.userId = ObjectId(this.userId);
+                emit(self._id, self);
+            },
+            reduce: function (key, value) {
+                return { value: value };
+            },
+            out: { replace: 'testCoupins' },
+            verbose: true,
+            resolveToObject: true,
+        }).then(function (result) {
+            var model = result.model;
+
+            return model.aggregate([
+                { $replaceRoot: { newRoot: '$value' } },
+                { $match: { merchantId: merchantId } },
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$rewardId' } },
+                { $group: { _id: '$rewardId.id', bookings: { $addToSet: '$$ROOT' }, generatedCoupin: { $sum: 1 }, redeemedCoupin: { $sum: { $switch: { branches: [{ case: { $eq: ['$rewardId.status', 'used'] }, then: 1 }], default: 0 } } } } },
+                { $lookup: { from: 'rewards', localField: '_id', foreignField: '_id', as: 'reward' } },
+                { $unwind: { preserveNullAndEmptyArrays: true, path: '$reward' } },
+                { $match: { 'reward.startDate': { '$gte': new Date(parseInt(startDate)), '$lte': new Date(parseInt(endDate)) } } },
+                {
+                    $facet: {
+                        rewards: [
+                            {
+                                $project: {
+                                    _id: 1,
+                                    name: '$reward.name',
+                                    startDate: '$reward.startDate',
+                                    endDate: '$reward.endDate',
+                                    generatedCoupin: 1,
+                                    redeemedCoupin: 1,
+                                },
+                            },
+                        ],
+                        ageDist: [
+                            { $unwind: { preserveNullAndEmptyArrays: true, path: '$bookings' } },
+                            { $lookup: { from: 'users', localField: 'bookings.userId', foreignField: '_id', as: 'bookings.users' } },
+                            { $unwind: { preserveNullAndEmptyArrays: true, path: '$bookings.users' } },
+                            {
+                                $project: {
+                                    // reward: 0,
+                                    /* 'bookings.merchantId': 0,
+                                    'bookings.expiryDate': 0,
+                                    'bookings.createdAt': 0,
+                                    'bookings.isActive': 0,
+                                    'bookings.useNow': 0,
+                                    'bookings.shortCode': 0,
+                                    'bookings.__v': 0, */
+                                    '_id': 1,
+                                    'bookings.users.ageRange': 1,
+                                    'bookings.rewardId.status': 1,
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: {
+                                        age: '$bookings.users.ageRange',
+                                        rewardId: '$_id',
+                                    },
+                                    generatedCoupin: {
+                                        $sum: 1
+                                    },
+                                    redeemedCoupin: {
+                                        $sum: { $switch: { branches: [{ case: { $eq: ['$bookings.rewardId.status', 'used'] }, then: 1 }], default: 0 } }
+                                    },
+                                },
+                            },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    rewardId: '$_id.rewardId',
+                                    age: '$_id.age',
+                                    generatedCoupin: 1,
+                                    redeemedCoupin: 1,
+                                }
+                            }
+                        ],
+                        genderDist: [
+                            { $unwind: { preserveNullAndEmptyArrays: true, path: '$bookings' } },
+                            { $lookup: { from: 'users', localField: 'bookings.userId', foreignField: '_id', as: 'bookings.users' } },
+                            { $unwind: { preserveNullAndEmptyArrays: true, path: '$bookings.users' } },
+                            {
+                                $project: {
+                                    '_id': 1,
+                                    'bookings.users.sex': 1,
+                                    'bookings.rewardId.status': 1,
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: {
+                                        gender: '$bookings.users.sex',
+                                        rewardId: '$_id'
+                                    },
+                                    generatedCoupin: {
+                                        $sum: 1
+                                    },
+                                    redeemedCoupin: {
+                                        $sum: { $switch: { branches: [{ case: { $eq: ['$bookings.rewardId.status', 'used'] }, then: 1 }], default: 0 } }
+                                    },
+                                },
+                            },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    rewardId: '$_id.rewardId',
+                                    gender: '$_id.gender',
+                                    generatedCoupin: 1,
+                                    redeemedCoupin: 1,
+                                }
+                            }
+                        ],
+                    }
+                }
+            ]);
+        }).then(function (_result) {
+            var data = _result[0] || {};
+            return excelReport(data)
+                .then(function (buffer) {
+                    res.setHeader('Content-disposition', 'attachment; filename=excel_report_from' + startDate + '_to_' + endDate + '.xlsx');
+                    res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                    res.send(buffer);
+                });
+
+        }).catch(function (error) {
+            res.status(500).json({
+                message: 'There was an error generating the report, please try again later',
+                err: error,
+            });
+        });
+    }
 };
 
 function processGenderData(result) {
