@@ -1,8 +1,6 @@
 var xl = require('excel4node');
 var find = require('lodash.find');
 
-// var { rewards, ageDist, genderDist } = require('./data.json');
-
 module.exports = function (data, cb) {
   var rewards = data.rewards;
   var ageDist = data.ageDist;
@@ -170,9 +168,5 @@ module.exports = function (data, cb) {
     });
   }
   
-  return wb.writeToBuffer()/* .then(function(buffer) {
-    console.log(buffer);
-    cb(buffer);
-  }); */
-  // wb.write('sheet.xlsx');
+  return wb.writeToBuffer();
 }
