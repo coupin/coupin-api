@@ -152,10 +152,30 @@ module.exports = function (data, cb) {
     // gender coupin distribution
     var femaleCoupin = find(genderDist, { gender: 'female', rewardId: rewards[i]['_id'] }) || {};
     var maleCoupin = find(genderDist, { gender: 'male', rewardId: rewards[i]['_id'] }) || {};
-    ws.cell(j, 8).number(maleCoupin.generatedCoupin || 0);
-    ws.cell(j, 9).number(femaleCoupin.generatedCoupin || 0);
-    ws.cell(j, 10).number(maleCoupin.redeemedCoupin || 0);
-    ws.cell(j, 11).number(femaleCoupin.redeemedCoupin || 0);
+
+    if (maleCoupin.generatedCoupin) {
+      ws.cell(j, 8).number(maleCoupin.generatedCoupin || 0);
+    } else {
+      ws.cell(j, 8).string('-');
+    }
+
+    if (femaleCoupin.generatedCoupin) {
+      ws.cell(j, 9).number(femaleCoupin.generatedCoupin || 0);
+    } else {
+      ws.cell(j, 9).string('-');
+    }
+
+    if (maleCoupin.redeemedCoupin) {
+      ws.cell(j, 10).number(maleCoupin.redeemedCoupin || 0);
+    } else {
+      ws.cell(j, 10).string('-');
+    }
+
+    if (femaleCoupin.redeemedCoupin) {
+      ws.cell(j, 11).number(femaleCoupin.redeemedCoupin || 0);
+    } else {
+      ws.cell(j, 11).string('-');
+    }
   
     ['under 15', '15 - 25', '25 - 35', '35 - 45', 'above 45'].forEach(function (val, index) {
       var coupin = find(ageDist, { age: val, rewardId: rewards[i]['_id'] }) || {};
@@ -163,8 +183,20 @@ module.exports = function (data, cb) {
       var generatedCoupinIndex = 12 + index;
       var redeemedCoupinIndex = generatedCoupinIndex + 5;
   
-      ws.cell(j, generatedCoupinIndex).number(coupin.generatedCoupin || 0);
-      ws.cell(j, redeemedCoupinIndex).number(coupin.redeemedCoupin || 0);
+      
+      
+
+      if (coupin.generatedCoupin) {
+        ws.cell(j, generatedCoupinIndex).number(coupin.generatedCoupin || 0);
+      } else {
+        ws.cell(j, generatedCoupinIndex).string('-');
+      }
+  
+      if (coupin.redeemedCoupin) {
+        ws.cell(j, redeemedCoupinIndex).number(coupin.redeemedCoupin || 0);
+      } else {
+        ws.cell(j, redeemedCoupinIndex).string('-');
+      }
     });
   }
   
