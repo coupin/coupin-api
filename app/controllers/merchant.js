@@ -242,7 +242,7 @@ module.exports = {
                             res.status(500).send(err);
                             Raven.captureException(err);
                         } else {
-                            res.status(200).send({message: 'Congratulations! Welcome to the family! Please login to continue.'});
+                            res.status(200).send({message: 'Congratulations! Welcome to Coupin! Please login to continue.'});
                             emailer.sendEmail(merchant.email, 'Congratulations!', messages.completedEmail({
                                 name: merchant.merchantInfo.companyName
                             }), function(response) {

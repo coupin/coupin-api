@@ -143,6 +143,12 @@ module.exports = {
                                     merchant.save(function(err) {
                                         if (err) {
                                             Raven.captureException(err);
+                                        } else {
+                                            Emailer.sendAdminEmail(
+                                                merchant.merchantInfo.companyName, 
+                                                Messages.rewardCreated(merchant.merchantInfo.companyName, reward.name), function() {
+                                                console.log(`Email sent to admin at ${(new Date().toDateString())}`);
+                                            });
                                         }
                                     });
                                 }

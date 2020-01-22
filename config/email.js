@@ -34,5 +34,30 @@ module.exports = {
                 return callback({success: true, message: info});
             }
         });
+    },
+    sendAdminEmail: function(subject, message, cb) {
+        var mailOptions = {
+            from: `mobilerewardsplatform@gmail.com`,
+            to: process.env.CARE_EMAIL,
+            subject: subject,
+            html: `
+            <style>
+                .test {
+                color: #5E5EE5;
+                }
+            </style>
+            <h1>Hello There</h1>
+            <p>${message}</p>`
+        };
+
+        // send mail with transporter
+        mailgun.messages().send(mailOptions, (err, info) => {
+            if(err) {
+                config.Raven.captureException(err);
+                return cb({success: false, error: err});
+            } else {
+                return cb({success: true, message: info});
+            }
+        });
     }
 }
