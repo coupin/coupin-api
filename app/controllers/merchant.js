@@ -992,6 +992,8 @@ module.exports = {
             if (err) {
                 res.status(500).send(err);
                 Raven.captureException(err);
+            } else if (!prime) {
+                res.status(404).send('There are currently no hot merchants.');
             } else {
                 Reward.populate(prime, [{
                     path: 'featured.first.merchantInfo.rewards',
@@ -1015,10 +1017,22 @@ module.exports = {
                         Raven.captureException(err);
                     } else {
                         var visited = {
-                            first: currentUser.visited.indexOf(prime.featured.first._id) > -1,
-                            second: currentUser.visited.indexOf(prime.featured.second._id) > -1,
-                            third: currentUser.visited.indexOf(prime.featured.third._id) > -1
+                            first: null,
+                            second: null,
+                            third: null
                         };
+
+                        if (prime.featured) {
+                            if (prime.featured.first) {
+                               visited.first = currentUser.visited.indexOf(prime.featured.first._id) > -1; 
+                            }
+                            if (prime.featured.second) {
+                               visited.second = currentUser.visited.indexOf(prime.featured.second._id) > -1; 
+                            }
+                            if (prime.featured.third) {
+                               visited.third = currentUser.visited.indexOf(prime.featured.third._id) > -1; 
+                            }
+                        }
 
                         var response = {
                             _id: prime._id,

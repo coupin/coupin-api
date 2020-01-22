@@ -10,14 +10,6 @@ var User = require('./../models/users');
 var emailer = require('../../config/email');
 var messages = require('../../config/messages');
 
-function getVisited(id) {
-  return new Promise(function(res, rej) {
-      User.findById(id).select('favourites visited').exec(function(err, user) {
-          res(user);
-      });
-  });
-}
-
 module.exports = {
   /**
    * @api {put} /coupin/:id/activate Generate coupin for saved rewards
