@@ -5,7 +5,11 @@ module.exports = {
         var token = req.headers['x-access-token'] || req.headers['Authorization'];
         jwt.verify(token, process.env.SECRET, function(err, decoded) {
             if (err) {
-                res.status(500).send(err);
+                if (err.name === 'TokenExpiredError') {
+                    res.status(401).send('TokenExpired');
+                } else {
+                    res.status(500).send(err);
+                }
             } else if (!decoded) {
                 res.status(401).send('Unauthorized Access. Must be signed in.')
             } else {
