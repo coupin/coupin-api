@@ -221,6 +221,14 @@ module.exports = {
         var rewardId = req.params.id;
 
         getGenderDist(rewardId).then(function (_result) {
+            if (!_.find(_result, { _id: 'male' })) {
+                _result.push({ _id: 'male', generatedCoupin: 0, redeemedCoupin: 0 } )
+            }
+
+            if (!_.find(_result, { _id: 'female' })) {
+                _result.push({ _id: 'female', generatedCoupin: 0, redeemedCoupin: 0 } )
+            }
+
             res.status(200).json(processGenderData(_result));
         }).catch(function (err) {
             console.log(err)
@@ -572,7 +580,10 @@ function processGenderData(result) {
 
         return {
             name: value._id || 'uncategorised',
-            data: [parseFloat(generatedvalue.toFixed(2)), parseFloat(redeemedvalue.toFixed(2))],
+            data: [
+                parseFloat((generatedvalue || 0).toFixed(2)), 
+                parseFloat((redeemedvalue || 0).toFixed(2))
+            ],
         };
     });
 }
