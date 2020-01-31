@@ -1,8 +1,10 @@
 module.exports = {
   approved: function(id, url) {
-      return `<h4> We are excited to have you as part of Coupin</h4><br/>
-      Please click on the link <a href="${url}/merchant/${id}/confirm">${url}/merchant/${id}/confirm</a> to activate your account<br/><br/>
-      If you have any questions, please feel free to message us at ${process.env.CARE_EMAIL}<br/><br/>
+      return `<h4> We are excited to have you as part of Coupin</h4>
+      <p>Please click on the link <a href="${url}/merchant/${id}/confirm">${url}/merchant/${id}/confirm</a> to activate your account</p>
+      <p></p>
+      <p>Attached to this email is a quick setup guide, if you have any questions, please feel free to message us at ${process.env.CARE_EMAIL}</p>
+      <p></p>
       Best Regards,</br>The Coupin App Family.`;
   },
   completedEmail: function(data) {

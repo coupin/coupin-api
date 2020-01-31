@@ -9,7 +9,7 @@ module.exports = {
     getUiUrl: function() {
         return `http://${process.env.UI_URL}`;
     },
-    sendEmail: function(to, subject, message, callback){
+    sendEmail: function(to, subject, message, file, callback){
 
         var mailOptions = {
             from: `Coupin App Ng <${process.env.CARE_EMAIL}>`,
@@ -24,6 +24,12 @@ module.exports = {
             </style>
             <h1>Hello There</h1><br/>${message}<br/>From we at Coupin App`
         };
+
+        if (typeof file === 'function') {
+            callback = file;
+        } else {
+            mailOptions.attachment = file;
+        }
 
         // send mail with transporter
         mailgun.messages().send(mailOptions, (err, info) => {

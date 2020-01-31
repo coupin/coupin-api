@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var moment = require('moment');
+var path = require('path');
 
 var Raven = require('./../../config/config').Raven;
 var emailer = require('../../config/email');
@@ -1257,6 +1258,7 @@ module.exports = {
     statusUpdate: function(req, res) {
         var id = req.params.id || req.query.id || req.body.id;
         var body = req.body;
+        var pdfFile = path.join(__dirname, '../pdf/Coupin Merchant Quick Setup Guide.pdf');
 
         Merchant.findById(id, function(err, merchant) {
             if (err) {
@@ -1285,7 +1287,7 @@ module.exports = {
                         Raven.captureException(err);
                     } else {
                         if (body.status === 'accepted') {
-                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id, emailer.getUiUrl()), function(response) {
+                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id, emailer.getUiUrl()), pdfFile, function(response) {
                                 res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
                             });
                         } else if (body.status === 'rejected') {
