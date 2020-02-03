@@ -67,39 +67,40 @@ module.exports = {
     var title, msg;
 
     if (res.total > 0) {
-      title = 'New Coupins!!!';
-      msg = `There are ${res.total} new coupins of interest around you.`;
-    } else {
-      title = 'New Coupins!!!';
-      msg = 'Keep wathcing this space for new and upcoming rewards..';
-    }
-
-    Users.find({
-      'interests': {
-        $in: res.categories
-      },
-      'notification.notify': true,
-      'notification.days': days,
-      'notification.token': {
-        $ne: null
-      }
-    }).select('notification').exec(function(err, users) {
-      if(err) {
-        cb(false);
-        Raven.captureException(err);
+      title = 'New Rewards!!!';
+      if (res.total > 1) {
+        msg = `There are ${res.total} new deals available just for you!`;
       } else {
-        var tokens = [];
-
-        users.forEach(function(user) {
-          tokens.push(user.notification.token);
-        });
-
-        Notification.sendMessage(title, msg, tokens, {
-          navigateTo: 'hot'
-        });
-        cb(true);
+        msg = 'There is 1 new deal available just for you!'
       }
-    });
+
+      Users.find({
+        'interests': {
+          $in: res.categories
+        },
+        'notification.notify': true,
+        'notification.days': days,
+        'notification.token': {
+          $ne: null
+        }
+      }).select('notification').exec(function(err, users) {
+        if(err) {
+          cb(false);
+          Raven.captureException(err);
+        } else {
+          var tokens = [];
+  
+          users.forEach(function(user) {
+            tokens.push(user.notification.token);
+          });
+  
+          Notification.sendMessage(title, msg, tokens, {
+            navigateTo: 'hot'
+          });
+          cb(true);
+        }
+      });
+    }
   },
   sortRewards: function(cb) {
     Rewards.find({
