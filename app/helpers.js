@@ -67,11 +67,11 @@ module.exports = {
     var title, msg;
 
     if (res.total > 0) {
-      title = 'New Coupins!!!';
-      msg = `There are ${res.total} new coupins of interest around you.`;
+      title = 'New Rewards!!!';
+      msg = `There are ${res.total} new ${res.total > 1 ? 'rewards' : 'reward'} of interest available for you.`;
     } else {
-      title = 'New Coupins!!!';
-      msg = 'Keep wathcing this space for new and upcoming rewards..';
+      title = 'New Rewards!!!';
+      msg = 'There are new deals available just for you!';
     }
 
     Users.find({
