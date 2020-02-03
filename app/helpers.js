@@ -79,8 +79,11 @@ module.exports = {
         $in: res.categories
       },
       'notification.notify': true,
-      'notification.days': days
-    }, function(err, users) {
+      'notification.days': days,
+      'notification.token': {
+        $ne: null
+      }
+    }).select('notification').exec(function(err, users) {
       if(err) {
         cb(false);
         Raven.captureException(err);
