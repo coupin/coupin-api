@@ -98,58 +98,49 @@ module.exports = {
         if(errors){
             res.status(400).json({ message: errors });
         } else {
-            Reward.findOne({ name: req.body.name }, function (err, reward) {
-                if (err) {
+            console.log(req.body.startDate);
+            console.log(req.body.endDate);
+            // Get information of reward
+            var newReward = {
+                name : req.body.name,
+                merchantID : req.user.id || req.body.merchantID,
+                description :  req.body.description,
+                categories : req.body.categories,
+                startDate : req.body.startDate,
+                endDate : req.body.endDate,
+                multiple :  req.body.multiple,
+                applicableDays : req.body.applicableDays,
+                price: req.body.price,
+                delivery: req.body.delivery,
+                status: req.body.status,
+                createdDate: Date.now()
+            };
+
+            // Create new reward
+            var reward = new Reward(newReward);
+
+            reward.save(function (err) {
+                if(err) {
                     res.status(500).send(err);
                     Raven.captureException(err);
-                } else if (reward) {
-                    res.status(409).send({message: 'There is already a reward with that name'});
                 } else {
-                    console.log(req.body.startDate);
-                    console.log(req.body.endDate);
-                    // Get information of reward
-                    var newReward = {
-                        name : req.body.name,
-                        merchantID : req.user.id || req.body.merchantID,
-                        description :  req.body.description,
-                        categories : req.body.categories,
-                        startDate : req.body.startDate,
-                        endDate : req.body.endDate,
-                        multiple :  req.body.multiple,
-                        applicableDays : req.body.applicableDays,
-                        price: req.body.price,
-                        delivery: req.body.delivery,
-                        status: req.body.status,
-                        createdDate: Date.now()
-                    };
-
-                    // Create new reward
-                    var reward = new Reward(newReward);
-
-                    reward.save(function (err) {
-                        if(err) {
-                            res.status(500).send(err);
+                    res.status(200).send(reward);          
+                    Merchant.findById(reward.merchantID, function(err, merchant) {
+                        if (err) {
                             Raven.captureException(err);
                         } else {
-                            res.status(200).send(reward);          
-                            Merchant.findById(reward.merchantID, function(err, merchant) {
+                            merchant.merchantInfo.pendingRewards.push(reward._id);
+                            merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewards.length;
+                            merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
+
+                            merchant.save(function(err) {
                                 if (err) {
                                     Raven.captureException(err);
                                 } else {
-                                    merchant.merchantInfo.pendingRewards.push(reward._id);
-                                    merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewards.length;
-                                    merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
-
-                                    merchant.save(function(err) {
-                                        if (err) {
-                                            Raven.captureException(err);
-                                        } else {
-                                            Emailer.sendAdminEmail(
-                                                merchant.merchantInfo.companyName, 
-                                                Messages.rewardCreated(merchant.merchantInfo.companyName, reward.name), function() {
-                                                console.log(`Email sent to admin at ${(new Date().toDateString())}`);
-                                            });
-                                        }
+                                    Emailer.sendAdminEmail(
+                                        merchant.merchantInfo.companyName, 
+                                        Messages.rewardCreated(merchant.merchantInfo.companyName, reward.name), function() {
+                                        console.log(`Email sent to admin at ${(new Date().toDateString())}`);
                                     });
                                 }
                             });
