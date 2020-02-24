@@ -1,10 +1,8 @@
-var Customer = require('../models/users');
-var Reward = require('../models/reward');
-
 // Coupin App Messages
 var config = require('../../config/config');
 var emailer = require('../../config/email');
 var messages = require('../../config/messages');
+var Customer = require('../models/users');
 
 var Raven = config.Raven;
 
@@ -78,11 +76,14 @@ module.exports = {
         var body = req.body;
         var user = req.user;
 
-        if (!user.favourites) {
-            user.favourites = [];
+        if (!req.user.favourites) {
+            req.user.favourites = [];
         }
 
-        req.user.favourites.push(body.merchantId);
+        if (!req.user.favourites.includes(body.merchantId)) {
+            req.user.favourites.push(body.merchantId);
+        }
+
         req.user.save(function(err) {
             if (err) {
                 res.status(500).send(err);
