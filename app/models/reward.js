@@ -18,7 +18,7 @@ var rewardSchema = new schema({
   },
   categories: [{
     type: String,
-    enum: ['entertainment', 'foodndrink', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
+    enum: ['entertainment', 'foodndrink', 'technology', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
   }],
   startDate: {
     type: Date,

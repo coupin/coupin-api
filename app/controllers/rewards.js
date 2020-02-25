@@ -138,8 +138,8 @@ module.exports = {
                                     Raven.captureException(err);
                                 } else {
                                     Emailer.sendAdminEmail(
-                                        merchant.merchantInfo.companyName, 
-                                        Messages.rewardCreated(merchant.merchantInfo.companyName, reward.name), function() {
+                                        _.capitalize(merchant.merchantInfo.companyName), 
+                                        Messages.rewardCreated(_.capitalize(merchant.merchantInfo.companyName), reward.name), function() {
                                         console.log(`Email sent to admin at ${(new Date().toDateString())}`);
                                     });
                                 }
@@ -375,9 +375,9 @@ module.exports = {
         
         if (req.query.status && req.query.status !== 'all') {
             query['status'] = req.query.status;
-        } else {
+        } /* else {
             query['status'] = 'active';
-        }
+        } */
 
         Reward.find(query)
         .sort('-startDate')
@@ -412,7 +412,10 @@ module.exports = {
         }
 
         Reward.find({
-            status: 'isPending'
+            $or: [
+               {status: 'isPending'},
+            //    {status: 'review'},
+            ],
         })
         .limit(10)
         .skip(page * limit)
@@ -446,10 +449,8 @@ module.exports = {
                 if (reward.status === 'active' && !reward.isActive) {
                     title = `${reward.name} Approved.`;
                     reward.isActive = true;
-                }
-
-                if (reward.status === 'inactive' || reward.status === 'expired' && reward.isActive) {
-                    title = `${reward.name} Requires Changes.`;
+                } else if ((reward.status === 'inactive' || reward.status === 'expired' || reward.status === 'review')) {
+                    title = 'Changes Required For: ' + reward.name;
                     reward.isActive = false;
                 }
 
@@ -469,9 +470,14 @@ module.exports = {
                                 console.log(`Email about reward failed to send to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                             } else {
                                 const status = reward.isActive ? 'accepted' : 'reviewed and changes are required';
-                                Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.name, status), function(response) {
-                                    console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
-                                });
+                                Emailer.sendEmail(
+                                    reward.merchantID.email,
+                                    title,
+                                    Messages.reviewed(reward.name, status, _.capitalize(reward.merchantID.merchantInfo.companyName)),
+                                    function(response) {
+                                        console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
+                                    }
+                                );
                             }
                         });
                     }
