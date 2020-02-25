@@ -77,7 +77,7 @@ var userSchema = new schema({
     },
     interests: [{
         type: String,
-        enum: ['entertainment', 'foodndrink', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
+        enum: ['entertainment', 'foodndrink', 'technology', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
     }],
     blacklist: [{
         type: String,
@@ -123,7 +123,7 @@ var userSchema = new schema({
         },
         categories: [{
             type: String,
-            enum: ['entertainment', 'foodndrink', 'gadgets', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
+            enum: ['entertainment', 'foodndrink', 'technology', 'groceries', 'healthnbeauty', 'shopping', 'tickets', 'travel']
         }],
         logo: {
             id: {

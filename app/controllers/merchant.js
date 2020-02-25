@@ -572,7 +572,7 @@ module.exports = {
      *         "address": "String",
      *         "city": "String",
      *         "location": [longitude, latitude],
-     *         "categories": ["foodndrink", "gadgets", "healthnbeauty"],
+     *         "categories": ["foodndrink", "technology", "healthnbeauty"],
      *         "logo": {
      *             "id": "String".
      *             "url": "String"
@@ -601,7 +601,7 @@ module.exports = {
      *         "address": "String",
      *         "city": "String",
      *         "location": [longitude, latitude],
-     *         "categories": ["foodndrink", "gadgets", "healthnbeauty"],
+     *         "categories": ["foodndrink", "technology", "healthnbeauty"],
      *         "logo": {
      *             "id": "String".
      *             "url": "String"
@@ -849,7 +849,7 @@ module.exports = {
      *                  "address": "String",
      *                  "city": "String",
      *                  "location": [longitude, latitude],
-     *                  "categories": ["foodndrink", "gadgets", "healthnbeauty"],
+     *                  "categories": ["foodndrink", "technology", "healthnbeauty"],
      *                  "logo": {
      *                      "id": "String".
      *                      "url": "String"
@@ -878,7 +878,7 @@ module.exports = {
      *                  "address": "String",
      *                  "city": "String",
      *                  "location": [longitude, latitude],
-     *                  "categories": ["foodndrink", "gadgets", "healthnbeauty"],
+     *                  "categories": ["foodndrink", "technology", "healthnbeauty"],
      *                  "logo": {
      *                      "id": "String".
      *                      "url": "String"
@@ -907,7 +907,7 @@ module.exports = {
      *                  "address": "String",
      *                  "city": "String",
      *                  "location": [longitude, latitude],
-     *                  "categories": ["foodndrink", "gadgets", "healthnbeauty"],
+     *                  "categories": ["foodndrink", "technology", "healthnbeauty"],
      *                  "logo": {
      *                      "id": "String".
      *                      "url": "String"
@@ -943,7 +943,7 @@ module.exports = {
      *                  "address": "String",
      *                  "city": "String",
      *                  "location": [longitude, latitude],
-     *                  "categories": ["foodndrink", "gadgets", "healthnbeauty"],
+     *                  "categories": ["foodndrink", "technology", "healthnbeauty"],
      *                  "logo": {
      *                      "id": "String".
      *                      "url": "String"
