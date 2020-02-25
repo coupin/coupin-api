@@ -23,8 +23,9 @@ module.exports = {
     '</td></tr>';
   },
   // Email sent to customer after a coupin has been created
-  coupinCreated: function(booking) {
-      return '<tr><td style="padding-bottom: 15px;">Hello There,</td></tr>' +
+  coupinCreated: function(booking, username) {
+      var greetingSuffix = username ? ' ' + username +',' : ',';
+      return '<tr><td style="padding-bottom: 15px;">Hello' + greetingSuffix + '</td></tr>' +
       '<tr><td style="padding-bottom: 20px; line-height: 1.2;">' +
       '<p> Your Coupin was created successfully. below is the information needed:</p>' +
       '<h4>Your Code is ' + booking.shortCode + '</h4>' +

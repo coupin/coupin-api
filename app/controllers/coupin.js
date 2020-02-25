@@ -212,9 +212,14 @@ module.exports = {
             .select('merchantInfo.companyName')
             .exec(function(err, merchant) {
               if (useNow) {
-                emailer.sendEmail(req.user.email, 'Coupin Created for ' + merchant.merchantInfo.companyName , messages.coupinCreated(booking), function(response) {
-                  console.log(response);
-                });
+                emailer.sendEmail(
+                  req.user.email,
+                  'Coupin Created for ' + merchant.merchantInfo.companyName , 
+                  messages.coupinCreated(booking, _.capitalize(req.user.name)), 
+                  function(response) {
+                    console.log(response);
+                  }
+                );
               }
             })
           }
