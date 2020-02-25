@@ -446,6 +446,8 @@ module.exports = {
                 if (reward.status === 'active' && !reward.isActive) {
                     title = `${reward.name} Approved.`;
                     reward.isActive = true;
+                } else if (reward.status === 'rejected' && !reward.isActive) {
+                    title = 'Changes Required For: ' + reward.name;
                 }
 
                 if (reward.status === 'inactive' || reward.status === 'expired' && reward.isActive) {
