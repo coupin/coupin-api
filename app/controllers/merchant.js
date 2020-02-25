@@ -107,13 +107,23 @@ module.exports = {
                         Raven.captureException(err);
                     } else {
                         if (decision.accepted) {
-                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id, emailer.getUiUrl()), function(response) {
-                                res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
-                            });
+                            emailer.sendEmail(
+                                merchant.email,
+                                'Registration Approved',
+                                messages.approved(merchant._id, emailer.getUiUrl(), _.capitalize(merchant.merchantInfo.companyName)),
+                                function(response) {
+                                    res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.merchantInfo.companyName });
+                                }
+                            );
                         } else {
-                            emailer.sendEmail(merchant.email, `${merchant.merchantInfo.companyName} Registration Rejected`, messages.rejected(merchant.reason), function(response) {
-                                res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
-                            });
+                            emailer.sendEmail(
+                                merchant.email,
+                                merchant.merchantInfo.companyName + ' Registration Rejected',
+                                messages.rejected(merchant.reason, _.capitalize(merchant.merchantInfo.companyName)),
+                                function(response) {
+                                    res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.merchantInfo.companyName });
+                                }
+                            );
                         }
                     }
                 });
@@ -1287,13 +1297,24 @@ module.exports = {
                         Raven.captureException(err);
                     } else {
                         if (body.status === 'accepted') {
-                            emailer.sendEmail(merchant.email, 'Registration Approved', messages.approved(merchant._id, emailer.getUiUrl()), pdfFile, function(response) {
-                                res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.companyName });
-                            });
+                            emailer.sendEmail(
+                                merchant.email,
+                                'Registration Approved',
+                                messages.approved(merchant._id, emailer.getUiUrl(), _.capitalize(merchant.merchantInfo.companyName)),
+                                pdfFile,
+                                function(response) {
+                                    res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.merchantInfo.companyName });
+                                }
+                            );
                         } else if (body.status === 'rejected') {
-                            emailer.sendEmail(merchant.email, `${merchant.merchantInfo.companyName} Registration Rejected`, messages.rejected(merchant.reason), function(response) {
-                                res.status(200).send({ message: 'Merchant Declined and email sent to ' + merchant.companyName });
-                            });
+                            emailer.sendEmail(
+                                merchant.email, 
+                                merchant.merchantInfo.companyName + ' Registration Rejected`',
+                                messages.rejected(merchant.reason, _.capitalize(merchant.merchantInfo.companyName)), 
+                                function(response) {
+                                    res.status(200).send({ message: 'Merchant Declined and email sent to ' + merchant.merchantInfo.companyName });
+                                }
+                            );
                         } else {
                             res.status(200).send({message: `Status is now ${req.body.status}.`});
                         }

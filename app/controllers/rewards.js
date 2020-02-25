@@ -469,9 +469,14 @@ module.exports = {
                                 console.log(`Email about reward failed to send to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                             } else {
                                 const status = reward.isActive ? 'accepted' : 'reviewed and changes are required';
-                                Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.name, status), function(response) {
-                                    console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
-                                });
+                                Emailer.sendEmail(
+                                    reward.merchantID.email,
+                                    title,
+                                    Messages.reviewed(reward.name, status, reward.merchantID.merchantInfo.companyName),
+                                    function(response) {
+                                        console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
+                                    }
+                                );
                             }
                         });
                     }
