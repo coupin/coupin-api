@@ -78,7 +78,7 @@ module.exports = {
     return '<tr><td style="padding-bottom: 15px;">Hello ' + merchantName + ',</td></tr>' +
     '<tr><td style="padding-bottom: 20px; line-height: 1.2;">' + 
     '<h4> Your Reward, ' + rewardName + ', has been ' + rewardStatus + '</h4>' +
-    '<p style="margin: 10px 0;">If a review was requested, please make changes requested to get your promotional content approved. If not, your promotion/info can now be seen on the Coupin mobile app.</p>' +
+    '<p style="margin: 10px 0;">If a review was requested, please login to make changes required. If not, your promotion/info will be seen on the Coupin app on the specified live date.</p>' +
     '<p style="margin: 10px 0;"><b>Please log on to see comment.</b></p>' +
     '</td></tr>';
   }

@@ -138,8 +138,8 @@ module.exports = {
                                     Raven.captureException(err);
                                 } else {
                                     Emailer.sendAdminEmail(
-                                        merchant.merchantInfo.companyName, 
-                                        Messages.rewardCreated(merchant.merchantInfo.companyName, reward.name), function() {
+                                        _.capitalize(merchant.merchantInfo.companyName), 
+                                        Messages.rewardCreated(_.capitalize(merchant.merchantInfo.companyName), reward.name), function() {
                                         console.log(`Email sent to admin at ${(new Date().toDateString())}`);
                                     });
                                 }
@@ -375,9 +375,9 @@ module.exports = {
         
         if (req.query.status && req.query.status !== 'all') {
             query['status'] = req.query.status;
-        } else {
+        } /* else {
             query['status'] = 'active';
-        }
+        } */
 
         Reward.find(query)
         .sort('-startDate')
@@ -412,7 +412,10 @@ module.exports = {
         }
 
         Reward.find({
-            status: 'isPending'
+            $or: [
+               {status: 'isPending'},
+            //    {status: 'review'},
+            ],
         })
         .limit(10)
         .skip(page * limit)
@@ -446,12 +449,8 @@ module.exports = {
                 if (reward.status === 'active' && !reward.isActive) {
                     title = `${reward.name} Approved.`;
                     reward.isActive = true;
-                } else if (reward.status === 'rejected' && !reward.isActive) {
+                } else if ((reward.status === 'inactive' || reward.status === 'expired' || reward.status === 'review')) {
                     title = 'Changes Required For: ' + reward.name;
-                }
-
-                if (reward.status === 'inactive' || reward.status === 'expired' && reward.isActive) {
-                    title = `${reward.name} Requires Changes.`;
                     reward.isActive = false;
                 }
 
@@ -474,7 +473,7 @@ module.exports = {
                                 Emailer.sendEmail(
                                     reward.merchantID.email,
                                     title,
-                                    Messages.reviewed(reward.name, status, reward.merchantID.merchantInfo.companyName),
+                                    Messages.reviewed(reward.name, status, _.capitalize(reward.merchantID.merchantInfo.companyName)),
                                     function(response) {
                                         console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                                     }
