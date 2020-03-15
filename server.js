@@ -88,7 +88,7 @@ cron.schedule('0 10 1 * * *', function() {
   });
 });
 
-cron.schedule('0 11 * * 1', function() {
+cron.schedule('0 0 11 * * 1', function() {
   helper.getUpdateCount(function(res) {
     helper.sendNotifications(res, false, function(isSuccessful) {
       var date = new Date();
@@ -97,7 +97,7 @@ cron.schedule('0 11 * * 1', function() {
   });
 });
 
-cron.schedule('0 11 * * 5', function() {
+cron.schedule('0 0 11 * * 5', function() {
   helper.getUpdateCount(function(res) {
     helper.sendNotifications(res, true, function(isSuccessful) {
       var date = new Date();

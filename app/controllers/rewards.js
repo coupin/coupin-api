@@ -98,58 +98,49 @@ module.exports = {
         if(errors){
             res.status(400).json({ message: errors });
         } else {
-            Reward.findOne({ name: req.body.name }, function (err, reward) {
-                if (err) {
+            console.log(req.body.startDate);
+            console.log(req.body.endDate);
+            // Get information of reward
+            var newReward = {
+                name : req.body.name,
+                merchantID : req.user.id || req.body.merchantID,
+                description :  req.body.description,
+                categories : req.body.categories,
+                startDate : req.body.startDate,
+                endDate : req.body.endDate,
+                multiple :  req.body.multiple,
+                applicableDays : req.body.applicableDays,
+                price: req.body.price,
+                delivery: req.body.delivery,
+                status: req.body.status,
+                createdDate: Date.now()
+            };
+
+            // Create new reward
+            var reward = new Reward(newReward);
+
+            reward.save(function (err) {
+                if(err) {
                     res.status(500).send(err);
                     Raven.captureException(err);
-                } else if (reward) {
-                    res.status(409).send({message: 'There is already a reward with that name'});
                 } else {
-                    console.log(req.body.startDate);
-                    console.log(req.body.endDate);
-                    // Get information of reward
-                    var newReward = {
-                        name : req.body.name,
-                        merchantID : req.user.id || req.body.merchantID,
-                        description :  req.body.description,
-                        categories : req.body.categories,
-                        startDate : req.body.startDate,
-                        endDate : req.body.endDate,
-                        multiple :  req.body.multiple,
-                        applicableDays : req.body.applicableDays,
-                        price: req.body.price,
-                        delivery: req.body.delivery,
-                        status: req.body.status,
-                        createdDate: Date.now()
-                    };
-
-                    // Create new reward
-                    var reward = new Reward(newReward);
-
-                    reward.save(function (err) {
-                        if(err) {
-                            res.status(500).send(err);
+                    res.status(200).send(reward);          
+                    Merchant.findById(reward.merchantID, function(err, merchant) {
+                        if (err) {
                             Raven.captureException(err);
                         } else {
-                            res.status(200).send(reward);          
-                            Merchant.findById(reward.merchantID, function(err, merchant) {
+                            merchant.merchantInfo.pendingRewards.push(reward._id);
+                            merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewards.length;
+                            merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
+
+                            merchant.save(function(err) {
                                 if (err) {
                                     Raven.captureException(err);
                                 } else {
-                                    merchant.merchantInfo.pendingRewards.push(reward._id);
-                                    merchant.merchantInfo.rewardsSize = merchant.merchantInfo.rewards.length;
-                                    merchant.merchantInfo.categories = _.union(merchant.merchantInfo.categories, req.body.categories);
-
-                                    merchant.save(function(err) {
-                                        if (err) {
-                                            Raven.captureException(err);
-                                        } else {
-                                            Emailer.sendAdminEmail(
-                                                merchant.merchantInfo.companyName, 
-                                                Messages.rewardCreated(merchant.merchantInfo.companyName, reward.name), function() {
-                                                console.log(`Email sent to admin at ${(new Date().toDateString())}`);
-                                            });
-                                        }
+                                    Emailer.sendAdminEmail(
+                                        merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }),
+                                        Messages.rewardCreated(merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }), reward.name), function() {
+                                        console.log(`Email sent to admin at ${(new Date().toDateString())}`);
                                     });
                                 }
                             });
@@ -384,9 +375,9 @@ module.exports = {
         
         if (req.query.status && req.query.status !== 'all') {
             query['status'] = req.query.status;
-        } else {
+        } /* else {
             query['status'] = 'active';
-        }
+        } */
 
         Reward.find(query)
         .sort('-startDate')
@@ -421,7 +412,10 @@ module.exports = {
         }
 
         Reward.find({
-            status: 'isPending'
+            $or: [
+               {status: 'isPending'},
+            //    {status: 'review'},
+            ],
         })
         .limit(10)
         .skip(page * limit)
@@ -455,10 +449,8 @@ module.exports = {
                 if (reward.status === 'active' && !reward.isActive) {
                     title = `${reward.name} Approved.`;
                     reward.isActive = true;
-                }
-
-                if (reward.status === 'inactive' || reward.status === 'expired' && reward.isActive) {
-                    title = `${reward.name} Requires Changes.`;
+                } else if ((reward.status === 'inactive' || reward.status === 'expired' || reward.status === 'review')) {
+                    title = 'Changes Required For: ' + reward.name;
                     reward.isActive = false;
                 }
 
@@ -478,9 +470,14 @@ module.exports = {
                                 console.log(`Email about reward failed to send to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                             } else {
                                 const status = reward.isActive ? 'accepted' : 'reviewed and changes are required';
-                                Emailer.sendEmail(reward.merchantID.email, title, Messages.reviewed(reward.name, status), function(response) {
-                                    console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
-                                });
+                                Emailer.sendEmail(
+                                    reward.merchantID.email,
+                                    title,
+                                    Messages.reviewed(reward.name, status, reward.merchantID.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })),
+                                    function(response) {
+                                        console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
+                                    }
+                                );
                             }
                         });
                     }

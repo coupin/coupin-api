@@ -159,10 +159,15 @@ module.exports = {
                 res.status(404).send({message: 'There is no such user'});
             } else {
                 var encrypted = cryptoJs.AES.encrypt(user._id.toString(), config.secret);
-                Emailer.sendEmail(user.email, 'Forgot Password', Messages.forgotPassword(encrypted.toString(), Emailer.getUiUrl()), function(response) {
-                    res.status(200).send({ message: 'Email sent successfully.' });
-                    Raven.captureMessage(`Email sent to ${email} at ${(new Date().toDateString())}`);
-                });
+                Emailer.sendEmail(
+                    user.email,
+                    'Forgot Password',
+                    Messages.forgotPassword(encrypted.toString(), Emailer.getUiUrl()), 
+                    function(response) {
+                        res.status(200).send({ message: 'Email sent successfully.' });
+                        Raven.captureMessage(`Email sent to ${email} at ${(new Date().toDateString())}`);
+                    }
+                );
             }
         });
     },
@@ -403,7 +408,7 @@ module.exports = {
                     message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
                 };
 
-                Emailer.sendEmail(email, 'Registration Received', Messages.registered(companyName), function(response) {
+                Emailer.sendEmail(email, 'Registration Received', Messages.registered(companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })), function(response) {
                     console.log(`Email sent to ${companyName} at ${(new Date().toDateString())}`);
                 });
             });

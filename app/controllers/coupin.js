@@ -212,9 +212,14 @@ module.exports = {
             .select('merchantInfo.companyName')
             .exec(function(err, merchant) {
               if (useNow) {
-                emailer.sendEmail(req.user.email, 'Coupin Created for ' + merchant.merchantInfo.companyName , messages.coupinCreated(booking), function(response) {
-                  console.log(response);
-                });
+                emailer.sendEmail(
+                  req.user.email,
+                  'Coupin Created for ' + merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }), 
+                  messages.coupinCreated(booking, req.user.name.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })), 
+                  function(response) {
+                    console.log(response);
+                  }
+                );
               }
             })
           }
