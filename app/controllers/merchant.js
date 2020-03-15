@@ -110,7 +110,7 @@ module.exports = {
                             emailer.sendEmail(
                                 merchant.email,
                                 'Registration Approved',
-                                messages.approved(merchant._id, emailer.getUiUrl(), _.capitalize(merchant.merchantInfo.companyName)),
+                                messages.approved(merchant._id, emailer.getUiUrl(), merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })),
                                 function(response) {
                                     res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.merchantInfo.companyName });
                                 }
@@ -119,7 +119,7 @@ module.exports = {
                             emailer.sendEmail(
                                 merchant.email,
                                 merchant.merchantInfo.companyName + ' Registration Rejected',
-                                messages.rejected(merchant.reason, _.capitalize(merchant.merchantInfo.companyName)),
+                                messages.rejected(merchant.reason, merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })),
                                 function(response) {
                                     res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.merchantInfo.companyName });
                                 }
@@ -1300,7 +1300,7 @@ module.exports = {
                             emailer.sendEmail(
                                 merchant.email,
                                 'Registration Approved',
-                                messages.approved(merchant._id, emailer.getUiUrl(), _.capitalize(merchant.merchantInfo.companyName)),
+                                messages.approved(merchant._id, emailer.getUiUrl(), merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })),
                                 pdfFile,
                                 function(response) {
                                     res.status(200).send({ message: 'Merchant Aprroved and email sent to ' + merchant.merchantInfo.companyName });
@@ -1310,7 +1310,7 @@ module.exports = {
                             emailer.sendEmail(
                                 merchant.email, 
                                 merchant.merchantInfo.companyName + ' Registration Rejected`',
-                                messages.rejected(merchant.reason, _.capitalize(merchant.merchantInfo.companyName)), 
+                                messages.rejected(merchant.reason, merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })),
                                 function(response) {
                                     res.status(200).send({ message: 'Merchant Declined and email sent to ' + merchant.merchantInfo.companyName });
                                 }

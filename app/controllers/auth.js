@@ -408,7 +408,7 @@ module.exports = {
                     message: 'Success! Your request has now been made and we will get back to you within 24hours.'});
                 };
 
-                Emailer.sendEmail(email, 'Registration Received', Messages.registered(_.capitalize(companyName)), function(response) {
+                Emailer.sendEmail(email, 'Registration Received', Messages.registered(companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })), function(response) {
                     console.log(`Email sent to ${companyName} at ${(new Date().toDateString())}`);
                 });
             });

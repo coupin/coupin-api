@@ -138,8 +138,8 @@ module.exports = {
                                     Raven.captureException(err);
                                 } else {
                                     Emailer.sendAdminEmail(
-                                        _.capitalize(merchant.merchantInfo.companyName), 
-                                        Messages.rewardCreated(_.capitalize(merchant.merchantInfo.companyName), reward.name), function() {
+                                        merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }),
+                                        Messages.rewardCreated(merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }), reward.name), function() {
                                         console.log(`Email sent to admin at ${(new Date().toDateString())}`);
                                     });
                                 }
@@ -473,7 +473,7 @@ module.exports = {
                                 Emailer.sendEmail(
                                     reward.merchantID.email,
                                     title,
-                                    Messages.reviewed(reward.name, status, _.capitalize(reward.merchantID.merchantInfo.companyName)),
+                                    Messages.reviewed(reward.name, status, reward.merchantID.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })),
                                     function(response) {
                                         console.log(`Email sent to ${reward.merchantID.merchantInfo.companyName} at ${(new Date().toDateString())}`);
                                     }

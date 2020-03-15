@@ -214,8 +214,8 @@ module.exports = {
               if (useNow) {
                 emailer.sendEmail(
                   req.user.email,
-                  'Coupin Created for ' + merchant.merchantInfo.companyName , 
-                  messages.coupinCreated(booking, _.capitalize(req.user.name)), 
+                  'Coupin Created for ' + merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }), 
+                  messages.coupinCreated(booking, req.user.name.replace(/\b(\w)/g, function (p) { return p.toUpperCase() })), 
                   function(response) {
                     console.log(response);
                   }
