@@ -27,8 +27,8 @@ module.exports = {
       var greetingSuffix = username ? ' ' + username +',' : ',';
       return '<tr><td style="padding-bottom: 15px;">Hello' + greetingSuffix + '</td></tr>' +
       '<tr><td style="padding-bottom: 20px; line-height: 1.2;">' +
-      '<p> Your Coupin was created successfully. below is the information needed:</p>' +
-      '<h4>Your Code is ' + booking.shortCode + '</h4>' +
+      '<p> Your Coupin was created successfully. Below is the information required.</p>' +
+      '<p>Your Code is <b>' + booking.shortCode + '</b></p>' +
       '</td></tr>';
   },
   // Email sent to admin after a customer gives feedback about a merchant
