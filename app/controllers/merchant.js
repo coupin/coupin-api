@@ -255,7 +255,7 @@ module.exports = {
                         } else {
                             res.status(200).send({message: 'Congratulations! Welcome to Coupin! Please login to continue.'});
                             emailer.sendEmail(merchant.email, 'Congratulations!', messages.completedEmail({
-                                name: merchant.merchantInfo.companyName
+                                name: merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }),
                             }), function(response) {
                                 console.log(response);
                             });
