@@ -487,6 +487,7 @@ module.exports = {
     },
     updateReward: function (req, res) {
         var body = req.body;
+        var user = req.user;
 
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
@@ -496,11 +497,20 @@ module.exports = {
                 res.status(404).send({ message: 'There is no reward matching that id' });
             } else {
                 ['name', 'description', 'categories', 'startDate', 'endDate', 'pictures', 'multiple',
-                'applicableDays', 'price', 'delivery', 'status'].forEach(function(key) {
+                'applicableDays', 'price', 'delivery'/* , 'status' */].forEach(function(key) {
                     if (body[key]) {
                         reward[key] = body[key];
                     }
                 });
+
+                if (user.role <= 1 && body.status) {
+                    reward.status = body.status;
+                } else if (user.role === 2 && user.id === reward.merchantID && reward.status === 'review') {
+                    reward.status = 'isPending';
+                    reward.review.forEach(function (r) {
+                        r.seen = true;
+                    });
+                }
 
                 reward.modifiedDate = Date.now();
 
