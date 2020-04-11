@@ -41,6 +41,13 @@ module.exports = {
     '<h4>Message: ' + data.message + '</h4>' +
     '</td></tr>';
   },
+  // Email sent to admin after a customer edits and saves an in "review" reward
+  reviewedRewardEdited: function(merchantName, rewardName) {
+    return '<tr><td style="padding-bottom: 15px;">Hello Admin,</td></tr>' +
+    '<tr><td style="padding-bottom: 20px; line-height: 1.2;">' +
+    '<p>Merchant' + merchantName + ' has made the requested changes to ' + rewardName + '. Please login and review the updated reward.</p>' +
+    '</td></tr>';
+  },
   // forgot password
   forgotPassword: function(id, url) {
     return '<tr><td style="padding-bottom: 15px;">Hello There,</td></tr>' +
