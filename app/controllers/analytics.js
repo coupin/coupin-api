@@ -585,6 +585,24 @@ function processGenderData(result) {
                 parseFloat((redeemedvalue || 0).toFixed(2))
             ],
         };
+    }).sort(function (a, b) {
+        if (
+            (a.name === 'female' && b.name === 'male') ||
+            (a.name === 'male' && b.name === 'uncategorised') ||
+            (a.name === 'female' && b.name === 'uncategorised')
+        ) {
+            return -1;
+        }
+
+        if (
+            (a.name === 'male' && b.name === 'female') ||
+            (a.name === 'uncategorised' && b.name === 'male') ||
+            (a.name === 'uncategorised' && b.name === 'female')
+        ) {
+            return 1;
+        }
+
+        return 0;
     });
 }
 

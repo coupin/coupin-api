@@ -488,6 +488,7 @@ module.exports = {
     updateReward: function (req, res) {
         var body = req.body;
         var user = req.user;
+        var toEmailAdminForReviewChanges = false;
 
         Reward.findById(req.params.id, function(err, reward) {
             if (err) {
@@ -503,13 +504,16 @@ module.exports = {
                     }
                 });
 
-                if (user.role <= 1 && body.status) {
+                if (user.role <= 1 && body.status) { // if the user making the change is an admin
                     reward.status = body.status;
                 } else if (user.role === 2 && user.id === reward.merchantID && reward.status === 'review') {
+                    // if the user making the change is a merchant and the reward status was review
+                    // change status to isPending, mark review as seen and then send an email to the admin
                     reward.status = 'isPending';
                     reward.review.forEach(function (r) {
                         r.seen = true;
                     });
+                    toEmailAdminForReviewChanges = true;
                 }
 
                 reward.modifiedDate = Date.now();
@@ -520,6 +524,23 @@ module.exports = {
                         Raven.captureException(err);
                     } else {
                         res.status(200).send({ message: 'Reward Updated' });
+
+                        if (toEmailAdminForReviewChanges) {
+                            Merchant.findById(req.user.id, function(err, merchant) {
+                                if (err) {
+                                    Raven.captureException(err);
+                                } else {
+                                    var merchantName = merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() });
+                                    Emailer.sendAdminEmail(
+                                        'Changes made to Reviewed Reward ' + reward.name,
+                                        Messages.reviewedRewardEdited(merchantName, reward.name),
+                                        function() {
+                                            console.log(`Email sent to admin at ${(new Date().toDateString())}`);
+                                        }
+                                    );
+                                }
+                            });
+                        }
                     }
                 });
             }
