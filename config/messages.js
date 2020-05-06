@@ -13,7 +13,7 @@ module.exports = {
     return '<tr><td style="padding-bottom: 15px;">Hello ' + data.name + ',</td></tr>' +
     '<tr><td style="padding-bottom: 20px; line-height: 1.2;">' +
     '<p>Congratulations!</p>' +
-    '<p style="margin: 10px 0;">' + data.name + ' you have completed your registration! Please log in to start adding rewards right away </p>';
+    '<p style="margin: 10px 0;">' + data.name + ' you have completed your registration! Please log in to start activating your promotional content to reach your customers right away.</p>';
   },
   // Email sent to admin after a reward has been created
   rewardCreated: function (merchantName, rewardName) {
