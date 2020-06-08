@@ -2,6 +2,7 @@
 var _ = require('lodash');
 var moment = require('moment');
 var shortCode = require('shortid32');
+var mongoose = require('mongoose');
 
 var Raven = require('./../../config/config').Raven;
 var Booking = require('./../models/bookings');
@@ -220,6 +221,34 @@ module.exports = {
                     console.log(response);
                   }
                 );
+
+                // get rewards for email sent to merchant
+                Reward.find({ 
+                  _id: {
+                    $in: rewards.map(function (reward) { return mongoose.Types.ObjectId(reward.id)})
+                  }
+                 }, 'name', function (err, _rewards) {
+                    var rewardNameString = rewards.reduce(function (agg, reward, index, arr) {
+                      agg += reward.name;
+                      if (index < arr.length - 1) {
+                        agg += (agg + ', ');
+                      }
+
+                      return agg;
+                    }, '');
+
+                    emailer.sendEmail(
+                      merchant.email,
+                      "Customer Code Generated: " + rewardNameString,
+                      messages.coupinCreatedForMerchant(
+                        merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }),
+                        _rewards
+                      ),
+                      function(response) {
+                        console.log(response);
+                      }
+                    )
+                 });
               }
             })
           }
