@@ -228,7 +228,7 @@ module.exports = {
                     $in: rewards.map(function (reward) { return mongoose.Types.ObjectId(reward.id)})
                   }
                  }, 'name', function (err, _rewards) {
-                    var rewardNameString = rewards.reduce(function (agg, reward, index, arr) {
+                    var rewardNameString = _rewards.reduce(function (agg, reward, index, arr) {
                       agg += reward.name;
                       if (index < arr.length - 1) {
                         agg += (agg + ', ');
