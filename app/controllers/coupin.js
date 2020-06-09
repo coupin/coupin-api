@@ -210,7 +210,7 @@ module.exports = {
               req.user.save();
             }
             User.findById(req.body.merchantId)
-            .select('merchantInfo.companyName')
+            .select('merchantInfo.companyName email')
             .exec(function(err, merchant) {
               if (useNow) {
                 emailer.sendEmail(
