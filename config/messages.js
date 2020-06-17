@@ -4,7 +4,7 @@ module.exports = {
     return '<tr><td style="padding-bottom: 15px;">Hello ' + merchantName + ',</td></tr>' +
       '<tr><td style="padding-bottom: 20px; line-height: 1.2;">' +
       '<p> We are excited to have you as part of Coupin</p>' +
-      '<p style="margin: 10px 0;">Please click on the link <a href="' + url + '/merchant/' + id + '/confirm">' + url + '/merchant/' + id + '/confirm</a> to activate your account</p>' +
+      '<p style="margin: 10px 0;">Please click <a href="' + url + '/merchant/' + id + '/confirm">here</a> to activate your account</p>' +
       '<p style="margin: 10px 0;">Attached to this email is a quick setup guide, if you have any questions, please feel free to message us at <a href="mailto:' + process.env.CARE_EMAIL + '">' + process.env.CARE_EMAIL +'</a></p>' +
       '</td></tr>';
   },
@@ -68,7 +68,7 @@ module.exports = {
     return '<tr><td style="padding-bottom: 15px;">Hello There,</td></tr>' +
     '<tr><td style="padding-bottom: 20px; line-height: 1.2;">' + 
     '<h4> It seems you have forgotten your password. If it really was you, please click on the link below:</h4>' +
-    '<p style="margin: 10px 0;">Please click on the link <a href="' + url + '/auth/forgot-password?query=' + id + '">' + url + '/auth/forgot-password?query=' + id + '</a> to reset your password</p>' +
+    '<p style="margin: 10px 0;">Please click <a href="' + url + '/auth/forgot-password?query=' + id + '">here</a> to reset your password</p>' +
     '<p style="margin: 10px 0;">If you have any questions, please feel free to message us at ' + process.env.CARE_EMAIL +'</p>' +
     '</td></tr>';
   },
