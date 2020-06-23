@@ -10,14 +10,14 @@ var mailgun = config.mailgun;
 
 module.exports = {
     getUiUrl: function() {
-        return `http://${process.env.UI_URL}`;
+        return `https://${process.env.UI_URL}`;
     },
     sendEmail: function(to, subject, message, file, callback){
         
         fs.readFile(path.resolve(__dirname, './emailTemplate/index.html'), function (error, html) {
             if (!error) {
                 var compiled = _.template(html);
-                var footerImage = path.resolve(__dirname, './emailTemplate/image/logo.png');
+                var signature = path.resolve(__dirname, './emailTemplate/image/signature.png');
         
                 var mailOptions = {
                     from: `CoupinApp NG <${process.env.CARE_EMAIL}>`,
@@ -25,7 +25,7 @@ module.exports = {
                     subject: subject,
                     bcc: process.env.CARE_EMAIL,
                     html: compiled({ message: message }),
-                    inline: footerImage,
+                    inline: signature,
                 };
         
                 if (typeof file === 'function') {
