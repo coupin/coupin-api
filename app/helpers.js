@@ -46,8 +46,16 @@ module.exports = {
     .select('categories')
     .exec(function(err, rewards) {
       var categories = [];
+      /**
+       * Obinna wants the total number of merchants with new rewards
+       * instead of the total number of actual reqards
+       */
+      var merchants = [];
 
       rewards.forEach(function(reward) {
+        if (merchants.indexOf(reward.merchantID) === -1) {
+          merchants.push(reward.merchantID);
+        }
         categories = _.union(reward.categories, categories);
       });
 
@@ -57,7 +65,7 @@ module.exports = {
       } else {
         cb({
           categories: categories,
-          total: rewards.length
+          total: merchants.length
         });
       }
     });
