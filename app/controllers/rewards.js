@@ -429,7 +429,7 @@ module.exports = {
                 res.status(500).send(err);
                 Raven.captureException(err);
             } else {
-                res.status(200).send(rewardCount);
+                res.send({ count: rewardCount });
             }
         });
     },
