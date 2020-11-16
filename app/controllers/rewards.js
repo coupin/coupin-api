@@ -399,6 +399,41 @@ module.exports = {
             }
         });
     },
+    readByMerchantCount: function(req, res) {
+        var id = req.params.id || req.query.id || req.body.id;
+
+        var query = {};
+        var date = new Date();
+
+        if (req.user.role === 3) {
+            query["startDate"] = {
+                $lte: date
+            };
+
+            query["endDate"] = {
+                $gte: date
+            };
+        }
+
+        if (id !== '0') {
+            query['merchantID'] = id;
+        }
+        
+        if (req.query.status && req.query.status !== 'all') {
+            query['status'] = req.query.status;
+        }
+
+        Reward.find(query)
+        .count()
+        .exec(function(err, rewardCount) {
+            if (err) {
+                res.status(500).send(err);
+                Raven.captureException(err);
+            } else {
+                res.status(200).send(rewardCount);
+            }
+        });
+    },
     readByRequests: function(req, res) {
         var limit = req.params.limit || req.query.limit || req.body.limit || 10;
         var page = req.params.page || req.query.page || req.body.page || 0;

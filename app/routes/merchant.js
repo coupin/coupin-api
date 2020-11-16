@@ -74,6 +74,13 @@ module.exports = function(router) {
       RewardCtrl.readByMerchant
     );
 
+  router.route('/merchant/:id/rewards/count')
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      RewardCtrl.readByMerchantCount
+    );
+
   router.route('/merchant/prime')
     .get(
       passport.verifyJWT1,
