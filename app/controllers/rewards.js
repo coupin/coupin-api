@@ -423,8 +423,8 @@ module.exports = {
             query['status'] = req.query.status;
         }
 
-        Reward.find(query)
-        .count()
+        Reward/* .find(query) */
+        .countquery()
         .exec(function(err, rewardCount) {
             if (err) {
                 res.status(500).send(err);
