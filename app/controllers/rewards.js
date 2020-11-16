@@ -424,7 +424,7 @@ module.exports = {
         }
 
         Reward/* .find(query) */
-        .countquery()
+        .count(query)
         .exec(function(err, rewardCount) {
             if (err) {
                 res.status(500).send(err);
