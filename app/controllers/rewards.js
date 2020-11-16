@@ -424,8 +424,7 @@ module.exports = {
         }
 
         Reward/* .find(query) */
-        .count(query)
-        .exec(function(err, rewardCount) {
+        .count(query, function(err, rewardCount) {
             if (err) {
                 res.status(500).send(err);
                 Raven.captureException(err);
