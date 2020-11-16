@@ -808,6 +808,20 @@ module.exports = {
             }
         });
     },
+    count: function (req, res) {
+        var query = {
+            role: 2
+        };
+
+        Merchant.count(query, function (err, merchantsCount) {
+            if (err) {
+                res.status(500).send(err);
+                Raven.captureException(err);
+            } else {
+                res.send({count: merchantsCount});
+            }
+        })
+    },
 
     readById: function(req, res) {
         var id = req.params.id || req.query.id || req.body.id;

@@ -18,6 +18,13 @@ module.exports = function(router) {
       auth.isCustomer,
       MerchantCtrl.markerInfo
     );
+
+    router.route('/merchant/count')
+    .get(
+      auth.authenticate,
+      auth.isAdmin,
+      MerchantCtrl.count
+    )
   
   router.route('/merchant/names')
     .get(
