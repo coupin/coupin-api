@@ -34,12 +34,7 @@ var env = process.env.NODE_ENV || 'development';
 var port = process.env.PORT || 5030;
 
 // connect to db
-if (env === 'staging') {
-  mongoose.connect(process.env.MONGO_URL_STAGING);
-} else {
-  mongoose.connect(process.env.MONGO_URL);
-}
-// mongoose.connect(process.env.LOCAL_URL);
+mongoose.connect(process.env.MONGO_URL);
 
 /**
  * get all data of the body parameters
@@ -49,15 +44,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(morgan('dev'));
-
-// app.use(function(req, res, next) {
-//   if(!req.secure && process.env.NODE_ENV !== 'development') {
-//     var secureUrl = 'https://' + req.headers['host'] + req.url;
-//     res.redirect(secureUrl);
-//   } else {
-//     next();
-//   }
-// });
 
 /**
  * override with the X-HTTP-Override header in the request.
