@@ -8,6 +8,7 @@
   "dependencies": {
     "@sentry/node": "^4.3.0",
     "apidoc": "^0.17.7",
+    "axios": "^0.21.1",
     "bcryptjs": "^2.3.0",
     "body-parser": "^1.18.3",
     "chalk": "^2.4.2",
