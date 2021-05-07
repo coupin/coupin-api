@@ -3,6 +3,7 @@ var config = require('../../config/config');
 var emailer = require('../../config/email');
 var messages = require('../../config/messages');
 var Customer = require('../models/users');
+var outputFormatter = require('../services/outputFormatter');
 
 var Raven = config.Raven;
 
@@ -74,40 +75,24 @@ module.exports = {
      */
     addToFavourites : function (req, res) {
         var body = req.body;
-        var user = req.user;
+        var currentUser = req.user;
 
-        if (!req.user.favourites) {
-            req.user.favourites = [];
+        if (!currentUser.favourites) {
+            currentUser.favourites = [];
         }
 
-        if (!req.user.favourites.includes(body.merchantId)) {
-            req.user.favourites.push(body.merchantId);
+        if (!currentUser.favourites.includes(body.merchantId)) {
+            currentUser.favourites.push(body.merchantId);
         }
 
-        req.user.save(function(err) {
+        currentUser.save(function(err, user) {
             if (err) {
                 res.status(500).send(err);
                 Raven.captureException(err);
             } else {
-                var data = {
-                    _id: user._id,
-                    email: user.email,
-                    name: user.name,
-                    dateOfBirth: user.dateOfBirth,
-                    ageRange: user.ageRange,
-                    sex: user.sex,
-                    isActive: user.isActive,
-                    blacklist: user.blacklist || [],
-                    favourites: user.favourites,
-                    interests: user.interests,
-                    city: user.city,
-                    picture: user.picture,
-                    notification: user.notification
-                };
-
                 res.status(200).send({ 
                     message: 'Added Successfully',
-                    user: data
+                    user: outputFormatter.formatUser(user)
                 });
             }
         });
@@ -150,31 +135,15 @@ module.exports = {
     createInterests : function (req, res) {
         req.user.interests = JSON.parse(req.body.interests);
 
-        req.user.save(function (err) {
-        if (err) {
-            res.status(500).send(err);
-            Raven.captureException(err);
-        } else {
-            var user = req.user;
-            var data = {
-                _id: user._id,
-                email: user.email,
-                name: user.name,
-                dateOfBirth: user.dateOfBirth,
-                ageRange: user.ageRange,
-                sex: user.sex,
-                isActive: user.isActive,
-                blacklist: user.blacklist || [],
-                favourites: user.favourites,
-                interests: user.interests,
-                city: user.city,
-                picture: {
-                    url: user.picture
-                },
-                notification: user.notification
-            };
-            res.status(200).send(data);
-        }
+        req.user.save(function (err, user) {
+            if (err) {
+                res.status(500).send(err);
+                Raven.captureException(err);
+            } else {
+                var user = req.user;
+                var data = outputFormatter.formatUser(user);
+                res.status(200).send(data);
+            }
         });
     },
 
@@ -307,41 +276,24 @@ module.exports = {
      */
     removeFavourites : function (req, res) {
         var index = req.user.favourites.indexOf(req.body.merchantId);
-        var user = req.user;
         
         if (index === -1) {
         res.status(404).send({ message: 'Favourite does not exist.' });
         } else {
         req.user.favourites.splice(index, 1);
-        req.user.save(function (err) {
+        req.user.save(function (err, user) {
             if (err) {
                 res.status(500).send(err);
                 Raven.captureException(err);
             } else {
-                var data = {
-                    _id: user._id,
-                    email: user.email,
-                    name: user.name,
-                    dateOfBirth: user.dateOfBirth,
-                    ageRange: user.ageRange,
-                    sex: user.sex,
-                    isActive: user.isActive,
-                    blacklist: user.blacklist || [],
-                    favourites: user.favourites,
-                    interests: user.interests,
-                    city: user.city,
-                    picture: {
-                        url: user.picture
-                    },
-                    notification: user.notification
-                };
+                var data = outputFormatter.formatUser(user);
 
                 res.status(200).send(data);
             }
         });
         }
     },
-    
+
     /**
      * @api {get} /customer/favourites Retrieve user's favourite merchants
      * @apiName retrieveFavourites
@@ -457,7 +409,6 @@ module.exports = {
     setToken : function (req, res) {
         var id = req.params.id || req.query.id || req.body.id;
         var body = req.body;
-        console.log(body.token);
 
         if (!body.token) {
             res.status(400).send({
@@ -551,28 +502,13 @@ module.exports = {
             req.user.interests = [];
         }
 
-        req.user.save(function (err) {
+        req.user.save(function (err, user) {
         if (err) {
             res.status(500).send(err);
             Raven.captureException(err);
         } else {
             var user = req.user;
-            var data = {
-                _id: user._id,
-                email: user.email,
-                name: user.name,
-                dateOfBirth: user.dateOfBirth,
-                ageRange: user.ageRange,
-                sex: user.sex,
-                isActive: user.isActive,
-                blacklist: user.blacklist || [],
-                favourites: user.favourites,
-                interests: user.interests,
-                city: user.city,
-                picture: {
-                    url: user.picture
-                }
-            };
+            var data = outputFormatter.formatUser(user);
             res.status(200).send(data);
         }
         });
@@ -696,27 +632,12 @@ module.exports = {
   
           user.modifiedDate = new Date();
   
-          user.save(function(err) {
+          user.save(function(err, savedUser) {
             if (err) {
               res.status(500).send(err);
               Raven.captureException(err);
             } else {
-                var data = {
-                    _id: user._id,
-                    email: user.email,
-                    name: user.name,
-                    dateOfBirth: user.dateOfBirth,
-                    ageRange: user.ageRange,
-                    sex: user.sex,
-                    isActive: user.isActive,
-                    blacklist: user.blacklist || [],
-                    favourites: user.favourites,
-                    interests: user.interests,
-                    city: user.city,
-                    mobileNumber: user.mobileNumber,
-                    picture: user.picture,
-                    notification: user.notification
-                };
+                var data = outputFormatter.formatUser(savedUser);
               res.status(200).send(data);
             }
           });

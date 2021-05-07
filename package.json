@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@sentry/node": "^4.3.0",
-    "apidoc": "^0.17.7",
+    "apidoc": "^0.27.1",
     "axios": "^0.21.1",
     "bcryptjs": "^2.3.0",
     "body-parser": "^1.18.3",
@@ -46,6 +46,7 @@
     "passport-jwt": "^3.0.0",
     "passport-local": "*",
     "passport-twitter": "^1.0.4",
+    "shortid": "^2.2.16",
     "shortid32": "^0.1.1"
   },
   "apidoc": {
@@ -75,7 +76,7 @@
   },
   "scripts": {
     "preinstall": "rm -rf node_modules/",
-    "generate-docs": "apidoc -i app/ -o apiDoc/ -t apiDocTemplate/",
+    "generate-docs": "./node_modules/.bin/apidoc -i app/ -o apiDoc/ -t apiDocTemplate/",
     "postinstall": "npm run generate-docs",
     "start": "node init.js && node server.js",
     "start:dev": "node init.js && nodemon server.js"

@@ -1,6 +1,7 @@
 // module
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
+var shortid = require('shortid');
 
 // define the user schema
 var schema = mongoose.Schema;
@@ -62,6 +63,33 @@ var userSchema = new schema({
             default: null
         }
     },
+    addresses: [{
+        id: {
+            type: String,
+            default: shortid.generate
+        },
+        streetLine1: {
+            type: String
+        },
+        city: {
+            type: String
+        },
+        state: {
+            type: String,
+            default: 'lagos'
+        },
+        location: {
+            longitude: {
+                type: Number
+            },
+            latitude: {
+                type: Number
+            }
+        },
+        mobileNumber: {
+            type: String
+        }
+    }],
     city: {
         type: String,
         default: 'lagos'
