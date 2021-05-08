@@ -32,7 +32,6 @@ function formatUser(user) {
     interests: user.interests,
     city: user.city,
     picture: user.picture,
-    addresses: user.addresses || [],
     notification: user.notification
   };
 }
