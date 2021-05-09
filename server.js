@@ -22,6 +22,7 @@ var busboy = require('connect-busboy');
 var cors = require('cors');
 var moment = require('moment');
 
+var config = require('./config/config');
 var myRoutes = require('./app/routes');
 var helper = require('./app/helpers');
 
@@ -114,7 +115,8 @@ cron.schedule('0 0 * * *', function() {
 
 //start on localhost 3030
 app.listen(port).on('error', function (err) {
-  console.log(err);
+  config.Raven.captureException(err);
+  res.status(500).send(err);
 });
 
 // confirmation
