@@ -52,7 +52,22 @@ var bookingSchema = new schema({
     createdAt: {
         type: Date,
         default: new Date
-    }
+    },
+    transactions: [{
+        reference: {
+            type: String,
+            required: true,
+        },
+        paymentReference: {
+            type: String,
+            default: '',
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'failed', 'success'],
+            default: 'pending'
+        }
+    }]
 });
 
 var Bookings = mongoose.model('Booking', bookingSchema);
