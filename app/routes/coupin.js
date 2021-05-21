@@ -34,4 +34,11 @@ module.exports = function(router) {
       auth.isMerchant,
       coupinCtrl.verify
     );
+
+  router.route('/coupin/payment/initiate')
+    .post(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      paymentCtrl.initializeCoupinPayment
+    );
 }
