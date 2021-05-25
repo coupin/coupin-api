@@ -1,6 +1,7 @@
 // module
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
+var shortid = require('shortid');
 
 // define the user schema
 var schema = mongoose.Schema;

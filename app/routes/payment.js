@@ -9,5 +9,8 @@ module.exports = function (router) {
     .post('/initiatepayment', PaymentCtrl.initiatePayment);
 
   router
-    .route('/paystackhook').post(PaymentCtrl.paymentSuccess)
+    .route('/paystackhook').post(PaymentCtrl.paystackPaymentSuccess);
+
+  router
+    .post('/flutterwave/hook', PaymentCtrl.flutterwavePaymentSuccess);
 };
