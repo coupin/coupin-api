@@ -5,12 +5,6 @@ var shortid = require('shortid');
 // define the user schema
 var schema = mongoose.Schema;
 
-/**
- * Roles
- * ------
- * 0 - superadmin, 1 - admin, 2 - merchant and 3 - customer
- */
-
 var addressSchema = new schema({
   _id: {
     type: String,
@@ -21,12 +15,11 @@ var addressSchema = new schema({
     required: true
   },
   city: {
-    type: String,
-    required: true
+    type: String
   },
   state: {
     type: String,
-    required: true
+    default: 'lagos'
   },
   location: {
     longitude: {

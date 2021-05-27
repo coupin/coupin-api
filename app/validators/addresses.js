@@ -40,14 +40,6 @@ module.exports = {
       res.status(400).send({
         message: 'The streetLine1 is invalid.'
       });
-    } else if (body.city && body.city.trim().length === 0) {
-      res.status(400).send({
-        message: 'The city is invalid.'
-      });
-    } else if (body.state && body.state.trim().length === 0) {
-      res.status(400).send({
-        message: 'The state is invalid.'
-      });
     } else if (body.mobileNumber && !phonePattern.test(body.mobileNumber)) {
       res.status(400).send({
         message: 'The mobileNumber is invalid.'
