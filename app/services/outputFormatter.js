@@ -5,9 +5,7 @@ function formatAddress(address) {
 
   return {
     id: address._id,
-    address: address.streetLine1,
-    city: address.city,
-    state: address.state,
+    address: address.address,
     location: address.location,
     mobileNumber: address.mobileNumber,
     owner: address.owner

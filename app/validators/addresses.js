@@ -5,17 +5,9 @@ module.exports = {
   validateAdd: function(req, res, next) {
     var body = req.body;
     
-    if (!body.streetLine1) {
+    if (!body.address) {
       res.status(400).send({
-        message: 'The streetLine1 is required.'
-      });
-    } else if (!body.city) {
-      res.status(400).send({
-        message: 'The city is required.'
-      });
-    } else if (!body.state) {
-      res.status(400).send({
-        message: 'The state is required.'
+        message: 'The address is required.'
       });
     } else if (!body.mobileNumber || !phonePattern.test(body.mobileNumber)) {
       res.status(400).send({
@@ -36,9 +28,9 @@ module.exports = {
   validateUpdate: function(req, res, next) {
     var body = req.body;
     
-    if (body.streetLine1 && body.streetLine1.trim().length === 0) {
+    if (body.address && body.address.trim().length === 0) {
       res.status(400).send({
-        message: 'The streetLine1 is invalid.'
+        message: 'The address is invalid.'
       });
     } else if (body.mobileNumber && !phonePattern.test(body.mobileNumber)) {
       res.status(400).send({
