@@ -10,16 +10,9 @@ var addressSchema = new schema({
     type: String,
     default: shortid.generate
   },
-  streetLine1: {
+  address: {
     type: String,
     required: true
-  },
-  city: {
-    type: String
-  },
-  state: {
-    type: String,
-    default: 'lagos'
   },
   location: {
     longitude: {

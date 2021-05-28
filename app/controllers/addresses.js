@@ -23,9 +23,7 @@ module.exports = {
      *      "message": "Added Successfully",
      *      "address": {
      *          "id": "String",
-     *          "streetLine1": "String"
-     *          "city": "String",
-     *          "state": "String",
+     *          "address": "String",
      *          "location": {
      *            longitude: 0,
      *            latitude: 0
@@ -55,9 +53,7 @@ module.exports = {
         var body = req.body;
 
         var address = new Address({
-          streetLine1: body.streetLine1,
-          city: body.city,
-          state: body.state,
+          address: body.address,
           location: {
             longitude: body.longitude,
             latitude: body.latitude
@@ -95,9 +91,7 @@ module.exports = {
      *  {
      *      "addresses": [{
      *          "id": "String",
-     *          "streetLine1": "String"
-     *          "city": "String",
-     *          "state": "String",
+     *          "address": "String",
      *          "location": {
      *            longitude: 0,
      *            latitude: 0
@@ -161,9 +155,7 @@ module.exports = {
      *      "message": "Added Successfully",
      *      "address": {
      *          "id": "String",
-     *          "streetLine1": "String"
-     *          "city": "String",
-     *          "state": "String",
+     *          "address": "String",
      *          "location": {
      *            longitude: 0,
      *            latitude: 0
@@ -198,7 +190,7 @@ module.exports = {
           return res.status(404).send({ message: 'Address does not exist.' });
         }
 
-        ['streetLine1', 'city', 'state', 'latitude', 'longitude', 'mobileNumber'].forEach(function(key) {
+        ['address', 'latitude', 'longitude', 'mobileNumber'].forEach(function(key) {
           if (body[key] && (key === 'latitude' || 'longitude')) {
             address.location[key] = body[key];
           } else {
