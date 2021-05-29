@@ -58,6 +58,9 @@ var rewardSchema = new schema({
       type: Number
     }
   },
+  quantity: {
+    type: Number,
+  },
   applicableDays: [{
     type: Number,
     enum: [0, 1, 2, 3, 4, 5, 6],
