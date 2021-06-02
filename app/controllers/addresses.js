@@ -75,6 +75,54 @@ module.exports = {
     },
 
     /**
+     * @api {delete} /customer/addresses/:id Delete customers address
+     * @apiName deleteAddress
+     * @apiGroup Customer
+     * 
+     * @apiExample {curl} Example usage:
+     * curl -i http://localhost:5030/api/v1/customer/addresses/3
+     * 
+     * @apiHeader {String} x-access-token Users unique token
+     * 
+     * @apiSuccess {Array} addresses an array address objects
+     * 
+     * @apiSuccessExample Success-Response:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "message": "String"
+     *  }
+     * 
+     * @apiError Unauthorized Invalid token.
+     * 
+     * @apiErrorExample Unauthorized:
+     *  HTTP/1.1 401 Unauthorized
+     *  {
+     *      "message": "Unauthorized."
+     *  }
+     * 
+     * @apiError (Error 5xx) ServerError an error occured on the server.
+     * 
+     * @apiErrorExample ServerError:
+     *  HTTP/1.1 500 ServerError
+     *  {
+     *      "message": "Server Error."
+     *  }
+     */
+     deleteAddress : function (req, res) {
+        Address.findOneAndRemove({
+          owner: req.user.id
+        }).exec(function(err, addresses) {
+          if (err) {
+            return res.status(500).send(err);
+          }
+
+          res.status(200).send({ 
+            message: 'Address deleted'
+          });
+        });
+    },
+
+    /**
      * @api {get} /customer/addresses Get customers addresses
      * @apiName retrieveAddress
      * @apiGroup Customer

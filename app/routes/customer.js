@@ -21,6 +21,11 @@ module.exports = function(router) {
     );
 
   router.route('/customer/addresses/:id')
+    .delete(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      AddressCtrl.deleteAddress
+    )
     .put(
       passport.verifyJWT1,
       auth.isCustomer,
