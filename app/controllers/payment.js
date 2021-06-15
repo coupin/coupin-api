@@ -86,6 +86,8 @@ module.exports = {
 
         var data = requestJson.data || requestJson || {};
 
+        Raven.captureMessage(data);
+
         // TODO: this is here for testing purposes
         console.log(requestJson, '<== ==>');
 
