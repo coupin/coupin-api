@@ -84,7 +84,11 @@ module.exports = {
       if (hash === secret_hash) {
         var requestJson = req.body;
 
-        var data = requestJson.data;
+        var data = requestJson.data || requestJson || {};
+
+        // TODO: this is here for testing purposes
+        console.log(requestJson, '<== ==>');
+
         var reference = data.tx_ref;
         var flutterwaveRef = data.flw_ref;
         var flutterwaveId = data.id;
