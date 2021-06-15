@@ -1,4 +1,5 @@
 var moment = require('moment');
+var Raven = require('./../../config/config').Raven;
 
 var paystackPayment = require('./../services/paystack');
 var flutterwavePayment = require('./../services/flutterwave');
