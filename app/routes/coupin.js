@@ -1,5 +1,6 @@
 var auth = require('./../middleware/auth');
 var coupinCtrl = require('./../controllers/coupin');
+var paymentCtrl = require('./../controllers/payment');
 var passport = require('../middleware/passport');
 
 module.exports = function(router) {
@@ -33,5 +34,12 @@ module.exports = function(router) {
       auth.authenticate,
       auth.isMerchant,
       coupinCtrl.verify
+    );
+
+  router.route('/coupin/payment/initiate')
+    .post(
+      passport.verifyJWT1,
+      auth.isCustomer,
+      paymentCtrl.initializeCoupinPayment
     );
 }

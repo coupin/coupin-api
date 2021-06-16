@@ -7,6 +7,7 @@ var flutterwavePayment = require('./../services/flutterwave');
 // Models
 var Reward = require('./../models/reward')
 var Merchant = require('./../models/users');
+var Booking = require('./../models/bookings');
 
 module.exports = {
   /**
@@ -219,4 +220,41 @@ module.exports = {
       }
     }
   },
+
+  initializeCoupinPayment: function (req, res) {
+    var body = req.body;
+    var coupinId = body.coupinId;
+    var userId = body.userId;
+    var date = new Date();
+    
+    // create reference
+    var reference = `coupin-${coupinId}-${userId}-${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getTime()}`;
+
+    // get the coupin and update the transaction object
+    Booking.findById(coupinId)
+      .exec(function (err, booking) {
+        if (err) {
+          res.status(500).send(err);
+          Raven.captureException(err);
+        } else if (!booking) {
+          res.status(404).send({ message: 'Coupin deos not exist.' });
+        } else {
+          booking.transactions.unshift({
+            reference: reference,
+          });
+
+          booking.save(function (err) {
+            if (err) {
+              res.status(500).send(err);
+              Raven.captureException(err);
+            } else {
+              res.json({
+                success: true,
+                data: reference,
+              });
+            }
+          });
+        }
+      });
+  }
 };
