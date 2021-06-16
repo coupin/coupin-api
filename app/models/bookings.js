@@ -53,6 +53,11 @@ var bookingSchema = new schema({
         type: Date,
         default: new Date
     },
+    status: {
+        type: String,
+        enum: ['awaiting_payment', 'paid', 'order_picked', 'delivered', 'fulfilled'],
+        default: 'awaiting_payment'
+    },
     transactions: [{
         reference: {
             type: String,

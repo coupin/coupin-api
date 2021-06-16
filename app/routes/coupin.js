@@ -1,5 +1,6 @@
 var auth = require('./../middleware/auth');
 var coupinCtrl = require('./../controllers/coupin');
+var paymentCtrl = require('./../controllers/payment');
 var passport = require('../middleware/passport');
 
 module.exports = function(router) {
