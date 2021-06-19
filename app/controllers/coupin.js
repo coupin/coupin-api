@@ -493,6 +493,7 @@ module.exports = {
       }
     });
   },
+
   // Verify Short Code and return booking details for merchant
   verify: function(req, res) {
     var pin = req.params.pin.toUpperCase();

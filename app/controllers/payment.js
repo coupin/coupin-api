@@ -9,6 +9,9 @@ var Reward = require('./../models/reward')
 var Merchant = require('./../models/users');
 var Booking = require('./../models/bookings');
 
+// services
+var BookingService = require('./../services/booking');
+
 module.exports = {
   /**
    * @api {post} /initiatepayment Initiate merchant payment
@@ -236,14 +239,7 @@ module.exports = {
                       });
                 }
               } else if (paymentType === 'coupin') {
-                // get user information
-                // get coupin based on id
-                // update transaction reference information
-                // check if transaction has been successful
-                // redeem the coupin
-
-                // Booking.findById(bookingId)
-                //   .populate('rewardId.id', 'multiple')
+                BookingService.handleCoupinPayment(coupinId, reference, paymentReference);
               }
             }
           });
