@@ -30,7 +30,7 @@ module.exports = {
    *    "name": "reward name"
    * }
    * 
-   * @apiSuccess {Object} 
+   * @apiSuccess {Object} Flutterwave-payment-object
    * 
    * @apiSuccessExample Success-Response:
    *  HTTP/1.1 200 OK

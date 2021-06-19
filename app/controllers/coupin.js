@@ -130,7 +130,7 @@ module.exports = {
    *          "useNow": "true",
    *          "isActive": "true"
    *        },
-   *        reference: coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568
+   *        reference: "coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568"
    *      }
    *  }
    * 
