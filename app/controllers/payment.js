@@ -11,27 +11,47 @@ var Booking = require('./../models/bookings');
 
 module.exports = {
   /**
-   * Initiate merchant payment
+   * @api {post} /initiatepayment Initiate merchant payment
+   * @apiName initiatePayment
+   * @apiGroup Payment
+   * 
+   * @apiParam {String} callbackUrl - url to redirect user to on payment success or failure
+   * @apiParam {Number} amount - amount to be paid
+   * @apiParam {String} email - email of user making payment
+   * @apiParam {String="billing", "reward"} type
+   * @apiParam {String} companyName - company name
+   * @apiParam {String} userId - id of user making payment
+   * @apiParam {String} [billingPlan] - plan user is paying for if it is payment for billing plan
+   * @apiParam {Object} [reward] - reward if type is reward
+   * 
+   * @apiParamExample {json} reward:
+   * {
+   *    "id": "reward-id",
+   *    "name": "reward name"
+   * }
+   * 
+   * @apiSuccess {Object} 
+   * 
+   * @apiSuccessExample Success-Response:
+   *  HTTP/1.1 200 OK
+   *  {
+   *      "status": "success",
+   *      "message": "Hosted Link",
+   *      "data": {
+   *        "link": "https://api.flutterwave.com/v3/hosted/pay/ab238syge94"
+   *      }
+   *  }
+   * 
+   * @apiError (Error 5xx) ServerError an error occured on the server.
+   * 
+   * @apiErrorExample ServerError:
+   *  HTTP/1.1 500 ServerError
+   *  {
+   *      "message": "Server Error."
+   *  }
    */
   initiatePayment: function (req, res) {
     var body = req.body;
-    /**
-     * Example data for body
-     * 
-     * {
-     *  callbackUrl: 'url'
-     *  amount: 10000, // amount in naira
-     *  email: email@email.ie
-     *  type: ['billing', 'reward']
-     *  companyName: 'company name'
-     *  userId: 'user id'
-     *  billingPlan: if type is billing
-     *  reward: { if the type is reward
-     *    id: 2344,
-     *    name: 'reward name'
-     *  }
-     * }
-     */
 
     if (!body.amount || !body.email || !(body.type === 'billing' || body.type === 'reward')) {
       var message = 'Missing fields for initiating payment:';
@@ -90,130 +110,140 @@ module.exports = {
 
         Raven.captureMessage(data);
 
-        // TODO: this is here for testing purposes
-        console.log(requestJson, '<== ==>');
-
         var reference = data.tx_ref;
         var flutterwaveRef = data.flw_ref;
         var flutterwaveId = data.id;
 
         flutterwavePayment
           .verifyTransaction(flutterwaveId)
-          .then(({ status, meta }) => {
-            var paymentType = meta.paymentType || '';
-            var merchantId = meta.merchantId || '';
-            var rewardId = meta.rewardId || '';
-            var billingPlan = meta.billingPlan || '';
+          .then(function (result) {
+            var paymentType = result.meta.paymentType || '';
+            var merchantId = result.meta.merchantId || '';
+            var rewardId = result.meta.rewardId || '';
+            var billingPlan = result.meta.billingPlan || '';
+            var coupinId = result.meta.coupinId || '';
+            var userId = result.meta.userId || '';
 
-            if (status === 'success') {
-              // Save the merchant billing information
-              var isFirstTime = false;
+            if (result.status === 'success') {
+              if (paymentType === 'reward' || paymentType === 'billing') {
+                // Save the merchant billing information
+                var isFirstTime = false;
 
-              Merchant.findById(merchantId).exec().then(function (merchant) {
-                if (!merchant) {
+                Merchant.findById(merchantId).exec().then(function (merchant) {
+                  if (!merchant) {
+                    Raven.captureException({
+                      err: '',
+                      message: 'User does not exist.',
+                      merchantId: merchantId,
+                      type: 'Merchant billing update',
+                    });
+                  } else {
+                    merchant.merchantInfo.billing.plan = billingPlan;
+                    if (!merchant.merchantInfo.billing.history) {
+                      merchant.merchantInfo.billing.history = [];
+                      isFirstTime = true;
+                    }
+
+                    var expiration = null;
+                    if (billingPlan !== 'payAsYouGo') {
+                      if (billingPlan === 'monthly') {
+                        expiration = moment(new Date()).add(1, 'months').toDate();
+                      } else if (billingPlan === 'yearly') {
+                        expiration = moment(new Date()).add(1, 'years').toDate();
+                      } else {
+                        expiration = null;
+                      }
+                    }
+
+                    merchant.merchantInfo.billing.history.unshift({
+                      plan: isFirstTime ? 'monthly' : billingPlan,
+                      reference: reference,
+                      expiration: expiration
+                    });
+
+                    // This is an new addition
+                    if (merchant.status !== 'completed') {
+                      merchant.isActive = true;
+                      merchant.status = 'completed';
+                      merchant.completedDate = new Date();
+                    }
+
+                    console.log('just before merchant.save');
+                    merchant.save();
+
+                    if (paymentType === 'reward') {
+                      handleRewardUpdate(rewardId)
+                    }
+                  }
+                }, function (err) {
+                  console.error(err.message)
+                  // Handle error while trying to retieve merchant
                   Raven.captureException({
-                    err: '',
-                    message: 'User does not exist.',
+                    error: err,
+                    message: 'Error retrieveing the merchant information during payment processing',
                     merchantId: merchantId,
                     type: 'Merchant billing update',
                   });
-                } else {
-                  merchant.merchantInfo.billing.plan = billingPlan;
-                  if (!merchant.merchantInfo.billing.history) {
-                    merchant.merchantInfo.billing.history = [];
-                    isFirstTime = true;
-                  }
-
-                  var expiration = null;
-                  if (billingPlan !== 'payAsYouGo') {
-                    if (billingPlan === 'monthly') {
-                      expiration = moment(new Date()).add(1, 'months').toDate();
-                    } else if (billingPlan === 'yearly') {
-                      expiration = moment(new Date()).add(1, 'years').toDate();
-                    } else {
-                      expiration = null;
-                    }
-                  }
-
-                  merchant.merchantInfo.billing.history.unshift({
-                    plan: isFirstTime ? 'monthly' : billingPlan,
-                    reference: reference,
-                    expiration: expiration
+                })
+                .catch(function (err) {
+                  console.error(err.message);
+                  Raven.captureException({
+                    error: err,
+                    message: err.message,
+                    merchantId: merchantId,
+                    type: 'Merchant billing update',
                   });
-
-                  // This is an new addition
-                  if (merchant.status !== 'completed') {
-                    merchant.isActive = true;
-                    merchant.status = 'completed';
-                    merchant.completedDate = new Date();
-                  }
-
-                  console.log('just before merchant.save');
-                  merchant.save();
-
-                  if (paymentType === 'reward') {
-                    handleRewardUpdate(rewardId)
-                  }
-                }
-              }, function (err) {
-                console.error(err.message)
-                // Handle error while trying to retieve merchant
-                Raven.captureException({
-                  error: err,
-                  message: 'Error retrieveing the merchant information during payment processing',
-                  merchantId: merchantId,
-                  type: 'Merchant billing update',
                 });
-              })
-              .catch(function (err) {
-                console.error(err.message);
-                Raven.captureException({
-                  error: err,
-                  message: err.message,
-                  merchantId: merchantId,
-                  type: 'Merchant billing update',
-                });
-              });
 
-              function handleRewardUpdate(rewardId) {
-                Reward.findById(rewardId).exec()
-                  .then(function (reward) {
-                    if (!reward) {
-                      console.log('reward doesn\'t exist');
+                function handleRewardUpdate(rewardId) {
+                  Reward.findById(rewardId).exec()
+                    .then(function (reward) {
+                      if (!reward) {
+                        console.log('reward doesn\'t exist');
+                        Raven.captureException({
+                          err: '',
+                          message: 'Reward does not exist.',
+                          rewardId: rewardId,
+                          type: 'Reward Payment update',
+                        });
+                      } else {
+                        reward.status = 'isPending';
+                        reward.isActive = true;
+                        reward.modifiedDate = Date.now();
+                        return reward.save();
+                      }
+                    }, function (err) {
+                      console.log('some error here, meant to be error for getting reward');
+                      console.error(err.message);
+                      // Handle error while to retrieve
                       Raven.captureException({
-                        err: '',
-                        message: 'Reward does not exist.',
+                        err: err,
+                        message: 'Error retrieving reward information',
                         rewardId: rewardId,
                         type: 'Reward Payment update',
                       });
-                    } else {
-                      reward.status = 'isPending';
-                      reward.isActive = true;
-                      reward.modifiedDate = Date.now();
-                      return reward.save();
-                    }
-                  }, function (err) {
-                    console.log('some error here, meant to be error for getting reward');
-                    console.error(err.message);
-                    // Handle error while to retrieve
-                    Raven.captureException({
-                      err: err,
-                      message: 'Error retrieving reward information',
-                      rewardId: rewardId,
-                      type: 'Reward Payment update',
-                    });
-                  })
-                  .then(function () { },
-                    function (err) {
-                      console.log('some error here, meant to be error for updating reward');
-                      console.error(err.message);
-                      Raven.captureException({
-                        err: err,
-                        message: 'Error updating Reward details',
-                        rewardId: rewardId,
-                        type: 'Reward status update',
+                    })
+                    .then(function () { },
+                      function (err) {
+                        console.log('some error here, meant to be error for updating reward');
+                        console.error(err.message);
+                        Raven.captureException({
+                          err: err,
+                          message: 'Error updating Reward details',
+                          rewardId: rewardId,
+                          type: 'Reward status update',
+                        });
                       });
-                    });
+                }
+              } else if (paymentType === 'coupin') {
+                // get user information
+                // get coupin based on id
+                // update transaction reference information
+                // check if transaction has been successful
+                // redeem the coupin
+
+                // Booking.findById(bookingId)
+                //   .populate('rewardId.id', 'multiple')
               }
             }
           });
@@ -250,7 +280,9 @@ module.exports = {
             } else {
               res.json({
                 success: true,
-                data: reference,
+                data: {
+                  reference: reference
+                },
               });
             }
           });
