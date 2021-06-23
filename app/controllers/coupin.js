@@ -105,7 +105,6 @@ module.exports = {
    * @apiName create
    * @apiGroup Coupin
    * 
-   * @apiHeader {String} x-access-token Users unique token
    * 
    * @apiParam {String} saved should be either ('true') or ('false'). If ('true') it generates the code immediately, if false it saves it for later.
    * @apiParam {String[]} rewardId ids of selected rewards booking
@@ -113,20 +112,26 @@ module.exports = {
    * @apiSuccess {String} userId The customer's id 
    * @apiSuccess {String} merchantId The merchant's id 
    * @apiSuccess {String[]} rewardId Array containing the reward ids
+   * @apiSuccess {String} payment reference for coupin if the coupin is not saved for later
    * 
    * @apiSuccessExample Success-Response:
    *  HTTP/1.1 200 OK
    *  {
-   *      "userId": "5b7ab4ce24688b0adcb9f54b",
-   *      "merchantId": "4b7ab4ce24688b0adcb9f54v",
-   *      "rewardId": [{
-   *        "id": "2b7ab4ce24688b0adcb9f44v",
-   *        "status": "pending"
-   *        "usedOn": "2018-08-20T13:24:14Z"
-   *      }],
-   *      "shortCode": "GH43C78T",
-   *      "useNow": "true",
-   *      "isActive": "true"
+   *      data: {
+   *        booking: {
+   *          "userId": "5b7ab4ce24688b0adcb9f54b",
+   *          "merchantId": "4b7ab4ce24688b0adcb9f54v",
+   *          "rewardId": [{
+   *            "id": "2b7ab4ce24688b0adcb9f44v",
+   *            "status": "pending"
+   *            "usedOn": "2018-08-20T13:24:14Z"
+   *          }],
+   *          "shortCode": "GH43C78T",
+   *          "useNow": "true",
+   *          "isActive": "true"
+   *        },
+   *        reference: "coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568"
+   *      }
    *  }
    * 
    * @apiError Unauthorized Invalid token.
@@ -191,7 +196,7 @@ module.exports = {
         expiryDate: expires
     });
 
-    booking.save(function (err) {
+    booking.save(function (err, coupin) {
       if (err) {
         res.status(500).send(err);
         Raven.captureException(err);
@@ -204,15 +209,48 @@ module.exports = {
             res.status(500).send(err);
             Raven.captureException(err);
           } else {
-            res.status(200).send(booking);
             if (save) {
               req.user.blacklist = blacklist;
               req.user.save();
             }
-            User.findById(req.body.merchantId)
-            .select('merchantInfo.companyName email')
-            .exec(function(err, merchant) {
-              if (useNow) {
+
+            if (useNow) {
+              User.findById(req.body.merchantId)
+              .select('merchantInfo.companyName email')
+              .exec(function(err, merchant) {
+                if (err) {
+                  res.status(500).send(err);
+                  Raven.captureException(err);
+                  return;
+                }
+
+                // initiate transaction here
+                var coupinId = coupin.id;
+                var userId = req.user._id;
+                var date = new Date();
+                var reference = 'coupin-' + coupinId + '-' + userId + '-' + date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + '-' + date.getTime();
+
+                // add transaction reference to the booking
+                booking.transactions.unshift({
+                  reference: reference,
+                });
+
+                // save changes to the booking
+                booking.save(function (err) {
+                  if (err) {
+                    res.status(500).send(err);
+                    Raven.captureException(err);
+                  } else {
+                    res.json({
+                      data: {
+                        booking: booking, 
+                        reference: reference,
+                      },
+                    });
+                  }
+                });
+
+                // send email to the user that generated the coupin
                 emailer.sendEmail(
                   req.user.email,
                   'Coupin Created for ' + merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }), 
@@ -227,30 +265,36 @@ module.exports = {
                   _id: {
                     $in: rewards.map(function (reward) { return mongoose.Types.ObjectId(reward.id)})
                   }
-                 }, 'name', function (err, _rewards) {
-                    var rewardNameString = _rewards.reduce(function (agg, reward, index, arr) {
-                      agg += reward.name;
-                      if (index < arr.length - 1) {
-                        agg += (agg + ', ');
-                      }
+                }, 'name', function (err, _rewards) {
+                  var rewardNameString = _rewards.reduce(function (agg, reward, index, arr) {
+                    agg += reward.name;
+                    if (index < arr.length - 1) {
+                      agg += (agg + ', ');
+                    }
 
-                      return agg;
-                    }, '');
+                    return agg;
+                  }, '');
 
-                    emailer.sendEmail(
-                      merchant.email,
-                      "Customer Code Generated: " + rewardNameString,
-                      messages.coupinCreatedForMerchant(
-                        merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }),
-                        _rewards
-                      ),
-                      function(response) {
-                        console.log(response);
-                      }
-                    )
-                 });
-              }
-            })
+                  emailer.sendEmail(
+                    merchant.email,
+                    "Customer Code Generated: " + rewardNameString,
+                    messages.coupinCreatedForMerchant(
+                      merchant.merchantInfo.companyName.replace(/\b(\w)/g, function (p) { return p.toUpperCase() }),
+                      _rewards
+                    ),
+                    function(response) {
+                      console.log(response);
+                    }
+                  )
+                });
+              });
+            } else {
+              res.status(200).send({
+                data: {
+                  booking: booking,
+                },
+              });
+            }
           }
         });
       }
@@ -384,8 +428,10 @@ module.exports = {
         }
       });
   },
+
   // Redeem a reward
   redeem: function(req, res) {
+    // merchant user
     var blacklist = req.user.blacklist || [];
     var id = req.body.id || req.params.id || req.query.id;
     var rewards = req.body.rewards;
@@ -447,6 +493,7 @@ module.exports = {
       }
     });
   },
+
   // Verify Short Code and return booking details for merchant
   verify: function(req, res) {
     var pin = req.params.pin.toUpperCase();
