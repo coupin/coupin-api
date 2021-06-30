@@ -17,7 +17,7 @@ module.exports = {
    * @apiName activate
    * @apiGroup Coupin
    * @apiExample {curl} Example usage:
-   *  curl -i http://localhost:5030/api/v1/coupin/2
+   *  curl -i http://localhost:5030/api/v1/coupin/2/activate
    * 
    * @apiHeader {String} x-access-token Users unique token
    * 
@@ -88,12 +88,39 @@ module.exports = {
         booking.shortCode = shortCode.generate();
         booking.useNow = true;
 
+        // initiate transaction here
+        var userId = req.user._id;
+        var date = new Date();
+        var reference = 'coupin-' + id + '-' + userId + '-' + date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + '-' + date.getTime();
+
+        // add transaction reference to the booking
+        booking.transactions.unshift({
+          reference: reference,
+        });
+
         booking.save(function(err, booking) {
           if (err) {
               res.status(500).send(err);
               Raven.captureException(err);
           } else {
-              res.status(200).send(booking);
+              // res.status(200).send(booking);
+              Booking
+                .findById(booking._id)
+                .populate('deliveryAddress')
+                .exec(function(err, _booking) {
+                  if (err) {
+                    res.status(500).send(err);
+                    Raven.captureException(err);
+                    return;
+                  }
+
+                  res.json({
+                    data: {
+                      booking: _booking, 
+                      reference: reference,
+                    },
+                  });
+                });
           }
         });
       }
