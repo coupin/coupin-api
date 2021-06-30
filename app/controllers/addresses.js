@@ -9,6 +9,12 @@ module.exports = {
      * @apiName addAddress
      * @apiGroup Customer
      * 
+     * @apiParam {String} address address string
+     * @apiParam {String} mobileNumber mobile number for the address
+     * @apiParam {String} owner customer id
+     * @apiParam {Number} longitude 
+     * @apiParam {Number} latitude
+     * 
      * @apiExample {curl} Example usage:
      * curl -i http://localhost:5030/api/v1/customer/addresses
      * 
