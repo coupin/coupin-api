@@ -33,16 +33,32 @@ module.exports = {
    * @apiSuccessExample Success-Response:
    *  HTTP/1.1 200 OK
    *  {
-   *      "userId": "5b7ab4ce24688b0adcb9f54b",
-   *      "merchantId": "4b7ab4ce24688b0adcb9f54v",
-   *      "rewardId": [{
-   *        "id": "2b7ab4ce24688b0adcb9f44v",
-   *        "status": "pending"
-   *        "usedOn": "2018-08-20T13:24:14Z"
-   *      }],
-   *      "shortCode": "GH43C78T",
-   *      "useNow": "true",
-   *      "isActive": "true"
+   *     data: {
+   *       booking: {
+   *         "userId": "5b7ab4ce24688b0adcb9f54b",
+   *         "merchantId": "4b7ab4ce24688b0adcb9f54v",
+   *         "rewardId": [{
+   *           "id": "2b7ab4ce24688b0adcb9f44v",
+   *           "status": "pending"
+   *           "usedOn": "2018-08-20T13:24:14Z"
+   *         }],
+   *         "shortCode": "GH43C78T",
+   *         "useNow": "true",
+   *         "isActive": "true"
+   *       },
+   *       "reference": "coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568",
+   *       "isDeliverable": true,
+   *       "deliveryAddress": {
+   *           "location": {
+   *               "longitude": 6.556788,
+   *               "latitude": 3.378948
+   *           },
+   *           "_id": "SFx_KM4Y3",
+   *           "address": "Address",
+   *           "mobileNumber": "08175734401",
+   *           "owner": "5b7ab4ce24688b0adcb9f54b",
+   *       },
+   *     }
    *  }
    * 
    * @apiError Unauthorized Invalid token.
