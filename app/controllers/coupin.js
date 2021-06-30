@@ -108,6 +108,10 @@ module.exports = {
    * 
    * @apiParam {String} saved should be either ('true') or ('false'). If ('true') it generates the code immediately, if false it saves it for later.
    * @apiParam {String[]} rewardId ids of selected rewards booking
+   * @apiParam {String} expiryDate expiry date for coupin
+   * @apiParam {String} merchantId creator(merchant) id of reward
+   * @apiParam {Boolean} [isDeliverable=false] should be true or false
+   * @apiParam {String} [deliveryAddress] id of the user address the order should be delivered to
    * 
    * @apiSuccess {String} userId The customer's id 
    * @apiSuccess {String} merchantId The merchant's id 
@@ -130,7 +134,18 @@ module.exports = {
    *          "useNow": "true",
    *          "isActive": "true"
    *        },
-   *        reference: "coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568"
+   *        "reference": "coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568",
+   *        "isDeliverable": true,
+   *        "deliveryAddress": {
+   *            "location": {
+   *                "longitude": 6.556788,
+   *                "latitude": 3.378948
+   *            },
+   *            "_id": "SFx_KM4Y3",
+   *            "address": "Address",
+   *            "mobileNumber": "08175734401",
+   *            "owner": "5b7ab4ce24688b0adcb9f54b",
+   *        },
    *      }
    *  }
    * 
@@ -186,6 +201,8 @@ module.exports = {
     var useNow = (saved === 'false' || saved === false) ? true : false;
     var code = useNow ? shortCode.generate() : null;
     var expires = new Date(req.body.expiryDate);
+    var deliveryAddress = req.body.deliveryAddress || '';
+    var isDeliverable = req.body.isDeliverable || false;
 
     var booking = new Booking({
         userId: req.user._id,
@@ -193,7 +210,9 @@ module.exports = {
         rewardId: rewards,
         shortCode: code,
         useNow: useNow,
-        expiryDate: expires
+        expiryDate: expires,
+        deliveryAddress: deliveryAddress,
+        isDeliverable: isDeliverable,
     });
 
     booking.save(function (err, coupin) {
@@ -241,12 +260,23 @@ module.exports = {
                     res.status(500).send(err);
                     Raven.captureException(err);
                   } else {
-                    res.json({
-                      data: {
-                        booking: booking, 
-                        reference: reference,
-                      },
-                    });
+                    Booking
+                      .findById(booking._id)
+                      .populate('deliveryAddress')
+                      .exec(function(err, _booking) {
+                        if (err) {
+                          res.status(500).send(err);
+                          Raven.captureException(err);
+                          return;
+                        }
+
+                        res.json({
+                          data: {
+                            booking: _booking, 
+                            reference: reference,
+                          },
+                        });
+                      })
                   }
                 });
 
