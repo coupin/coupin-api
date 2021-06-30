@@ -44,11 +44,9 @@ module.exports = {
    *         }],
    *         "shortCode": "GH43C78T",
    *         "useNow": "true",
-   *         "isActive": "true"
-   *       },
-   *       "reference": "coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568",
-   *       "isDeliverable": true,
-   *       "deliveryAddress": {
+   *         "isActive": "true",
+   *         "isDeliverable": true,
+   *         "deliveryAddress": {
    *           "location": {
    *               "longitude": 6.556788,
    *               "latitude": 3.378948
@@ -57,7 +55,9 @@ module.exports = {
    *           "address": "Address",
    *           "mobileNumber": "08175734401",
    *           "owner": "5b7ab4ce24688b0adcb9f54b",
+   *         },
    *       },
+   *       "reference": "coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568",
    *     }
    *  }
    * 
@@ -175,20 +175,20 @@ module.exports = {
    *          }],
    *          "shortCode": "GH43C78T",
    *          "useNow": "true",
-   *          "isActive": "true"
+   *          "isActive": "true",
+   *          "isDeliverable": true,
+   *          "deliveryAddress": {
+   *              "location": {
+   *                  "longitude": 6.556788,
+   *                  "latitude": 3.378948
+   *              },
+   *              "_id": "SFx_KM4Y3",
+   *              "address": "Address",
+   *              "mobileNumber": "08175734401",
+   *              "owner": "5b7ab4ce24688b0adcb9f54b",
+   *          },
    *        },
    *        "reference": "coupin-2b7ab4ce24688b0adcb9f44v-5b7ab4ce24688b0adcb9f54b-202x-06-18-1624084805568",
-   *        "isDeliverable": true,
-   *        "deliveryAddress": {
-   *            "location": {
-   *                "longitude": 6.556788,
-   *                "latitude": 3.378948
-   *            },
-   *            "_id": "SFx_KM4Y3",
-   *            "address": "Address",
-   *            "mobileNumber": "08175734401",
-   *            "owner": "5b7ab4ce24688b0adcb9f54b",
-   *        },
    *      }
    *  }
    * 
