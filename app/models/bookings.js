@@ -72,7 +72,15 @@ var bookingSchema = new schema({
             enum: ['pending', 'failed', 'success'],
             default: 'pending'
         }
-    }]
+    }],
+    isDeliverable: {
+        type: Boolean,
+        default: false,
+    },
+    deliveryAddress: {
+        type: String,
+        ref: 'Address',
+    }
 });
 
 var Bookings = mongoose.model('Booking', bookingSchema);
