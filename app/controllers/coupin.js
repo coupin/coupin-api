@@ -491,6 +491,7 @@ module.exports = {
               useNow: booking.useNow,
               expiryDate: booking.expiryDate,
               isActive: booking.isActive,
+              status: booking.status,
               favourite: currentUser.favourites.indexOf(booking.merchantId._id) > -1,
               visited: currentUser.visited.indexOf(booking.merchantId._id) > -1,
               createdAt: booking.createdAt
